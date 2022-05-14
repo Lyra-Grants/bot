@@ -6,6 +6,7 @@ import { toDate, toNumber, toWholeNumber } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
+import { PostTelegram } from '../integrations/telegram'
 
 export async function RunTradeBot() {
   console.log('### Polling for Trades ###')
@@ -55,7 +56,7 @@ export async function BroadCastTrade(trade: TradeDto): Promise<void> {
   await SendTweet(trade)
 
   //Telegram//
-  // todo add telegram intergration
+  await PostTelegram(trade)
 }
 
 export function PremiumsPaid(trades: TradeEvent[]) {
