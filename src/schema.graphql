@@ -1,0 +1,376 @@
+scalar BigDecimal
+scalar BigInt
+scalar Bytes
+
+type Global {
+  id: ID!
+  viewerAddress: Bytes
+  resolverAddress: Bytes
+  exchangeRatesAddress: Bytes
+  collateralShortAddress: Bytes
+  synthetixAdapter: Bytes
+  wrapperAddress: Bytes
+  markets: [Market!]!
+}
+
+type Market {
+  id: ID!
+  address: Bytes!
+  name: String!
+  quoteAddress: Bytes!
+  quoteKey: Bytes!
+  baseAddress: Bytes!
+  baseKey: Bytes!
+  owner: Bytes!
+  isRemoved: Boolean!
+  activeBoardIds: [String!]!
+  standardSize: BigInt!
+  skewAdjustmentFactor: BigInt!
+  rateAndCarry: BigInt!
+  tradingCutoff: Int!
+  boards: [Board!]!
+  chainlinkAggregator: Bytes!
+  latestSpotPrice: BigInt!
+  spotPriceHistory: [SpotPriceSnapshot!]!
+  latestVolumeAndFees: MarketVolumeAndFeesSnapshot!
+  volumeAndFeesHistory: [MarketVolumeAndFeesSnapshot!]!
+  latestSNXFees: MarketSNXFeesSnapshot!
+  SNXFeesHistory: [MarketSNXFeesSnapshot!]!
+  latestTotalValue: MarketTotalValueSnapshot!
+  marketTotalValueHistory: [MarketTotalValueSnapshot!]!
+  latestGreeks: MarketGreeksSnapshot!
+  greeksHistory: [MarketGreeksSnapshot!]!
+  liquidityPool: Pool!
+  poolHedger: PoolHedger!
+  optionToken: OptionToken!
+  greekCache: GreekCache!
+  shortCollateral: ShortCollateral!
+  optionMarketPricer: OptionMarketPricer!
+  global: Global!
+}
+
+type GreekCache {
+  id: ID!
+  market: Market!
+}
+
+type OptionToken {
+  id: ID!
+  market: Market!
+}
+
+type OptionMarketPricer {
+  id: ID!
+  market: Market!
+}
+
+type ShortCollateral {
+  id: ID!
+  market: Market!
+  baseBalance: BigInt!
+  quoteBalance: BigInt!
+}
+
+type PoolHedger {
+  id: ID!
+  market: Market!
+  baseBalance: BigInt!
+  collateralQuoteBalance: BigInt!
+  poolHedgerExposureHistory: [PoolHedgerExposureSnapshot!]!
+  latestPoolHedgerExposure: PoolHedgerExposureSnapshot!
+}
+
+type Pool {
+  id: ID!
+  market: Market!
+  quoteBalance: BigInt!
+  baseBalance: BigInt!
+  tokenPrice: BigInt!
+  lpUsers: [LPUserLiquidity!]!
+  cbEvents: [CircuitBreaker!]!
+}
+
+type Board {
+  id: ID!
+  boardId: BigInt!
+  isExpired: Boolean!
+  isPaused: Boolean!
+  expiryTimestamp: Int!
+  expiryTimestampReadable: String!
+  spotPriceAtExpiry: BigInt
+  strikeIds: [String!]!
+  strikes: [Strike!]!
+  baseIv: BigInt!
+  boardBaseIVHistory: [BoardBaseIVSnapshot!]!
+  market: Market!
+}
+
+type Strike {
+  id: ID!
+  strikeId: BigInt!
+  strikePrice: BigInt!
+  strikePriceReadable: String!
+  market: Market!
+  board: Board!
+  callOption: Option!
+  putOption: Option!
+  skew: BigInt!
+  iv: BigInt!
+  strikeIVAndGreeksHistory: [StrikeIVAndGreeksSnapshot!]!
+  latestStrikeIVAndGreeks: StrikeIVAndGreeksSnapshot
+}
+
+type Option {
+  id: ID!
+  isCall: Boolean!
+  market: Market!
+  board: Board!
+  strike: Strike!
+  positions: [Position!]!
+  latestOptionVolume: OptionVolumeSnapshot!
+  optionVolumeHistory: [OptionVolumeSnapshot!]!
+  latestOptionPriceAndGreeks: OptionPriceAndGreeksSnapshot
+  optionPriceAndGreeksHistory: [OptionPriceAndGreeksSnapshot!]!
+}
+
+type Position {
+  id: ID!
+  positionId: BigInt!
+  owner: Bytes!
+  option: Option!
+  isLong: Boolean!
+  isBaseCollateralized: Boolean
+  state: Int!
+  openTimestamp: Int!
+  closeTimestamp: Int
+  size: BigInt!
+  collateral: BigInt!
+  averageCostPerOption: BigInt!
+  settle: Settle
+  trades: [Trade!]!
+  transfers: [OptionTransfer!]!
+  collateralUpdates: [CollateralUpdate!]!
+}
+
+type Trade {
+  id: ID!
+  market: Market!
+  position: Position!
+  trader: Bytes!
+  timestamp: Int!
+  blockNumber: Int!
+  transactionHash: Bytes!
+  isBuy: Boolean!
+  isOpen: Boolean!
+  isLiquidate: Boolean!
+  size: BigInt!
+  premium: BigInt!
+  vol: BigInt!
+  spotPrice: BigInt!
+  spotPriceFee: BigInt!
+  vegaUtilFee: BigInt!
+  optionPriceFee: BigInt!
+  deltaCutoffFee: BigInt
+  liquidatorFee: BigInt
+  lpLiquidationFee: BigInt
+  smLiquidationFee: BigInt
+  externalSwapFees: BigInt
+}
+
+type Settle {
+  id: ID!
+  position: Position!
+  owner: Bytes!
+  timestamp: Int!
+  blockNumber: Int!
+  transactionHash: Bytes!
+  size: BigInt!
+  spotPriceAtExpiry: BigInt!
+}
+
+type OptionTransfer {
+  id: ID!
+  position: Position!
+  oldOwner: Bytes!
+  newOwner: Bytes!
+  timestamp: Int!
+  blockNumber: Int!
+  transactionHash: Bytes!
+}
+
+type CollateralUpdate {
+  id: ID!
+  position: Position!
+  timestamp: Int!
+  transactionHash: Bytes!
+  amount: BigInt!
+}
+
+type CircuitBreaker {
+  id: ID!
+  pool: Pool!
+  timestamp: Int!
+  transactionHash: Bytes!
+  cbTimestamp: Int!
+  ivVarianceCrossed: Boolean!
+  skewVarianceCrossed: Boolean!
+  liquidityVarianceCrossed: Boolean!
+}
+
+type LPUserLiquidity {
+  id: ID!
+  pool: Pool!
+  user: Bytes!
+  totalAmountDeposited: BigInt!
+  totalAmountWithdrawn: BigInt!
+  depositsAndWithdrawals: [LPAction!]!
+  pendingDepositsAndWithdrawals: [LPPendingAction!]!
+}
+
+type LPAction {
+  id: ID!
+  pool: Pool!
+  lpUserLiquidity: LPUserLiquidity!
+  timestamp: Int!
+  transactionHash: Bytes!
+  isDeposit: Boolean
+  queueID: BigInt!
+  quoteAmount: BigInt!
+  tokenPrice: BigInt!
+  tokenAmount: BigInt!
+}
+
+type LPPendingAction {
+  id: ID!
+  pool: Pool!
+  lpUserLiquidity: LPUserLiquidity!
+  timestamp: Int!
+  isDeposit: Boolean!
+  transactionHash: Bytes!
+  queueID: BigInt!
+  pendingAmount: BigInt!
+  processedAmount: BigInt!
+}
+
+type PoolHedgerExposureSnapshot {
+  id: ID!
+  poolHedger: PoolHedger!
+  period: Int!
+  timestamp: Int!
+  currentNetDelta: BigInt!
+}
+
+type MarketTotalValueSnapshot {
+  id: ID!
+  market: Market!
+  period: Int!
+  timestamp: Int!
+  tokenPrice: BigInt!
+  freeLiquidity: BigInt!
+  burnableLiquidity: BigInt!
+  usedCollatLiquidity: BigInt!
+  pendingDeltaLiquidity: BigInt!
+  usedDeltaLiquidity: BigInt!
+  NAV: BigInt!
+  netOptionValue: BigInt!
+}
+
+type MarketSNXFeesSnapshot {
+  id: ID!
+  market: Market!
+  period: Int!
+  timestamp: Int!
+  poolHedgerFees: BigInt!
+  liquidityPoolFees: BigInt!
+  shortCollateralFees: BigInt!
+  otherFees: BigInt!
+}
+
+type MarketVolumeAndFeesSnapshot {
+  id: ID!
+  market: Market!
+  period: Int!
+  timestamp: Int!
+  premiumVolume: BigInt!
+  notionalVolume: BigInt!
+  totalPremiumVolume: BigInt!
+  totalNotionalVolume: BigInt!
+  totalLongCallOpenInterest: BigInt!
+  totalShortCallOpenInterest: BigInt!
+  totalLongPutOpenInterest: BigInt!
+  totalShortPutOpenInterest: BigInt!
+  spotPriceFees: BigInt!
+  optionPriceFees: BigInt!
+  vegaFees: BigInt!
+  deltaCutoffFees: BigInt!
+  liquidatorFees: BigInt!
+  smLiquidationFees: BigInt!
+  lpLiquidationFees: BigInt!
+}
+
+type MarketGreeksSnapshot {
+  id: ID!
+  market: Market!
+  period: Int!
+  timestamp: Int!
+  netDelta: BigInt!
+  netStdVega: BigInt!
+  netGamma: BigInt!
+}
+
+type SpotPriceSnapshot {
+  id: ID!
+  market: Market!
+  timestamp: Int!
+  period: Int!
+  spotPrice: BigInt!
+}
+
+type BoardBaseIVSnapshot {
+  id: ID!
+  board: Board!
+  period: Int!
+  timestamp: Int!
+  baseIv: BigInt!
+}
+
+type StrikeIVAndGreeksSnapshot {
+  id: ID!
+  strike: Strike!
+  board: Board!
+  period: Int!
+  timestamp: Int!
+  iv: BigInt!
+  skew: BigInt!
+  vega: BigInt!
+  gamma: BigInt!
+}
+
+type OptionVolumeSnapshot {
+  id: ID!
+  option: Option!
+  period: Int!
+  timestamp: Int!
+  longOpenInterest: BigInt!
+  shortOpenInterest: BigInt!
+  premiumVolume: BigInt!
+  notionalVolume: BigInt!
+  totalPremiumVolume: BigInt!
+  totalNotionalVolume: BigInt!
+}
+
+type OptionPriceAndGreeksSnapshot {
+  id: ID!
+  option: Option!
+  period: Int!
+  timestamp: Int!
+  delta: BigInt!
+  theta: BigInt!
+  rho: BigInt!
+  optionPrice: BigInt!
+}
+
+type Query {
+  trade(id: ID!): Trade
+  trades: [Trade!]!
+}
