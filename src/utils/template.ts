@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
-import { LYRA_PORTFOLIO, ETHSCAN_TRX_LINK } from '../utils/secrets'
+import { LYRA_PORTFOLIO, ETHSCAN_TRX_LINK, LYRA_POSITION } from '../utils/secrets'
 import { TradeDto } from '../types/tradeDto'
+import { MessageEmbed } from 'discord.js'
 
 export function GeneratePost(trade: TradeDto) {
   const formattedDate = dayjs(trade.expiry).format('DD MMM YY').toUpperCase()
@@ -54,6 +55,66 @@ export function GenerateHtmlPost(trade: TradeDto) {
   return post.join('')
 }
 
+export function GenerateEmbed(trade: TradeDto): MessageEmbed {
+  const formattedDate = dayjs(trade.expiry).format('DD MMM YY').toUpperCase()
+  const tradeDate = dayjs(trade.timeStamp).format('DD MMM YY | HH:mm').toUpperCase()
+
+  const tradeEmbed = new MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(`${trade.isOpen ? '✅' : '🚫'} Position ${trade.isOpen ? ' opened' : 'closed'} for $${trade.asset}`)
+    .setURL(`${LYRA_POSITION}${trade.asset}/${trade.positionId}?see=${trade.trader}`)
+
+  if (trade.leaderBoard.owner !== '' && trade.leaderBoard.isProfitable) {
+    tradeEmbed
+      .addField(`Leaderboard`, `${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader`, true)
+      .addField('Total Profit', `$${trade.leaderBoard.balance}`, true)
+      .addField('\u200B', '\u200B', true)
+  }
+
+  tradeEmbed.addFields(
+    {
+      name: 'Trade Type',
+      value: `${trade.isCall ? '📈' : '📉'} ${trade.isLong ? 'LONG' : 'SHORT'} ${trade.isCall ? 'CALL' : 'PUT'}`,
+      inline: true,
+    },
+    {
+      name: 'Strike',
+      value: `$${trade.strike}`,
+      inline: true,
+    },
+    {
+      name: 'Expiry',
+      value: `${formattedDate}`,
+      inline: true,
+    },
+    {
+      name: 'Premium',
+      value: `💵 $${trade.premium} ${AmountShortWording(trade.isLong, trade.isOpen)}`,
+      inline: true,
+    },
+    {
+      name: 'Amount',
+      value: `${trade.size}`,
+      inline: true,
+    },
+    {
+      name: 'Timestamp',
+      value: `${tradeDate}`,
+      inline: true,
+    },
+  )
+  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : trade.trader}`, false)
+  if (ShowProfitAndLoss(trade.isLong, trade.isBuy) && trade.pnl != 0) {
+    tradeEmbed.addField(
+      `Profit / Loss`,
+      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${trade.isProfitable ? 'PROFIT' : 'LOSS'}`,
+      false,
+    )
+  }
+
+  return tradeEmbed
+}
+
 export function ShowProfitAndLoss(isLong: boolean, isBuy: boolean): boolean {
   if (isLong) {
     return !isBuy
@@ -77,6 +138,17 @@ export function Medal(position: number): string {
 export function AmountWording(isLong: boolean, isOpen: boolean): string {
   const paid = 'PREMIUM PAID'
   const received = "PREMIUM REC'D"
+
+  if (isOpen) {
+    return isLong ? paid : received
+  }
+
+  return isLong ? received : paid
+}
+
+export function AmountShortWording(isLong: boolean, isOpen: boolean): string {
+  const paid = 'Paid'
+  const received = "Rec'd"
 
   if (isOpen) {
     return isLong ? paid : received

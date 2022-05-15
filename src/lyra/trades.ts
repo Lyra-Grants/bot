@@ -7,17 +7,23 @@ import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
+import { PostDiscord } from '../integrations/discord'
 
 export async function RunTradeBot() {
   console.log('### Polling for Trades ###')
   const lyra = new Lyra()
 
   lyra.onTrade(async (trade) => {
-    const tradeDto = await MapToTradeDto(trade)
-    if (tradeDto.premium > PREMIUM_THRESHOLD) {
-      await BroadCastTrade(tradeDto)
-    } else {
-      console.log('Trade Less Than Threshold')
+    try {
+      console.log(trade)
+      const tradeDto = await MapToTradeDto(trade)
+      if (tradeDto.premium > PREMIUM_THRESHOLD) {
+        await BroadCastTrade(tradeDto)
+      } else {
+        console.log('Trade Less Than Threshold')
+      }
+    } catch (e: any) {
+      console.log(e)
     }
   })
 }
@@ -28,9 +34,10 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const trades = position.trades()
   const totalPremiumPaid = PremiumsPaid(trades)
   const pnlNoNeg = pnl > 0 ? pnl : pnl * -1
+  const market = await trade.market()
 
   const tradeDto: TradeDto = {
-    asset: trade.market.name.slice(1),
+    asset: market.name,
     isLong: trade.isLong,
     isCall: trade.isCall,
     isBuy: trade.isBuy,
@@ -47,16 +54,21 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     pnlPercent: toWholeNumber(position.pnlPercent()),
     totalPremiumPaid: totalPremiumPaid,
     isProfitable: pnl > 0,
+    timeStamp: toDate(trade.timestamp),
+    positionId: trade.positionId,
   }
   return tradeDto
 }
 
 export async function BroadCastTrade(trade: TradeDto): Promise<void> {
-  //Twitter//
+  // Twitter //
   await SendTweet(trade)
 
-  //Telegram//
+  // Telegram //
   await PostTelegram(trade)
+
+  // Discord //
+  await PostDiscord(trade)
 }
 
 export function PremiumsPaid(trades: TradeEvent[]) {
