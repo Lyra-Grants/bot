@@ -15,7 +15,6 @@ export async function RunTradeBot() {
 
   lyra.onTrade(async (trade) => {
     try {
-      console.log(trade)
       const tradeDto = await MapToTradeDto(trade)
       if (tradeDto.premium > PREMIUM_THRESHOLD) {
         await BroadCastTrade(tradeDto)
@@ -35,6 +34,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const totalPremiumPaid = PremiumsPaid(trades)
   const pnlNoNeg = pnl > 0 ? pnl : pnl * -1
   const market = await trade.market()
+  const noTrades = position.trades().length
 
   const tradeDto: TradeDto = {
     asset: market.name,
@@ -51,11 +51,12 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     ens: await GetEns(trade.trader),
     leaderBoard: MapLeaderBoard(global.LYRA_LEADERBOARD, trade.trader),
     pnl: Math.floor(pnlNoNeg),
-    pnlPercent: toWholeNumber(position.pnlPercent()),
+    pnlPercent: toNumber(position.pnlPercent()),
     totalPremiumPaid: totalPremiumPaid,
     isProfitable: pnl > 0,
     timeStamp: toDate(trade.timestamp),
     positionId: trade.positionId,
+    positionTradeCount: noTrades,
   }
   return tradeDto
 }

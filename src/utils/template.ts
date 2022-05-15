@@ -13,11 +13,11 @@ export function GeneratePost(trade: TradeDto) {
   post.push(`📈 $${trade.asset} ${formattedDate} ${trade.isCall ? 'CALL' : 'PUT'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ OPENED' : '🚫 CLOSED'} ${trade.isLong ? 'LONG' : 'SHORT'} X ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
-  if (ShowProfitAndLoss(trade.isLong, trade.isBuy)) {
+  if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${trade.isProfitable ? 'PROFIT' : 'LOSS'} ${
-        trade.pnlPercent
-      }%\n`,
+      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${
+        trade.isProfitable ? 'PROFIT' : 'LOSS'
+      } ${trade.pnlPercent.toFixed(2)}%\n`,
     )
   }
   post.push(`👨‍ ${trade.ens ? trade.ens : trade.trader}\n`)
@@ -37,11 +37,11 @@ export function GenerateHtmlPost(trade: TradeDto) {
   post.push(`📈 $${trade.asset} ${formattedDate} ${trade.isCall ? 'CALL' : 'PUT'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ OPENED' : '🚫 CLOSED'} ${trade.isLong ? 'LONG' : 'SHORT'} X ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
-  if (ShowProfitAndLoss(trade.isLong, trade.isBuy)) {
+  if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${trade.isProfitable ? 'PROFIT' : 'LOSS'} ${
-        trade.pnlPercent
-      }%\n`,
+      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${
+        trade.isProfitable ? 'PROFIT' : 'LOSS'
+      } ${trade.pnlPercent.toFixed(2)}%\n`,
     )
   }
   post.push(
@@ -57,11 +57,11 @@ export function GenerateHtmlPost(trade: TradeDto) {
 
 export function GenerateEmbed(trade: TradeDto): MessageEmbed {
   const formattedDate = dayjs(trade.expiry).format('DD MMM YY').toUpperCase()
-  const tradeDate = dayjs(trade.timeStamp).format('DD MMM YY | HH:mm').toUpperCase()
+  const tradeDate = dayjs(trade.timeStamp).format('DD MMM YY  |  HH:mm').toUpperCase()
 
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`${trade.isOpen ? '✅' : '🚫'} Position ${trade.isOpen ? ' opened' : 'closed'} for $${trade.asset}`)
+    .setTitle(`${trade.isOpen ? '✅' : '🚫'} Position ${trade.isOpen ? 'opened' : 'closed'} for $${trade.asset}`)
     .setURL(`${LYRA_POSITION}${trade.asset}/${trade.positionId}?see=${trade.trader}`)
 
   if (trade.leaderBoard.owner !== '' && trade.leaderBoard.isProfitable) {
@@ -103,23 +103,21 @@ export function GenerateEmbed(trade: TradeDto): MessageEmbed {
       inline: true,
     },
   )
-  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : trade.trader}`, false)
-  if (ShowProfitAndLoss(trade.isLong, trade.isBuy) && trade.pnl != 0) {
+  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : trade.trader}`, true)
+  if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addField(
-      `Profit / Loss`,
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${trade.isProfitable ? 'PROFIT' : 'LOSS'}`,
-      false,
+      `${trade.isProfitable ? 'Profit' : 'Loss'}`,
+      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl}`,
+      true,
     )
+    tradeEmbed.addField(`Percent`, `${trade.pnlPercent.toFixed(2)}%`, true)
   }
 
   return tradeEmbed
 }
 
-export function ShowProfitAndLoss(isLong: boolean, isBuy: boolean): boolean {
-  if (isLong) {
-    return !isBuy
-  }
-  return isBuy
+export function ShowProfitAndLoss(positionTradeCount: number, pnl: number): boolean {
+  return positionTradeCount > 1 && pnl != 0
 }
 
 export function Medal(position: number): string {

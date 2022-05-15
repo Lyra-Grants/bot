@@ -20,4 +20,5 @@ export type TradeDto = {
   isProfitable: boolean
   timeStamp: Date
   positionId: number
+  positionTradeCount: number
 }
