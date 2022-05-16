@@ -1,17 +1,37 @@
 import Lyra from '@lyrafinance/lyra-js'
 import { SendTweet } from '../integrations/twitter'
 import { TradeDto } from '../types/tradeDto'
-import { PREMIUM_THRESHOLD } from '../utils/secrets'
+import {
+  DISCORD_ACCESS_TOKEN,
+  DISCORD_ENABLED,
+  PREMIUM_THRESHOLD,
+  TELEGRAM_ENABLED,
+  TWITTER_ENABLED,
+} from '../utils/secrets'
 import { toDate, toNumber, toWholeNumber } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
 import { PostDiscord } from '../integrations/discord'
+import { Client } from 'discord.js'
+import { DiscordClient } from '../clients/discordClient'
+import { TwitterClient } from '../clients/twitterClient'
+import { TwitterApi } from 'twitter-api-v2'
+import { Context, Telegraf } from 'telegraf'
+import { Update } from 'telegraf/typings/core/types/typegram'
+import { TelegramClient } from '../clients/telegramClient'
+
+let discordClient: Client<boolean>
+let twitterClient: TwitterApi
+let telegramClient: Telegraf<Context<Update>>
 
 export async function RunTradeBot() {
   console.log('### Polling for Trades ###')
   const lyra = new Lyra()
+  SetUpDiscord()
+  SetUpTwitter()
+  SetUpTelegram()
 
   lyra.onTrade(async (trade) => {
     try {
@@ -25,6 +45,31 @@ export async function RunTradeBot() {
       console.log(e)
     }
   })
+}
+
+export async function SetUpDiscord() {
+  if (DISCORD_ENABLED) {
+    discordClient = DiscordClient
+    discordClient.on('ready', async (client) => {
+      console.log('Discord bot is online!')
+    })
+
+    await discordClient.login(DISCORD_ACCESS_TOKEN)
+    discordClient.user?.setActivity('Testnet Trades', { type: 'WATCHING' })
+  }
+}
+
+export async function SetUpTwitter() {
+  if (TWITTER_ENABLED) {
+    twitterClient = TwitterClient
+    twitterClient.readWrite
+  }
+}
+
+export async function SetUpTelegram() {
+  if (TELEGRAM_ENABLED) {
+    telegramClient = TelegramClient
+  }
 }
 
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
@@ -63,13 +108,13 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
 
 export async function BroadCastTrade(trade: TradeDto): Promise<void> {
   // Twitter //
-  await SendTweet(trade)
+  await SendTweet(trade, twitterClient)
 
   // Telegram //
-  await PostTelegram(trade)
+  await PostTelegram(trade, telegramClient)
 
   // Discord //
-  await PostDiscord(trade)
+  await PostDiscord(trade, discordClient)
 }
 
 export function PremiumsPaid(trades: TradeEvent[]) {

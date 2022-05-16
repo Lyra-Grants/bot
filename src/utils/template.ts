@@ -103,7 +103,7 @@ export function GenerateEmbed(trade: TradeDto): MessageEmbed {
       inline: true,
     },
   )
-  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : trade.trader}`, true)
+
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addField(
       `${trade.isProfitable ? 'Profit' : 'Loss'}`,
@@ -112,7 +112,7 @@ export function GenerateEmbed(trade: TradeDto): MessageEmbed {
     )
     tradeEmbed.addField(`Percent`, `${trade.pnlPercent.toFixed(2)}%`, true)
   }
-
+  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : trade.trader.substring(0, 14) + '...'}`, true)
   return tradeEmbed
 }
 

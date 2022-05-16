@@ -13,3 +13,11 @@ export const toDate = (value: number): Date => {
 export const toWholeNumber = (value: any): number => {
   return Math.floor(value / 1000000000000000000)
 }
+
+export function convertToBoolean(input: string): boolean | undefined {
+  try {
+    return JSON.parse(input.toLowerCase())
+  } catch (e) {
+    return undefined
+  }
+}
