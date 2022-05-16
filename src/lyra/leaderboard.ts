@@ -52,9 +52,6 @@ export async function GetLeaderBoard() {
 }
 
 export function MapLeaderBoard(leaderboard: trader[], traderAddress: string): indexedTrader {
-  // console.log('start leaderboard')
-  // console.log(leaderboard)
-  // console.log('end leaderboard')
   const EMPTY: indexedTrader = {
     owner: '',
     balance: 0,

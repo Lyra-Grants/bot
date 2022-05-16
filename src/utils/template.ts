@@ -7,7 +7,7 @@ import { MessageEmbed } from 'discord.js'
 export function GeneratePost(trade: TradeDto) {
   const post: string[] = []
 
-  if (trade.leaderBoard.owner !== '' && trade.leaderBoard.isProfitable) {
+  if (trade.leaderBoard.owner !== '') {
     post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
   }
   post.push(`📈 $${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
@@ -29,7 +29,7 @@ export function GeneratePost(trade: TradeDto) {
 export function GenerateHtmlPost(trade: TradeDto) {
   const post: string[] = []
 
-  if (trade.leaderBoard.owner !== '' && trade.leaderBoard.isProfitable) {
+  if (trade.leaderBoard.owner !== '') {
     post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
   }
   post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
@@ -63,7 +63,7 @@ export function GenerateEmbed(trade: TradeDto): MessageEmbed {
     .setTitle(`${trade.isOpen ? '✅' : '🚫'} Position ${trade.isOpen ? 'opened' : 'closed'} for $${trade.asset}`)
     .setURL(`${url}`)
 
-  if (trade.leaderBoard.owner !== '' && trade.leaderBoard.isProfitable) {
+  if (trade.leaderBoard.owner !== '') {
     tradeEmbed
       .addField(`Leaderboard`, `${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader`, true)
       .addField('Total Profit', `$${trade.leaderBoard.balance}`, true)

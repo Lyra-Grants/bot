@@ -17,9 +17,9 @@ export const ETHSCAN_URL = _.defaultTo(process.env.ETHSCAN_URL, 'https://kovan-o
 export const ZAPPER_LINK = _.defaultTo(process.env.ZAPPER_LINK, 'https://zapper.fi/account/')
 export const DEBANK_LINK = _.defaultTo(process.env.DEBANK_LINK, 'https://debank.com/profile/')
 
-export const TWITTER_THRESHOLD = _.defaultTo(process.env.TWITTER_THRESHOLD, 250)
-export const TELEGRAM_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 250)
-export const DISCORD_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 0)
+export const TWITTER_THRESHOLD = _.defaultTo(process.env.TWITTER_THRESHOLD, 100)
+export const TELEGRAM_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 0)
+export const DISCORD_THRESHOLD = _.defaultTo(process.env.DISCORD_THRESHOLD, 0)
 
 export const TWITTER_ENABLED: boolean = _.defaultTo(
   convertToBoolean(process.env.TWITTER_ENABLED as string),
