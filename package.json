@@ -1,12 +1,15 @@
 {
   "name": "lyra-bot",
   "version": "1.1.0",
+  "description": "Lyra trades bot",
   "license": "MIT",
   "engines": {
-    "node": "16.x"
+    "node": "16.x",
+    "yarn": "1.x"
   },
   "scripts": {
-    "start": "ts-node-dev --files --respawn src/app.ts",
+    "start:lyrabot": "ts-node-dev --files --respawn src/app.ts",
+    "start": "ts-node --transpile-only src/app.tsst --env prod",
     "gen": "graphql-codegen --config codegen.yml",
     "lint:ts": "eslint --ext .js,.ts .",
     "lint:ts:fix": "yarn lint:ts --fix",
