@@ -10,12 +10,17 @@ export const TWITTER_APP_KEY = _.defaultTo(process.env.TWITTER_APP_KEY, '')
 export const TWITTER_APP_SECRET = _.defaultTo(process.env.TWITTER_APP_SECRET, '')
 export const TWITTER_ACCESS_TOKEN = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN, '')
 export const TWITTER_ACCESS_SECRET = _.defaultTo(process.env.TWITTER_ACCESS_SECRET, '')
-export const LYRA_PORTFOLIO = _.defaultTo(process.env.LYRA_PORTFOLIO, 'https://avalon.app.lyra.finance/portfolio?see=')
-export const LYRA_POSITION = _.defaultTo(process.env.LYRA_POSITION, 'https://avalon.app.lyra.finance/position/')
-export const ETHSCAN_TRX_LINK = _.defaultTo(process.env.ETHSCAN_TRX_LINK, 'https://kovan-optimistic.etherscan.io/tx/')
+
+export const LYRA_URL = _.defaultTo(process.env.LYRA_URL, 'https://avalon.app.lyra.finance')
+export const ETHSCAN_URL = _.defaultTo(process.env.ETHSCAN_URL, 'https://kovan-optimistic.etherscan.io')
+
 export const ZAPPER_LINK = _.defaultTo(process.env.ZAPPER_LINK, 'https://zapper.fi/account/')
 export const DEBANK_LINK = _.defaultTo(process.env.DEBANK_LINK, 'https://debank.com/profile/')
-export const PREMIUM_THRESHOLD = _.defaultTo(process.env.PREMIUM_THRESHOLD, 0)
+
+export const TWITTER_THRESHOLD = _.defaultTo(process.env.TWITTER_THRESHOLD, 250)
+export const TELEGRAM_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 250)
+export const DISCORD_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 0)
+
 export const TWITTER_ENABLED: boolean = _.defaultTo(
   convertToBoolean(process.env.TWITTER_ENABLED as string),
   false,

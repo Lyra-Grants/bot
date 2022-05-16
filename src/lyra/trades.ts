@@ -4,9 +4,11 @@ import { TradeDto } from '../types/tradeDto'
 import {
   DISCORD_ACCESS_TOKEN,
   DISCORD_ENABLED,
-  PREMIUM_THRESHOLD,
   TELEGRAM_ENABLED,
   TWITTER_ENABLED,
+  TWITTER_THRESHOLD,
+  TELEGRAM_THRESHOLD,
+  DISCORD_THRESHOLD,
 } from '../utils/secrets'
 import { toDate, toNumber, toWholeNumber } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
@@ -36,11 +38,7 @@ export async function RunTradeBot() {
   lyra.onTrade(async (trade) => {
     try {
       const tradeDto = await MapToTradeDto(trade)
-      if (tradeDto.premium > PREMIUM_THRESHOLD) {
-        await BroadCastTrade(tradeDto)
-      } else {
-        console.log('Trade Less Than Threshold')
-      }
+      await BroadCastTrade(tradeDto)
     } catch (e: any) {
       console.log(e)
     }
@@ -55,7 +53,7 @@ export async function SetUpDiscord() {
     })
 
     await discordClient.login(DISCORD_ACCESS_TOKEN)
-    discordClient.user?.setActivity('Testnet Trades', { type: 'WATCHING' })
+    discordClient.user?.setActivity('Avalon Trades', { type: 'WATCHING' })
   }
 }
 
@@ -108,13 +106,19 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
 
 export async function BroadCastTrade(trade: TradeDto): Promise<void> {
   // Twitter //
-  await SendTweet(trade, twitterClient)
+  if (trade.premium >= TWITTER_THRESHOLD && TWITTER_ENABLED) {
+    await SendTweet(trade, twitterClient)
+  }
 
   // Telegram //
-  await PostTelegram(trade, telegramClient)
+  if (trade.premium >= TELEGRAM_THRESHOLD && TELEGRAM_ENABLED) {
+    await PostTelegram(trade, telegramClient)
+  }
 
   // Discord //
-  await PostDiscord(trade, discordClient)
+  if (trade.premium >= DISCORD_THRESHOLD && DISCORD_ENABLED) {
+    await PostDiscord(trade, discordClient)
+  }
 }
 
 export function PremiumsPaid(trades: TradeEvent[]) {

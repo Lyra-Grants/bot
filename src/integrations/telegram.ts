@@ -5,15 +5,13 @@ import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 
 export async function PostTelegram(trade: TradeDto, telegramClient: Telegraf<Context<Update>>) {
-  if (TELEGRAM_ENABLED) {
-    try {
-      const post = GenerateHtmlPost(trade)
-      const response = await telegramClient.telegram.sendMessage(TELEGRAM_CHANNEL, post, {
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-      })
-    } catch (e: any) {
-      console.log(e)
-    }
+  try {
+    const post = GenerateHtmlPost(trade)
+    const response = await telegramClient.telegram.sendMessage(TELEGRAM_CHANNEL, post, {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+    })
+  } catch (e: any) {
+    console.log(e)
   }
 }
