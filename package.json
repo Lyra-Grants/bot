@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start:lyrabot": "ts-node-dev --files --respawn src/app.ts",
-    "start": "ts-node --transpile-only src/app.tsst --env prod",
+    "start": "ts-node --transpile-only src/app.ts --env prod",
     "gen": "graphql-codegen --config codegen.yml",
     "lint:ts": "eslint --ext .js,.ts .",
     "lint:ts:fix": "yarn lint:ts --fix",
