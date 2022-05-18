@@ -7,18 +7,19 @@ import { MessageEmbed } from 'discord.js'
 export function GeneratePost(trade: TradeDto) {
   const post: string[] = []
 
-  if (trade.leaderBoard.owner !== '') {
-    post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
-  }
   post.push(`📈 $${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
+  post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
       `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${
         trade.isProfitable ? 'Profit' : 'Loss'
       } ${trade.pnlPercent.toFixed(2)}%\n`,
     )
+  }
+  if (trade.leaderBoard.owner !== '') {
+    post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
   }
   post.push(`👨‍ ${trade.ens ? trade.ens : trade.trader}\n`)
   post.push(`${PositionLink(trade)}\n`)
@@ -28,19 +29,19 @@ export function GeneratePost(trade: TradeDto) {
 // TELEGRAM //
 export function GenerateHtmlPost(trade: TradeDto) {
   const post: string[] = []
-
-  if (trade.leaderBoard.owner !== '') {
-    post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
-  }
   post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
+  post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
       `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${
         trade.isProfitable ? 'Profit' : 'Loss'
       } ${trade.pnlPercent.toFixed(2)}%\n`,
     )
+  }
+  if (trade.leaderBoard.owner !== '') {
+    post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
   }
   post.push(`👨‍ <a href='${ZAPPER_LINK}${trade.trader}'>${trade.ens ? trade.ens : trade.trader}</a>\n`)
   post.push(`============================\n`)
@@ -56,11 +57,16 @@ export function GenerateHtmlPost(trade: TradeDto) {
   return post.join('')
 }
 
+// DISCORD //
 export function GenerateEmbed(trade: TradeDto): MessageEmbed {
   const url = PositionLink(trade)
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`${trade.isOpen ? '✅' : '🚫'} Position ${trade.isOpen ? 'opened' : 'closed'} for $${trade.asset}`)
+    .setTitle(
+      `${trade.isOpen ? '✅' : '🚫'} ${trade.isOpen ? 'Open' : 'Close'} ${trade.isLong ? 'Long' : 'Short'} ${
+        trade.size
+      } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
+    )
     .setURL(`${url}`)
 
   if (trade.leaderBoard.owner !== '') {
