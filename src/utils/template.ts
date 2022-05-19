@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 import { LYRA_URL, ETHSCAN_URL, ZAPPER_LINK } from '../utils/secrets'
 import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
+import { positionsQuery } from '../queries'
 
 // TWITTER //
 export function GeneratePost(trade: TradeDto) {
@@ -10,6 +11,7 @@ export function GeneratePost(trade: TradeDto) {
   post.push(`📈 $${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
+  post.push(`💻 Avalon\n`)
   post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
@@ -32,6 +34,7 @@ export function GenerateHtmlPost(trade: TradeDto) {
   post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
+  post.push(`💻 Avalon\n`)
   post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
