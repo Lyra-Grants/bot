@@ -4,8 +4,6 @@ export type trader = {
   netPremiums: number
   openOptionsValue: number
   isProfitable: boolean
-}
-
-export type indexedTrader = trader & {
-  index: number
+  ens: string
+  position: number
 }

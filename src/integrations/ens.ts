@@ -1,12 +1,14 @@
 import { mainNetInfuraProvider } from '../clients/ethersClient'
 
-export async function GetEns(traderAddress: string): Promise<string> {
-  console.log('getting ens')
-  const found = global.LYRA_ENS[traderAddress]
-  console.log(traderAddress)
+export async function GetEns(traderAddress: string | undefined): Promise<string> {
+  if (traderAddress == undefined) {
+    return ''
+  }
+  console.debug(`Getting ens for ${traderAddress}`)
+  const found = global.LYRA_ENS[traderAddress.toLowerCase()]
 
-  if (found) {
-    console.log('found ' + found)
+  if (found || found === '') {
+    console.debug('found ' + found)
     return found
   }
 

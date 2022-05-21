@@ -1,7 +1,12 @@
+import { Client } from 'discord.js'
+import { Context, Telegraf } from 'telegraf'
+import { Update } from 'telegraf/typings/core/types/typegram'
+import { TwitterApi } from 'twitter-api-v2'
 import { apolloClient } from '../clients/apolloClient'
 import { Position, Trade } from '../graphql'
+import { GetEns } from '../integrations/ens'
 import { leaderboardTradesQuery, positionsQuery } from '../queries'
-import { indexedTrader, trader } from '../types/trader'
+import { trader } from '../types/trader'
 import { NetPremiums, OpenOptionValue } from './helper'
 
 async function GetLeaderBoardTrades(): Promise<Trade[]> {
@@ -22,12 +27,12 @@ async function GetLeaderBoardPositions(): Promise<Position[]> {
   return positions
 }
 
-export async function GetLeaderBoard() {
+export async function GetLeaderBoard(take: number) {
   const trades = await GetLeaderBoardTrades()
   const positions = await GetLeaderBoardPositions()
   const owners = Array.from(new Set(Object.values(trades).map((val) => <string>val.trader.toLowerCase())))
 
-  const traders: trader[] = owners
+  const traders = owners
     .map((owner) => {
       const userTrades = trades.filter((trade) => trade.trader.toLowerCase() === owner)
       const netPremiums = NetPremiums(userTrades)
@@ -43,22 +48,33 @@ export async function GetLeaderBoard() {
         netPremiums: netPremiums,
         openOptionsValue: openOptionsValue,
         isProfitable: balance > 0,
+        ens: '',
+        position: 0,
       }
       return trader
     })
     .sort((a, b) => b.balance - a.balance)
+    .slice(0, take)
+
+  await Promise.all(
+    traders.map(async (trader, index) => {
+      trader.ens = await GetEns(trader.owner)
+      trader.position = index + 1
+    }),
+  )
 
   return traders
 }
 
-export function MapLeaderBoard(leaderboard: trader[], traderAddress: string): indexedTrader {
-  const EMPTY: indexedTrader = {
+export function MapLeaderBoard(leaderboard: trader[], traderAddress: string): trader {
+  const EMPTY: trader = {
     owner: '',
     balance: 0,
     netPremiums: 0,
     openOptionsValue: 0,
-    index: 0,
     isProfitable: false,
+    ens: '',
+    position: 0,
   }
 
   const index = leaderboard.findIndex((leaderboard) => leaderboard.owner.toLowerCase() === traderAddress.toLowerCase())
@@ -68,16 +84,13 @@ export function MapLeaderBoard(leaderboard: trader[], traderAddress: string): in
     return EMPTY
   }
 
-  const result = leaderboard[index]
+  return leaderboard[index]
+}
 
-  const mappedResult: indexedTrader = {
-    owner: result.owner,
-    balance: Math.floor(result.balance),
-    netPremiums: result.netPremiums,
-    openOptionsValue: result.openOptionsValue,
-    index: index + 1,
-    isProfitable: result.isProfitable,
-  }
-
-  return mappedResult
+export async function RunTradeBot(
+  discordClient: Client<boolean>,
+  twitterClient: TwitterApi,
+  telegramClient: Telegraf<Context<Update>>,
+) {
+  console.log('### Broadcast Leaderboard ###')
 }

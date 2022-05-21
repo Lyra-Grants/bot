@@ -1,4 +1,4 @@
-import { indexedTrader } from './trader'
+import { trader } from './trader'
 
 export type TradeDto = {
   asset: string
@@ -13,7 +13,7 @@ export type TradeDto = {
   trader: string
   transactionHash: string
   ens: string
-  leaderBoard: indexedTrader
+  leaderBoard: trader
   pnl: number
   pnlPercent: number
   totalPremiumPaid: number
