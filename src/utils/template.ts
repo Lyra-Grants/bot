@@ -1,8 +1,10 @@
 import dayjs from 'dayjs'
-import { LYRA_URL, ETHSCAN_URL, ZAPPER_LINK } from '../utils/secrets'
+import { TESTNET, AVALON } from '../utils/secrets'
 import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
-import { positionsQuery } from '../queries'
+
+const zapperUrl = 'https://zapper.fi/account/'
+const debankUrl = 'https://debank.com/profile/'
 
 // TWITTER //
 export function GeneratePost(trade: TradeDto) {
@@ -46,7 +48,7 @@ export function GenerateHtmlPost(trade: TradeDto) {
   if (trade.leaderBoard.owner !== '') {
     post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
   }
-  post.push(`👨‍ <a href='${ZAPPER_LINK}${trade.trader}'>${trade.ens ? trade.ens : trade.trader}</a>\n`)
+  post.push(`👨‍ <a href='${zapperUrl}${trade.trader}'>${trade.ens ? trade.ens : trade.trader}</a>\n`)
   post.push(`============================\n`)
   post.push(
     `<a href='${EtherScanTransactionLink(trade)}'>Trxn</a> | <a href='${TradeHistoryLink(
@@ -167,19 +169,19 @@ export function AmountShortWording(isLong: boolean, isOpen: boolean): string {
 }
 
 export function PositionLink(trade: TradeDto): string {
-  return `${LYRA_URL}/position/${trade.asset}/${trade.positionId}?see=${trade.trader}`
+  return `${LyraDappUrl()}/position/${trade.asset}/${trade.positionId}?see=${trade.trader}`
 }
 
 export function PortfolioLink(trade: TradeDto) {
-  return `${LYRA_URL}/portfolio?see=${trade.trader}`
+  return `${LyraDappUrl()}/portfolio?see=${trade.trader}`
 }
 
 export function TradeHistoryLink(trade: TradeDto) {
-  return `${LYRA_URL}/portfolio/history?see=${trade.trader}`
+  return `${LyraDappUrl()}/portfolio/history?see=${trade.trader}`
 }
 
 export function EtherScanTransactionLink(trade: TradeDto) {
-  return `${ETHSCAN_URL}/tx/${trade.transactionHash}`
+  return `${EtherScanUrl()}/tx/${trade.transactionHash}`
 }
 
 export function FormattedDate(date: Date) {
@@ -188,4 +190,18 @@ export function FormattedDate(date: Date) {
 
 export function FormattedDateTime(date: Date) {
   return dayjs(date).format('DD MMM YY | HH:mm')
+}
+
+export function EtherScanUrl() {
+  if (TESTNET) {
+    return 'https://kovan-optimistic.etherscan.io'
+  }
+  return 'https://optimistic.etherscan.io'
+}
+
+export function LyraDappUrl() {
+  if (AVALON) {
+    return 'https://avalon.app.lyra.finance'
+  }
+  return 'https://app.lyra.finance'
 }

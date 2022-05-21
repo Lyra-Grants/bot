@@ -1,4 +1,4 @@
-import { lyraClient } from '../clients/lyraClient'
+import { apolloClient } from '../clients/apolloClient'
 import { Position, Trade } from '../graphql'
 import { leaderboardTradesQuery, positionsQuery } from '../queries'
 import { indexedTrader, trader } from '../types/trader'
@@ -6,7 +6,7 @@ import { NetPremiums, OpenOptionValue } from './helper'
 
 async function GetLeaderBoardTrades(): Promise<Trade[]> {
   const trades = (
-    await lyraClient.query<{ trades: Trade[] }>({
+    await apolloClient.query<{ trades: Trade[] }>({
       query: leaderboardTradesQuery(),
     })
   ).data.trades
@@ -15,7 +15,7 @@ async function GetLeaderBoardTrades(): Promise<Trade[]> {
 
 async function GetLeaderBoardPositions(): Promise<Position[]> {
   const positions = (
-    await lyraClient.query<{ positions: Position[] }>({
+    await apolloClient.query<{ positions: Position[] }>({
       query: positionsQuery(),
     })
   ).data.positions

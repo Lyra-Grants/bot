@@ -1,10 +1,10 @@
-import { lyraClient } from '../clients/lyraClient'
+import { apolloClient } from '../clients/apolloClient'
 import { Settle } from '../graphql'
 import { settlesQuery } from '../queries'
 
 export async function getSettles(lastRunTime: number): Promise<Settle[]> {
   const settles = (
-    await lyraClient.query<{ settles: Settle[] }>({
+    await apolloClient.query<{ settles: Settle[] }>({
       query: settlesQuery(lastRunTime),
     })
   ).data.settles

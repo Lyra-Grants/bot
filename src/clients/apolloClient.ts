@@ -1,10 +1,10 @@
 import { ApolloClient, HttpLink, InMemoryCache, InMemoryCacheConfig } from '@apollo/client'
 import fetch from 'cross-fetch'
-import { GRAPHQL_API } from '../utils/secrets'
+import { TESTNET } from '../utils/secrets'
 
-export const lyraClient = new ApolloClient({
+export const apolloClient = new ApolloClient({
   link: new HttpLink({
-    uri: GRAPHQL_API,
+    uri: graphUrl(),
     fetch,
   }),
   cache: new InMemoryCache(),
@@ -15,3 +15,11 @@ export const lyraClient = new ApolloClient({
     },
   },
 })
+
+export function graphUrl(): string {
+  const baseUrl = 'https://api.thegraph.com/subgraphs/name/lyra-finance'
+  if (TESTNET) {
+    return `${baseUrl}/kovan`
+  }
+  return `${baseUrl}/mainnet`
+}

@@ -1,4 +1,4 @@
-import Lyra from '@lyrafinance/lyra-js'
+import Lyra, { Deployment } from '@lyrafinance/lyra-js'
 import { SendTweet } from '../integrations/twitter'
 import { TradeDto } from '../types/tradeDto'
 import {
@@ -9,13 +9,14 @@ import {
   TWITTER_THRESHOLD,
   TELEGRAM_THRESHOLD,
   DISCORD_THRESHOLD,
+  TESTNET,
 } from '../utils/secrets'
 import { toDate, toNumber, toWholeNumber } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
-import { PostDiscord } from '../integrations/discord'
+import { defaultActivity, PostDiscord } from '../integrations/discord'
 import { Client } from 'discord.js'
 import { DiscordClient } from '../clients/discordClient'
 import { TwitterClient } from '../clients/twitterClient'
@@ -30,7 +31,16 @@ let telegramClient: Telegraf<Context<Update>>
 
 export async function RunTradeBot() {
   console.log('### Polling for Trades ###')
-  const lyra = new Lyra()
+
+  let deployment: Deployment
+
+  if (TESTNET) {
+    deployment = Deployment.Kovan
+  } else {
+    deployment = Deployment.Mainnet
+  }
+
+  const lyra = new Lyra(deployment)
   SetUpDiscord()
   SetUpTwitter()
   SetUpTelegram()
@@ -53,7 +63,7 @@ export async function SetUpDiscord() {
     })
 
     await discordClient.login(DISCORD_ACCESS_TOKEN)
-    discordClient.user?.setActivity('Avalon Trades', { type: 'WATCHING' })
+    defaultActivity(discordClient)
   }
 }
 
