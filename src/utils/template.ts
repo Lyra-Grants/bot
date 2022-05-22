@@ -78,6 +78,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
     )
     .setURL(`${url}`)
+    .setDescription('-----------------------------------------------------------------------------------')
 
   if (trade.leaderBoard.owner !== '') {
     tradeEmbed
