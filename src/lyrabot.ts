@@ -1,6 +1,5 @@
 import { RunTradeBot } from './lyra/trades'
 import { BroadcastLeaderBoard, GetLeaderBoard } from './lyra/leaderboard'
-import cron from 'node-cron'
 import { DISCORD_ACCESS_TOKEN, DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED } from './utils/secrets'
 import { DiscordClient } from './clients/discordClient'
 import { Client } from 'discord.js'
@@ -11,7 +10,6 @@ import { defaultActivity } from './integrations/discord'
 import { TwitterClient } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import { Job, scheduleJob } from 'node-schedule'
-import { shortAddress } from './utils/utils'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
