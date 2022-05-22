@@ -2,12 +2,13 @@ import dayjs from 'dayjs'
 import { TESTNET, AVALON } from '../utils/secrets'
 import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
+import { trader } from '../types/trader'
 
 const zapperUrl = 'https://zapper.fi/account/'
 const debankUrl = 'https://debank.com/profile/'
 
 // TWITTER //
-export function GeneratePost(trade: TradeDto) {
+export function TradeTwitter(trade: TradeDto) {
   const post: string[] = []
 
   post.push(`📈 $${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
@@ -23,7 +24,9 @@ export function GeneratePost(trade: TradeDto) {
     )
   }
   if (trade.leaderBoard.owner !== '') {
-    post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
+    post.push(
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 $${trade.leaderBoard.balance}\n`,
+    )
   }
   post.push(`👨‍ ${trade.ens ? trade.ens : trade.trader}\n`)
   post.push(`${PositionLink(trade)}\n`)
@@ -31,7 +34,7 @@ export function GeneratePost(trade: TradeDto) {
 }
 
 // TELEGRAM //
-export function GenerateHtmlPost(trade: TradeDto) {
+export function TradeTelegram(trade: TradeDto) {
   const post: string[] = []
   post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
@@ -46,7 +49,9 @@ export function GenerateHtmlPost(trade: TradeDto) {
     )
   }
   if (trade.leaderBoard.owner !== '') {
-    post.push(`${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader 💵 $${trade.leaderBoard.balance}\n`)
+    post.push(
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 $${trade.leaderBoard.balance}\n`,
+    )
   }
   post.push(`👨‍ <a href='${zapperUrl}${trade.trader}'>${trade.ens ? trade.ens : trade.trader}</a>\n`)
   post.push(`============================\n`)
@@ -63,7 +68,7 @@ export function GenerateHtmlPost(trade: TradeDto) {
 }
 
 // DISCORD //
-export function GenerateEmbed(trade: TradeDto): MessageEmbed {
+export function TradeDiscord(trade: TradeDto): MessageEmbed {
   const url = PositionLink(trade)
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
@@ -76,7 +81,7 @@ export function GenerateEmbed(trade: TradeDto): MessageEmbed {
 
   if (trade.leaderBoard.owner !== '') {
     tradeEmbed
-      .addField(`Leaderboard`, `${Medal(trade.leaderBoard.index)} #${trade.leaderBoard.index} Trader`, true)
+      .addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader`, true)
       .addField('Total Profit', `$${trade.leaderBoard.balance}`, true)
       .addField('\u200B', '\u200B', true)
   }
@@ -204,4 +209,23 @@ export function LyraDappUrl() {
     return 'https://avalon.app.lyra.finance'
   }
   return 'https://app.lyra.finance'
+}
+
+export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed {
+  const tradeEmbed = new MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(`Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
+    .setDescription(`Calculated from last 1000 positions.`)
+  leaderBoard.map((trader) => {
+    tradeEmbed
+      .addField(
+        `-------------------------------------------------------------------------------------`,
+        `${Medal(trader.position)} #${trader.position} ${trader.ens ? trader.ens : trader.owner}`,
+        false,
+      )
+      .addField('Premiums', `$${trader.netPremiums.toFixed(2)}`, true)
+      .addField('Open Options Value', `$${trader.openOptionsValue.toFixed()}`, true)
+      .addField('Profit', `💵 $${trader.balance.toFixed(2)}`, true)
+  })
+  return tradeEmbed
 }

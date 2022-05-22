@@ -15,11 +15,12 @@ import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
-import { PostDiscord } from '../integrations/discord'
+import { activityString, defaultActivity, PostDiscord } from '../integrations/discord'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
+import { TradeDiscord, TradeTelegram, TradeTwitter } from '../utils/template'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -89,17 +90,30 @@ export async function BroadCastTrade(
 ): Promise<void> {
   // Twitter //
   if (trade.premium >= TWITTER_THRESHOLD && TWITTER_ENABLED) {
-    await SendTweet(trade, twitterClient)
+    const post = TradeTwitter(trade)
+    await SendTweet(post, twitterClient)
   }
 
   // Telegram //
   if (trade.premium >= TELEGRAM_THRESHOLD && TELEGRAM_ENABLED) {
-    await PostTelegram(trade, telegramClient)
+    const post = TradeTelegram(trade)
+    await PostTelegram(post, telegramClient)
   }
 
   // Discord //
   if (trade.premium >= DISCORD_THRESHOLD && DISCORD_ENABLED) {
-    await PostDiscord(trade, discordClient)
+    const post = [TradeDiscord(trade)]
+    await PostDiscord(post, discordClient)
+    discordClient?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
+
+    const waitFor = (delay: number, client: Client<boolean>) =>
+      new Promise(() =>
+        setTimeout(() => {
+          defaultActivity(client)
+        }, delay),
+      )
+
+    await waitFor(60000, discordClient)
   }
 }
 

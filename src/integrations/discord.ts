@@ -1,25 +1,13 @@
 import { TradeDto } from '../types/tradeDto'
 import { DISCORD_CHANNEL_ID, TESTNET } from '../utils/secrets'
-import { GenerateEmbed } from '../utils/template'
-import { Client, TextChannel } from 'discord.js/typings/index.js'
+import { TradeDiscord } from '../utils/template'
+import { Client, MessageEmbed, TextChannel } from 'discord.js/typings/index.js'
 import dayjs from 'dayjs'
 
-export async function PostDiscord(trade: TradeDto, client: Client<boolean>) {
+export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean>) {
   try {
-    const message = GenerateEmbed(trade)
     const channel = client.channels.cache.get(DISCORD_CHANNEL_ID) as TextChannel
-    await channel.send({ embeds: [message] })
-
-    client?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
-
-    const waitFor = (delay: number, client: Client<boolean>) =>
-      new Promise(() =>
-        setTimeout(() => {
-          defaultActivity(client)
-        }, delay),
-      )
-
-    await waitFor(60000, client)
+    await channel.send({ embeds: embeds })
   } catch (e: any) {
     console.log(e)
   }

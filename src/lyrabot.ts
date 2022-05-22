@@ -1,5 +1,5 @@
 import { RunTradeBot } from './lyra/trades'
-import { GetLeaderBoard } from './lyra/leaderboard'
+import { BroadcastLeaderBoard, GetLeaderBoard } from './lyra/leaderboard'
 import cron from 'node-cron'
 import { DISCORD_ACCESS_TOKEN, DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED } from './utils/secrets'
 import { DiscordClient } from './clients/discordClient'
@@ -10,6 +10,7 @@ import { Update } from 'telegraf/typings/core/types/typegram'
 import { defaultActivity } from './integrations/discord'
 import { TwitterClient } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
+import { Job, scheduleJob } from 'node-schedule'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -26,11 +27,10 @@ export async function initializeLyraBot() {
 
   await RunTradeBot(discordClient, twitterClient, telegramClient)
 
-  // schedule broadcasts
-  cron.schedule('10 * * * * *', async () => {
+  const job: Job = scheduleJob('0 0,12 * * *', async () => {
     console.log('Getting leader board')
-    global.LYRA_LEADERBOARD = await GetLeaderBoard(5)
-    console.log(global.LYRA_LEADERBOARD.slice(0, 6))
+    global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
+    await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
   })
 }
 

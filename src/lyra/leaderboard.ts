@@ -4,9 +4,12 @@ import { Update } from 'telegraf/typings/core/types/typegram'
 import { TwitterApi } from 'twitter-api-v2'
 import { apolloClient } from '../clients/apolloClient'
 import { Position, Trade } from '../graphql'
+import { PostDiscord } from '../integrations/discord'
 import { GetEns } from '../integrations/ens'
 import { leaderboardTradesQuery, positionsQuery } from '../queries'
 import { trader } from '../types/trader'
+import { DISCORD_ENABLED, TWITTER_ENABLED } from '../utils/secrets'
+import { LeaderboardDiscord, TradeDiscord } from '../utils/template'
 import { NetPremiums, OpenOptionValue } from './helper'
 
 async function GetLeaderBoardTrades(): Promise<Trade[]> {
@@ -87,10 +90,14 @@ export function MapLeaderBoard(leaderboard: trader[], traderAddress: string): tr
   return leaderboard[index]
 }
 
-export async function RunTradeBot(
+export async function BroadcastLeaderBoard(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
 ) {
   console.log('### Broadcast Leaderboard ###')
+  if (DISCORD_ENABLED) {
+    const embeds = [LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 5))]
+    await PostDiscord(embeds, discordClient)
+  }
 }
