@@ -130,9 +130,8 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       true,
     )
     tradeEmbed.addField(`Percent`, `${trade.pnlPercent.toFixed(2)}%`, true)
-    tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
   }
-
+  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
   return tradeEmbed
 }
 
@@ -216,32 +215,40 @@ export function LyraDappUrl() {
 export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`✅ Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
-    .setDescription(`Calculated from last 1000 positions.`)
+    .setTitle(`✅ Top 15 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
+    .setDescription(`Calculated from last 1000 positions. (Open Value)`)
+    .addField('Trader', '-----------', true)
+    .addField('Premiums', '-----------', true)
+    .addField('💵 Profit', '-----------', true)
+  //\u200b
   leaderBoard.slice(0, 5).map((trader) => {
-    tradeEmbed
-      .addField(
-        `-------------------------------------------------------------------------------------`,
-        `${Medal(trader.position)} #${trader.position} ${trader.ens ? trader.ens : trader.owner}`,
-        false,
-      )
-      .addField('Premiums', `$${trader.netPremiums.toFixed(2)}`, true)
-      .addField('Open Options Value', `$${trader.openOptionsValue.toFixed()}`, true)
-      .addField('Profit', `💵 $${trader.balance.toFixed(2)}`, true)
+    return leaderBoardRow(tradeEmbed, trader)
   })
 
-  const tradeEmbed2 = new MessageEmbed().setColor('#0099ff')
+  const tradeEmbed2 = new MessageEmbed()
+    .setColor('#0099ff')
+    .setDescription(`---------------------------------------------------------------`)
   leaderBoard.slice(5, 10).map((trader) => {
-    tradeEmbed2
-      .addField(
-        `-------------------------------------------------------------------------------------`,
-        `${Medal(trader.position)} #${trader.position} ${trader.ens ? trader.ens : trader.owner}`,
-        false,
-      )
-      .addField('Premiums', `$${trader.netPremiums.toFixed(2)}`, true)
-      .addField('Open Options Value', `$${trader.openOptionsValue.toFixed()}`, true)
-      .addField('Profit', `💵 $${trader.balance.toFixed(2)}`, true)
+    return leaderBoardRow(tradeEmbed2, trader)
   })
+
+  // const tradeEmbed3 = new MessageEmbed()
+  //   .setColor('#0099ff')
+  //   .setDescription(`---------------------------------------------------------------`)
+  // leaderBoard.slice(10, 15).map((trader) => {
+  //   return leaderBoardRow(tradeEmbed3, trader)
+  // })
 
   return [tradeEmbed, tradeEmbed2]
+}
+
+export function leaderBoardRow(tradeEmbed: MessageEmbed, trader: trader): MessageEmbed {
+  return tradeEmbed
+    .addField(
+      `${Medal(trader.position)} #${trader.position}`,
+      `${trader.ens ? trader.ens : shortAddress(trader.owner)}`,
+      true,
+    )
+    .addField(`$${trader.netPremiums.toFixed(2)}`, `($${trader.openOptionsValue.toFixed()})`, true)
+    .addField(`$${trader.balance.toFixed(2)}`, '\u200b', true)
 }

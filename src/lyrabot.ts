@@ -23,6 +23,7 @@ export async function initializeLyraBot() {
   SetUpTelegram()
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
+
   await RunTradeBot(discordClient, twitterClient, telegramClient)
   // update every 12 hours
   const job: Job = scheduleJob('0 0,12 * * *', async () => {
