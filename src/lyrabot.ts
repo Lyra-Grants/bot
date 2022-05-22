@@ -11,6 +11,7 @@ import { defaultActivity } from './integrations/discord'
 import { TwitterClient } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import { Job, scheduleJob } from 'node-schedule'
+import { shortAddress } from './utils/utils'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -22,9 +23,7 @@ export async function initializeLyraBot() {
   SetUpTelegram()
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
-
   await RunTradeBot(discordClient, twitterClient, telegramClient)
-
   // update every 12 hours
   const job: Job = scheduleJob('0 0,12 * * *', async () => {
     console.log('Getting leader board')

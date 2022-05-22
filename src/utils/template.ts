@@ -3,6 +3,7 @@ import { TESTNET, AVALON } from '../utils/secrets'
 import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
 import { trader } from '../types/trader'
+import { shortAddress } from './utils'
 
 const zapperUrl = 'https://zapper.fi/account/'
 const debankUrl = 'https://debank.com/profile/'
@@ -129,12 +130,9 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       true,
     )
     tradeEmbed.addField(`Percent`, `${trade.pnlPercent.toFixed(2)}%`, true)
-    if (!trade.ens) {
-      tradeEmbed.addField('\u200B', '\u200B', true)
-    }
+    tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
   }
-  const embed = trade.ens ? true : false
-  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : trade.trader}`, embed)
+
   return tradeEmbed
 }
 

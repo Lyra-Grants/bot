@@ -21,3 +21,7 @@ export function convertToBoolean(input: string): boolean | undefined {
     return undefined
   }
 }
+
+export function shortAddress(value: string): string {
+  return `${value.slice(0, 5)}...${value.slice(-4)}`
+}
