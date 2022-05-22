@@ -211,12 +211,12 @@ export function LyraDappUrl() {
   return 'https://app.lyra.finance'
 }
 
-export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed {
+export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
+    .setTitle(`✅ Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
     .setDescription(`Calculated from last 1000 positions.`)
-  leaderBoard.map((trader) => {
+  leaderBoard.slice(0, 5).map((trader) => {
     tradeEmbed
       .addField(
         `-------------------------------------------------------------------------------------`,
@@ -227,5 +227,19 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed {
       .addField('Open Options Value', `$${trader.openOptionsValue.toFixed()}`, true)
       .addField('Profit', `💵 $${trader.balance.toFixed(2)}`, true)
   })
-  return tradeEmbed
+
+  const tradeEmbed2 = new MessageEmbed().setColor('#0099ff')
+  leaderBoard.slice(5, 10).map((trader) => {
+    tradeEmbed2
+      .addField(
+        `-------------------------------------------------------------------------------------`,
+        `${Medal(trader.position)} #${trader.position} ${trader.ens ? trader.ens : trader.owner}`,
+        false,
+      )
+      .addField('Premiums', `$${trader.netPremiums.toFixed(2)}`, true)
+      .addField('Open Options Value', `$${trader.openOptionsValue.toFixed()}`, true)
+      .addField('Profit', `💵 $${trader.balance.toFixed(2)}`, true)
+  })
+
+  return [tradeEmbed, tradeEmbed2]
 }

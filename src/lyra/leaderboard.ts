@@ -97,7 +97,7 @@ export async function BroadcastLeaderBoard(
 ) {
   console.log('### Broadcast Leaderboard ###')
   if (DISCORD_ENABLED) {
-    const embeds = [LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 5))]
+    const embeds = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
     await PostDiscord(embeds, discordClient)
   }
 }

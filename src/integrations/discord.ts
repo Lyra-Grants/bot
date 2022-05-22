@@ -14,9 +14,9 @@ export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean
 }
 
 export function activityString(trade: TradeDto) {
-  return `${trade.asset} ${dayjs(trade.expiry).format('DD MMM')} ${trade.isCall ? 'C' : 'P'} $${trade.strike} x ${
-    trade.size
-  }`
+  return `${trade.asset} ${dayjs(trade.expiry).format('DD MMM')} ${trade.isLong ? 'Long' : 'Short'} ${
+    trade.isCall ? 'C' : 'P'
+  } $${trade.strike} x ${trade.size} $${trade.premium}`
 }
 
 export async function defaultActivity(client: Client<boolean>) {
