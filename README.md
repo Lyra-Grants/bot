@@ -33,7 +33,7 @@ yarn install
 
 ### Resources
 
-- [Lyra Finance Core NPM Package](https://www.npmjs.com/package/@lyrafinance/core)
+- [Lyra Finance Core NPM Package](https://www.npmjs.com/package/@lyrafinance/protocol)
 - [Lyra Finance Repositories](https://github.com/lyra-finance)
 
 ## Contributing
