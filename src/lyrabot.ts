@@ -22,7 +22,7 @@ export async function initializeLyraBot() {
   SetUpTelegram()
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
-  await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
+
   await RunTradeBot(discordClient, twitterClient, telegramClient)
 
   // update every 12 hours

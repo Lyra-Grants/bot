@@ -78,7 +78,10 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
     )
     .setURL(`${url}`)
-    .setDescription('-----------------------------------------------------------------------------------')
+
+  if (trade.asset == 'ETH') {
+    tradeEmbed.setThumbnail('https://avalon.app.lyra.finance/images/ethereum-logo.png')
+  }
 
   if (trade.leaderBoard.owner !== '') {
     tradeEmbed
