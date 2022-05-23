@@ -215,7 +215,7 @@ export function LyraDappUrl() {
 export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`✅ Top 15 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
+    .setTitle(`✅ Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
     .setDescription(`Calculated from last 1000 positions. (Open Value)`)
     .addField('Trader', '-----------', true)
     .addField('Premiums', '-----------', true)

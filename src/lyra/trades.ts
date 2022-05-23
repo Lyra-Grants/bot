@@ -1,4 +1,4 @@
-import Lyra, { Deployment } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 import { SendTweet } from '../integrations/twitter'
 import { TradeDto } from '../types/tradeDto'
 import {
@@ -8,7 +8,6 @@ import {
   TWITTER_THRESHOLD,
   TELEGRAM_THRESHOLD,
   DISCORD_THRESHOLD,
-  TESTNET,
 } from '../utils/secrets'
 import { toDate, toNumber, toWholeNumber } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
@@ -26,19 +25,11 @@ export async function RunTradeBot(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
+  lyraClient: Lyra,
 ) {
   console.log('### Polling for Trades ###')
 
-  let deployment: Deployment
-
-  if (TESTNET) {
-    deployment = Deployment.Kovan
-  } else {
-    deployment = Deployment.Mainnet
-  }
-  const lyra = new Lyra(deployment)
-
-  lyra.onTrade(async (trade) => {
+  lyraClient.onTrade(async (trade) => {
     try {
       const tradeDto = await MapToTradeDto(trade)
       await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
