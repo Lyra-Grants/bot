@@ -30,20 +30,20 @@ export async function initializeLyraBot() {
   }
   lyraClient = new Lyra(deployment)
 
-  const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
+  //const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
   //faucet(lyraClient, signer)
-  maketrade(lyraClient, signer)
+  //maketrade(lyraClient, signer)
 
-  SetUpDiscord()
-  SetUpTwitter()
-  SetUpTelegram()
+  await SetUpDiscord()
+  await SetUpTwitter()
+  await SetUpTelegram()
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
 
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-  // update every 12 hours
-  const job: Job = scheduleJob('0 0,12 * * *', async () => {
-    console.log('Getting leader board')
+
+  // every three days
+  const job: Job = scheduleJob('0 0 */3 * *', async () => {
     global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
     await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
   })

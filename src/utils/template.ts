@@ -38,13 +38,13 @@ export function TradeTwitter(trade: TradeDto) {
 export function TradeTelegram(trade: TradeDto) {
   const post: string[] = []
   post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
-  post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
+  post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} x ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
   post.push(`💻 Avalon\n`)
   post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${
+      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl.toFixed(2)} ${
         trade.isProfitable ? 'Profit' : 'Loss'
       } ${trade.pnlPercent.toFixed(2)}%\n`,
     )
@@ -54,14 +54,14 @@ export function TradeTelegram(trade: TradeDto) {
       `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 $${trade.leaderBoard.balance}\n`,
     )
   }
-  post.push(`👨‍ <a href='${zapperUrl}${trade.trader}'>${trade.ens ? trade.ens : trade.trader}</a>\n`)
+  post.push(`👨‍ <a href='${PositionLink(trade)}'>${trade.ens ? trade.ens : shortAddress(trade.trader)}</a>\n`)
   post.push(`============================\n`)
   post.push(
     `<a href='${EtherScanTransactionLink(trade)}'>Trxn</a> | <a href='${TradeHistoryLink(
       trade,
-    )}'>History</a> | <a href='${PositionLink(trade)}'>Position</a> | <a href='${PortfolioLink(
+    )}'>History</a> | <a href='${PortfolioLink(trade.trader)}'>Portfolio</a> | <a href='${PositionLink(
       trade,
-    )}'>Portfolio</a>\n`,
+    )}'>Position</a>\n`,
   )
   post.push(`============================\n`)
   post.push(`⏱️ ${FormattedDateTime(trade.timeStamp)}\n`)
@@ -178,8 +178,8 @@ export function PositionLink(trade: TradeDto): string {
   return `${LyraDappUrl()}/position/${trade.asset}/${trade.positionId}?see=${trade.trader}`
 }
 
-export function PortfolioLink(trade: TradeDto) {
-  return `${LyraDappUrl()}/portfolio?see=${trade.trader}`
+export function PortfolioLink(address: string) {
+  return `${LyraDappUrl()}/portfolio?see=${address}`
 }
 
 export function TradeHistoryLink(trade: TradeDto) {
@@ -245,10 +245,41 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
 export function leaderBoardRow(tradeEmbed: MessageEmbed, trader: trader): MessageEmbed {
   return tradeEmbed
     .addField(
-      `${Medal(trader.position)} #${trader.position}`,
+      `${Medal(trader.position)} ${trader.position}.`,
       `${trader.ens ? trader.ens : shortAddress(trader.owner)}`,
       true,
     )
     .addField(`$${trader.netPremiums.toFixed(2)}`, `($${trader.openOptionsValue.toFixed()})`, true)
     .addField(`$${trader.balance.toFixed(2)}`, '\u200b', true)
+}
+
+export function LeaderboardTwitter(leaderBoard: trader[]) {
+  const post: string[] = []
+  post.push(`✅ Top 5 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑\n`)
+  leaderBoard.slice(0, 5).map((trader) => {
+    post.push(
+      `${Medal(trader.position)} ${trader.position}.  ${
+        trader.ens ? trader.ens : shortAddress(trader.owner)
+      }  💵 $${trader.balance.toFixed(2)}\n`,
+    )
+  })
+  post.push(`\nOptions for everyone, start trading 👇\n`)
+  post.push(`https://app.lyra.finance`)
+  return post.join('')
+}
+
+export function LeaderboardTelegram(leaderBoard: trader[]) {
+  const post: string[] = []
+  post.push(`✅ Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Traders 💵 💰 🤑\n`)
+  post.push(`Profits from last 1000 positions.\n`)
+  post.push(`============================\n`)
+  leaderBoard.slice(0, 10).map((trader) => {
+    post.push(
+      `${Medal(trader.position)} ${trader.position}. <a href='${PortfolioLink(trader.owner)}'>${
+        trader.ens ? trader.ens : shortAddress(trader.owner)
+      }</a> $${trader.balance.toFixed(2)}\n`,
+    )
+  })
+  post.push(`============================\n`)
+  return post.join('')
 }

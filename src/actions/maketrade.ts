@@ -1,4 +1,4 @@
-import Lyra, { Trade, TradeEvent } from '@lyrafinance/lyra-js'
+import Lyra, { Position, Trade, TradeEvent } from '@lyrafinance/lyra-js'
 import { ethers } from 'ethers'
 import { MAX_BN, ONE_BN } from '../constants/bn'
 import printObject from '../utils/printObject'
@@ -27,15 +27,23 @@ export async function maketrade(lyraClient: Lyra, signer: ethers.Wallet) {
   await approveResponse.wait()
   console.log('Approved sUSD')
 
+  // Check if has position open already
+  // const position = (await Position.getByOwner(lyraClient, account.address)).find(
+  //   (position) => position.strikeId == strike.id,
+  // )
+
   // Prepare trade (Open 1.0 Long ETH Call)
   const trade = await Trade.get(lyraClient, account.address, 'eth', strike.id, true, true, ONE_BN.div(100), {
     premiumSlippage: 0.1 / 100, // 0.1%
+    // positionId: position?.id,
   })
 
   // Check if trade is disabled
   if (!trade.tx) {
     throw new Error(`Trade is disabled: ${trade.disabledReason}`)
   }
+
+  console.log(trade.tx)
 
   const tradeResponse = await signer.sendTransaction(trade.tx)
   console.log('Executed trade:', tradeResponse.hash)
