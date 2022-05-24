@@ -9,7 +9,7 @@ import {
   TELEGRAM_THRESHOLD,
   DISCORD_THRESHOLD,
 } from '../utils/secrets'
-import { toDate, toNumber, toWholeNumber } from '../utils/utils'
+import { toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
@@ -20,6 +20,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { TradeDiscord, TradeTelegram, TradeTwitter } from '../utils/template'
+import fromBigNumber from '../utils/fromBigNumber'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -32,7 +33,8 @@ export async function RunTradeBot(
   lyraClient.onTrade(async (trade) => {
     try {
       const tradeDto = await MapToTradeDto(trade)
-      await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
+      console.log(tradeDto)
+      //await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
     } catch (e: any) {
       console.log(e)
     }
@@ -41,29 +43,31 @@ export async function RunTradeBot(
 
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const position = await trade.position()
-  const pnl = toNumber(position.pnl())
+  const pnl = fromBigNumber(position.pnl())
   const trades = position.trades()
   const totalPremiumPaid = PremiumsPaid(trades)
   const pnlNoNeg = pnl > 0 ? pnl : pnl * -1
   const market = await trade.market()
-  const noTrades = position.trades().length
+  const noTrades = trades.length
+
+  console.log(position)
 
   const tradeDto: TradeDto = {
     asset: market.name,
     isLong: trade.isLong,
     isCall: trade.isCall,
     isBuy: trade.isBuy,
-    strike: toNumber(trade.strikePrice),
+    strike: fromBigNumber(trade.strikePrice),
     expiry: toDate(trade.expiryTimestamp),
-    size: toNumber(trade.size),
-    premium: toWholeNumber(trade.premium),
+    size: fromBigNumber(trade.size),
+    premium: fromBigNumber(trade.premium),
     trader: trade.trader,
     transactionHash: trade.transactionHash,
     isOpen: trade.isOpen,
     ens: await GetEns(trade.trader),
     leaderBoard: MapLeaderBoard(global.LYRA_LEADERBOARD, trade.trader),
-    pnl: Math.floor(pnlNoNeg),
-    pnlPercent: toNumber(position.pnlPercent()),
+    pnl: pnlNoNeg,
+    pnlPercent: fromBigNumber(position.pnlPercent()),
     totalPremiumPaid: totalPremiumPaid,
     isProfitable: pnl > 0,
     timeStamp: toDate(trade.timestamp),
@@ -110,7 +114,7 @@ export async function BroadCastTrade(
 
 export function PremiumsPaid(trades: TradeEvent[]) {
   return trades.reduce((sum, trade) => {
-    const premium = trade.isBuy ? toNumber(trade.premium) : 0
+    const premium = trade.isBuy ? fromBigNumber(trade.premium) : 0
     return sum + premium
   }, 0)
 }

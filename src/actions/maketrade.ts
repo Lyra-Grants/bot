@@ -2,7 +2,6 @@ import Lyra, { Trade, TradeEvent } from '@lyrafinance/lyra-js'
 import { ethers } from 'ethers'
 import { MAX_BN, ONE_BN } from '../constants/bn'
 import printObject from '../utils/printObject'
-import { TestWallet } from '../wallets/wallet'
 
 export async function maketrade(lyraClient: Lyra, signer: ethers.Wallet) {
   const account = lyraClient.account(signer.address)
