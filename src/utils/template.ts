@@ -39,7 +39,7 @@ export function TradeTelegram(trade: TradeDto) {
   const post: string[] = []
   post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} x ${trade.size}\n`)
-  post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
+  post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium.toFixed(2)}\n`)
   post.push(`💻 Avalon\n`)
   post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {

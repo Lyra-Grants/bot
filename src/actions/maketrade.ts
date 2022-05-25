@@ -46,7 +46,7 @@ export async function maketrade(lyraClient: Lyra, signer: ethers.Wallet) {
   // Prepare trade (Open 1.0 Long ETH Call)
   const trade = await Trade.get(lyraClient, account.address, 'eth', strike.id, true, true, ONE_BN.div(100), {
     premiumSlippage: 0.1 / 100, // 0.1%
-    positionId: position?.id,
+    //positionId: position?.id,
   })
 
   // Check if trade is disabled
