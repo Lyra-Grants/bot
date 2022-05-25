@@ -27,15 +27,26 @@ export async function maketrade(lyraClient: Lyra, signer: ethers.Wallet) {
   await approveResponse.wait()
   console.log('Approved sUSD')
 
-  // Check if has position open already
-  // const position = (await Position.getByOwner(lyraClient, account.address)).find(
-  //   (position) => position.strikeId == strike.id,
-  // )
+  // if (!balances.optionToken(market.address).isApprovedForAll) {
+  //   console.log('approving option token...')
+  //   const tx = await account.approveOptionToken(market.address, true)
+  //   if (!tx) {
+  //     throw new Error('Cannot approve option token')
+  //   }
+  //   const response = await signer.sendTransaction(tx)
+  //   await response.wait()
+  //   console.log('approved option token')
+  // }
+
+  //Check if has position open already
+  const position = (await Position.getByOwner(lyraClient, account.address)).find(
+    (position) => position.strikeId == strike.id && position.isCall,
+  )
 
   // Prepare trade (Open 1.0 Long ETH Call)
   const trade = await Trade.get(lyraClient, account.address, 'eth', strike.id, true, true, ONE_BN.div(100), {
     premiumSlippage: 0.1 / 100, // 0.1%
-    // positionId: position?.id,
+    positionId: position?.id,
   })
 
   // Check if trade is disabled

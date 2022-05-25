@@ -33,8 +33,7 @@ export async function RunTradeBot(
   lyraClient.onTrade(async (trade) => {
     try {
       const tradeDto = await MapToTradeDto(trade)
-      console.log(tradeDto)
-      //await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
+      await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
     } catch (e: any) {
       console.log(e)
     }

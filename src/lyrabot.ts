@@ -30,9 +30,11 @@ export async function initializeLyraBot() {
   }
   lyraClient = new Lyra(deployment)
 
-  //const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
-  //faucet(lyraClient, signer)
-  //maketrade(lyraClient, signer)
+  if (TESTNET) {
+    const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
+    faucet(lyraClient, signer)
+    maketrade(lyraClient, signer)
+  }
 
   await SetUpDiscord()
   await SetUpTwitter()
