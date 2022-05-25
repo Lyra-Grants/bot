@@ -87,7 +87,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
   if (trade.leaderBoard.owner !== '') {
     tradeEmbed
       .addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader`, true)
-      .addField('Total Profit', `$${trade.leaderBoard.balance}`, true)
+      .addField('Total Profit', `$${trade.leaderBoard.balance.toFixed(2)}`, true)
       .addField('\u200B', '\u200B', true)
   }
   tradeEmbed.addFields(
@@ -108,12 +108,12 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
     },
     {
       name: `Premium ${AmountShortWording(trade.isLong, trade.isOpen)}`,
-      value: `💵 $${trade.premium}`,
+      value: `💵 $${trade.premium.toFixed(2)}`,
       inline: true,
     },
     {
       name: 'Amount',
-      value: `${trade.size}`,
+      value: `${trade.size.toFixed(2)}`,
       inline: true,
     },
     {
@@ -126,7 +126,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addField(
       `${trade.isProfitable ? 'Profit' : 'Loss'}`,
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl}`,
+      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl.toFixed(2)}`,
       true,
     )
     tradeEmbed.addField(`Percent`, `${trade.pnlPercent.toFixed(2)}%`, true)
