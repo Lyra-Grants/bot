@@ -6,4 +6,6 @@ export type trader = {
   isProfitable: boolean
   ens: string
   position: number
+  netPremiumsFormatted: string
+  openOptionsFormatted: string
 }

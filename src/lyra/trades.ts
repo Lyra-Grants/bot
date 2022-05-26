@@ -10,7 +10,7 @@ import {
   DISCORD_THRESHOLD,
   TESTNET,
 } from '../utils/secrets'
-import { toDate } from '../utils/utils'
+import { dollar, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
@@ -34,7 +34,7 @@ export async function RunTradeBot(
   let blockNumber: number | undefined = undefined
 
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 100
+    blockNumber = lyraClient.provider.blockNumber - 10000
   }
 
   lyraClient.onTrade(
@@ -52,9 +52,9 @@ export async function RunTradeBot(
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const position = await trade.position()
   const pnl = fromBigNumber(position.pnl())
+  const pnlPercent = fromBigNumber(position.pnlPercent(), 16)
   const trades = position.trades()
   const totalPremiumPaid = PremiumsPaid(trades)
-  const pnlNoNeg = pnl > 0 ? pnl : pnl * -1
   const market = await trade.market()
   const noTrades = trades.length
 
@@ -72,13 +72,15 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     isOpen: trade.isOpen,
     ens: await GetEns(trade.trader),
     leaderBoard: MapLeaderBoard(global.LYRA_LEADERBOARD, trade.trader),
-    pnl: pnlNoNeg,
-    pnlPercent: fromBigNumber(position.pnlPercent(), 16),
+    pnl: pnl,
+    pnlPercent: pnlPercent,
     totalPremiumPaid: totalPremiumPaid,
     isProfitable: pnl > 0,
     timeStamp: toDate(trade.timestamp),
     positionId: trade.positionId,
     positionTradeCount: noTrades,
+    pnlFormatted: dollar(pnl),
+    pnlPercentFormatted: `(${signed(pnlPercent)})%`,
   }
   return tradeDto
 }

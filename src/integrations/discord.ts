@@ -6,8 +6,15 @@ import dayjs from 'dayjs'
 
 export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean>) {
   try {
-    const channel = client.channels.cache.get(DISCORD_CHANNEL_ID) as TextChannel
-    await channel.send({ embeds: embeds })
+    const channelName = TESTNET ? 'kovan-trades' : 'avalon-trades'
+    const channels = client.channels.cache
+      .filter((value) => (value as TextChannel)?.name == channelName)
+      .map(async (channel) => {
+        await (channel as TextChannel).send({ embeds: embeds })
+      })
+
+    // const channel = client.channels.cache.get(DISCORD_CHANNEL_ID) as TextChannel
+    //await channel.send({ embeds: embeds })
   } catch (e: any) {
     console.log(e)
   }

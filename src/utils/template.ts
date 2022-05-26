@@ -15,18 +15,22 @@ export function TradeTwitter(trade: TradeDto) {
   post.push(`📈 $${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
-  post.push(`💻 Avalon\n`)
+  if (AVALON) {
+    post.push(`💻 Avalon\n`)
+  }
   post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl} ${
+      `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted} ${trade.pnlPercentFormatted} ${
         trade.isProfitable ? 'Profit' : 'Loss'
-      } ${trade.pnlPercent.toFixed(2)}%\n`,
+      }\n`,
     )
   }
   if (trade.leaderBoard.owner !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 $${trade.leaderBoard.balance}\n`,
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 ${
+        trade.leaderBoard.netPremiumsFormatted
+      }\n`,
     )
   }
   post.push(`👨‍ ${trade.ens ? trade.ens : trade.trader}\n`)
@@ -40,18 +44,22 @@ export function TradeTelegram(trade: TradeDto) {
   post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} x ${trade.size}\n`)
   post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium.toFixed(2)}\n`)
-  post.push(`💻 Avalon\n`)
+  if (AVALON) {
+    post.push(`💻 Avalon\n`)
+  }
   post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl.toFixed(2)} ${
+      `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted} ${trade.pnlPercentFormatted} ${
         trade.isProfitable ? 'Profit' : 'Loss'
-      } ${trade.pnlPercent.toFixed(2)}%\n`,
+      }\n`,
     )
   }
   if (trade.leaderBoard.owner !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 $${trade.leaderBoard.balance}\n`,
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 ${
+        trade.leaderBoard.netPremiumsFormatted
+      }\n`,
     )
   }
   post.push(`👨‍ <a href='${PositionLink(trade)}'>${trade.ens ? trade.ens : shortAddress(trade.trader)}</a>\n`)
@@ -87,7 +95,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
   if (trade.leaderBoard.owner !== '') {
     tradeEmbed
       .addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader`, true)
-      .addField('Total Profit', `$${trade.leaderBoard.balance.toFixed(2)}`, true)
+      .addField('Profit', `${trade.leaderBoard.netPremiumsFormatted}`, true)
       .addField('\u200B', '\u200B', true)
   }
   tradeEmbed.addFields(
@@ -122,16 +130,17 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       inline: true,
     },
   )
+  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
 
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addField(
       `${trade.isProfitable ? 'Profit' : 'Loss'}`,
-      `${trade.isProfitable ? '🟢 ' : '🔴 -'}$${trade.pnl.toFixed(2)}`,
+      `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted}`,
       true,
     )
-    tradeEmbed.addField(`Percent`, `${trade.pnlPercent.toFixed(2)}%`, true)
+    tradeEmbed.addField(`\u200B`, `${trade.pnlPercentFormatted}`, true)
   }
-  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
+
   return tradeEmbed
 }
 
@@ -216,10 +225,10 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
     .setTitle(`✅ Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
-    .setDescription(`Calculated from last 1000 positions. (Open Value)`)
+    .setDescription(`Last 1000 positions (unrealised profit).`)
     .addField('Trader', '-----------', true)
-    .addField('Premiums', '-----------', true)
     .addField('💵 Profit', '-----------', true)
+    .addField(`\u200B`, `\u200B`, true)
   //\u200b
   leaderBoard.slice(0, 5).map((trader) => {
     return leaderBoardRow(tradeEmbed, trader)
@@ -249,8 +258,12 @@ export function leaderBoardRow(tradeEmbed: MessageEmbed, trader: trader): Messag
       `${trader.ens ? trader.ens : shortAddress(trader.owner)}`,
       true,
     )
-    .addField(`$${trader.netPremiums.toFixed(2)}`, `($${trader.openOptionsValue.toFixed()})`, true)
-    .addField(`$${trader.balance.toFixed(2)}`, '\u200b', true)
+    .addField(
+      `${trader.netPremiumsFormatted}`,
+      `${trader.openOptionsFormatted == '' ? '(0)' : trader.openOptionsFormatted}`,
+      true,
+    )
+    .addField(`\u200B`, `\u200B`, true)
 }
 
 export function LeaderboardTwitter(leaderBoard: trader[]) {
@@ -258,9 +271,9 @@ export function LeaderboardTwitter(leaderBoard: trader[]) {
   post.push(`✅ Top 5 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑\n`)
   leaderBoard.slice(0, 5).map((trader) => {
     post.push(
-      `${Medal(trader.position)} ${trader.position}.  ${
-        trader.ens ? trader.ens : shortAddress(trader.owner)
-      }  💵 $${trader.balance.toFixed(2)}\n`,
+      `${Medal(trader.position)} ${trader.position}.  ${trader.ens ? trader.ens : shortAddress(trader.owner)}  💵 ${
+        trader.netPremiumsFormatted
+      }\n`,
     )
   })
   post.push(`\nOptions for everyone, start trading 👇\n`)
@@ -277,7 +290,7 @@ export function LeaderboardTelegram(leaderBoard: trader[]) {
     post.push(
       `${Medal(trader.position)} ${trader.position}. <a href='${PortfolioLink(trader.owner)}'>${
         trader.ens ? trader.ens : shortAddress(trader.owner)
-      }</a> $${trader.balance.toFixed(2)}\n`,
+      }</a> ${trader.netPremiumsFormatted}\n`,
     )
   })
   post.push(`============================\n`)

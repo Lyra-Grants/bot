@@ -31,7 +31,7 @@ export async function initializeLyraBot() {
   lyraClient = new Lyra(deployment)
 
   if (TESTNET) {
-    const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
+    //const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
     //faucet(lyraClient, signer)
     //maketrade(lyraClient, signer)
   }
@@ -41,11 +41,12 @@ export async function initializeLyraBot() {
   await SetUpTelegram()
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
+  await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
 
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
 
-  // every three days
-  const job: Job = scheduleJob('0 0 */3 * *', async () => {
+  // Monday / Wednesday / Friday (as this resets each build)
+  const job: Job = scheduleJob('0 0 * * 1,3,5', async () => {
     global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
     await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
   })

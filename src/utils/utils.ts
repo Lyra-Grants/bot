@@ -2,16 +2,8 @@ export function Timestamp(): number {
   return Math.floor(Date.now() / 1000)
 }
 
-export const toNumber = (value: any): number => {
-  return value / 1000000000000000000
-}
-
 export const toDate = (value: number): Date => {
   return new Date(value * 1000)
-}
-
-export const toWholeNumber = (value: any): number => {
-  return Math.floor(value / 1000000000000000000)
 }
 
 export function convertToBoolean(input: string): boolean | undefined {
@@ -24,4 +16,14 @@ export function convertToBoolean(input: string): boolean | undefined {
 
 export function shortAddress(value: string): string {
   return `${value.slice(0, 5)}...${value.slice(-4)}`
+}
+
+export function dollar(value: number): string {
+  const nonNeg = value > 0 ? value : value * -1
+  return `${value > 0 ? '+' : '-'}$${nonNeg.toFixed(2)}`
+}
+
+export function signed(value: number): string {
+  const nonNeg = value > 0 ? value : value * -1
+  return `${value > 0 ? '+' : '-'}${nonNeg.toFixed(2)}`
 }

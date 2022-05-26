@@ -14,6 +14,7 @@ import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED } from '../utils/sec
 import { LeaderboardDiscord, LeaderboardTelegram, LeaderboardTwitter, TradeDiscord } from '../utils/template'
 import { NetPremiums, OpenOptionValue } from './helper'
 import { PostTelegram } from '../integrations/telegram'
+import { dollar } from '../utils/utils'
 
 async function GetLeaderBoardTrades(): Promise<Trade[]> {
   const trades = (
@@ -56,10 +57,12 @@ export async function GetLeaderBoard(take: number) {
         isProfitable: balance > 0,
         ens: '',
         position: 0,
+        netPremiumsFormatted: dollar(netPremiums),
+        openOptionsFormatted: openOptionsValue == 0 ? '' : `(${dollar(openOptionsValue)})`,
       }
       return trader
     })
-    .sort((a, b) => b.balance - a.balance)
+    .sort((a, b) => b.netPremiums - a.netPremiums)
     .slice(0, take)
 
   await Promise.all(
@@ -81,6 +84,8 @@ export function MapLeaderBoard(leaderboard: trader[], traderAddress: string): tr
     isProfitable: false,
     ens: '',
     position: 0,
+    netPremiumsFormatted: '',
+    openOptionsFormatted: '',
   }
 
   const index = leaderboard.findIndex((leaderboard) => leaderboard.owner.toLowerCase() === traderAddress.toLowerCase())

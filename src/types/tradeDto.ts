@@ -21,4 +21,6 @@ export type TradeDto = {
   timeStamp: Date
   positionId: number
   positionTradeCount: number
+  pnlFormatted: string
+  pnlPercentFormatted: string
 }
