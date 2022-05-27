@@ -80,7 +80,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     positionId: trade.positionId,
     positionTradeCount: noTrades,
     pnlFormatted: dollar(pnl),
-    pnlPercentFormatted: `(${signed(pnlPercent)})%`,
+    pnlPercentFormatted: `(${signed(pnlPercent)}%)`,
   }
   return tradeDto
 }

@@ -41,8 +41,6 @@ export async function initializeLyraBot() {
   await SetUpTelegram()
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
-  await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
-
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
 
   // Monday / Wednesday / Friday (as this resets each build)

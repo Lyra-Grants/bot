@@ -14,7 +14,7 @@ export function TradeTwitter(trade: TradeDto) {
 
   post.push(`📈 $${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
   post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
-  post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium}\n`)
+  post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium.toFixed(2)}\n`)
   if (AVALON) {
     post.push(`💻 Avalon\n`)
   }
@@ -28,7 +28,7 @@ export function TradeTwitter(trade: TradeDto) {
   }
   if (trade.leaderBoard.owner !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 ${
+      `${Medal(trade.leaderBoard.position)} ${trade.leaderBoard.position}. Trader 💵 ${
         trade.leaderBoard.netPremiumsFormatted
       }\n`,
     )
