@@ -4,3 +4,5 @@ prod.env
 dev.env
 yarn-error.log
 launch.json
+deploy-commands.js
+dist/

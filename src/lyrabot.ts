@@ -15,6 +15,7 @@ import { maketrade } from './actions/maketrade'
 import { ethers } from 'ethers'
 import { TestWallet } from './wallets/wallet'
 import faucet from './actions/faucet'
+import { LeaderboardDiscord, LeaderboardTelegram } from './utils/template'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -55,6 +56,18 @@ export async function SetUpDiscord() {
     discordClient = DiscordClient
     discordClient.on('ready', async (client) => {
       console.debug('Discord bot is online!')
+    })
+
+    discordClient.on('interactionCreate', async (interaction) => {
+      if (!interaction.isCommand()) return
+
+      const { commandName } = interaction
+
+      if (commandName === 'leaderboard') {
+        global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
+        const post = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
+        await interaction.reply({ embeds: post })
+      }
     })
 
     await discordClient.login(DISCORD_ACCESS_TOKEN)
