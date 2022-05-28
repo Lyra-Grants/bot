@@ -12,9 +12,24 @@ const debankUrl = 'https://debank.com/profile/'
 export function TradeTwitter(trade: TradeDto) {
   const post: string[] = []
 
-  post.push(`📈 $${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
-  post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} X ${trade.size}\n`)
-  post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium.toFixed(2)}\n`)
+  if (!trade.isLiquidation) {
+    post.push(
+      `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} $${trade.asset} $${trade.strike} ${
+        trade.isCall ? 'Call' : 'Put'
+      }\n`,
+    )
+    post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'}\n`)
+    post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen, trade.isLiquidation)} ${trade.premiumFormatted}\n`)
+    if (trade.setCollateralTo != undefined) {
+      post.push(`💰 Collateral $${trade.setCollateralTo?.toFixed(2)}\n`)
+    }
+  } else {
+    post.push(`💯 Liquidation 💯💯💯💯💯\n`)
+    post.push(`💵 Amount ${trade.premiumFormatted}\n`)
+    post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
+    post.push(`📈 ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'} \n`)
+  }
+
   if (AVALON) {
     post.push(`💻 Avalon\n`)
   }
@@ -28,7 +43,7 @@ export function TradeTwitter(trade: TradeDto) {
   }
   if (trade.leaderBoard.owner !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} ${trade.leaderBoard.position}. Trader 💵 ${
+      `${Medal(trade.leaderBoard.position)} ${trade.leaderBoard.position}. Trader ${
         trade.leaderBoard.netPremiumsFormatted
       }\n`,
     )
@@ -41,9 +56,23 @@ export function TradeTwitter(trade: TradeDto) {
 // TELEGRAM //
 export function TradeTelegram(trade: TradeDto) {
   const post: string[] = []
-  post.push(`📈 ${trade.asset} ${FormattedDate(trade.expiry)} ${trade.isCall ? 'Call' : 'Put'} $${trade.strike}\n`)
-  post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'} ${trade.isLong ? 'Long' : 'Short'} x ${trade.size}\n`)
-  post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen)} $${trade.premium.toFixed(2)}\n`)
+  if (!trade.isLiquidation) {
+    post.push(
+      `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} $${trade.asset} $${trade.strike} ${
+        trade.isCall ? 'Call' : 'Put'
+      }\n`,
+    )
+    post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'}\n`)
+    post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen, trade.isLiquidation)} ${trade.premiumFormatted}\n`)
+    if (trade.setCollateralTo != undefined) {
+      post.push(`💰 Collateral $${trade.setCollateralTo?.toFixed(2)}\n`)
+    }
+  } else {
+    post.push(`💯 Liquidation 💯💯💯💯💯\n`)
+    post.push(`💵 Amount ${trade.premiumFormatted}\n`)
+    post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
+    post.push(`📈 ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'} \n`)
+  }
   if (AVALON) {
     post.push(`💻 Avalon\n`)
   }
@@ -57,7 +86,7 @@ export function TradeTelegram(trade: TradeDto) {
   }
   if (trade.leaderBoard.owner !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader 💵 ${
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader ${
         trade.leaderBoard.netPremiumsFormatted
       }\n`,
     )
@@ -79,25 +108,22 @@ export function TradeTelegram(trade: TradeDto) {
 // DISCORD //
 export function TradeDiscord(trade: TradeDto): MessageEmbed {
   const url = PositionLink(trade)
-  const tradeEmbed = new MessageEmbed()
-    .setColor('#0099ff')
-    .setTitle(
+  const tradeEmbed = new MessageEmbed().setColor('#0099ff').setURL(`${url}`)
+
+  if (!trade.isLiquidation) {
+    tradeEmbed.setTitle(
       `${trade.isOpen ? '✅' : '🚫'} ${trade.isOpen ? 'Open' : 'Close'} ${trade.isLong ? 'Long' : 'Short'} ${
         trade.size
       } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
     )
-    .setURL(`${url}`)
+  } else {
+    tradeEmbed.setTitle(`💯 Liquidation $${trade.asset} ${trade.premiumFormatted} 💯 💯 💯`)
+  }
 
   if (trade.asset == 'ETH') {
     tradeEmbed.setThumbnail('https://avalon.app.lyra.finance/images/ethereum-logo.png')
   }
 
-  if (trade.leaderBoard.owner !== '') {
-    tradeEmbed
-      .addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader`, true)
-      .addField('Profit', `${trade.leaderBoard.netPremiumsFormatted}`, true)
-      .addField('\u200B', '\u200B', true)
-  }
   tradeEmbed.addFields(
     {
       name: 'Trade Type',
@@ -115,13 +141,13 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       inline: true,
     },
     {
-      name: `Premium ${AmountShortWording(trade.isLong, trade.isOpen)}`,
-      value: `💵 $${trade.premium.toFixed(2)}`,
+      name: `${AmountShortWording(trade.isLong, trade.isOpen, trade.isLiquidation)}`,
+      value: `💵 ${trade.premiumFormatted}`,
       inline: true,
     },
     {
-      name: 'Amount',
-      value: `${trade.size.toFixed(2)}`,
+      name: 'Size',
+      value: `${trade.size}`,
       inline: true,
     },
     {
@@ -132,6 +158,11 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
   )
   tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
 
+  if (trade.leaderBoard.owner !== '') {
+    tradeEmbed
+      .addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position}`, true)
+      .addField('Profit', `${trade.leaderBoard.netPremiumsFormatted}`, true)
+  }
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addField(
       `${trade.isProfitable ? 'Profit' : 'Loss'}`,
@@ -145,6 +176,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
 }
 
 export function ShowProfitAndLoss(positionTradeCount: number, pnl: number): boolean {
+  return false
   return positionTradeCount > 1 && pnl != 0
 }
 
@@ -161,7 +193,10 @@ export function Medal(position: number): string {
   return '🏅'
 }
 
-export function AmountWording(isLong: boolean, isOpen: boolean): string {
+export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: boolean): string {
+  if (isLiquidation) {
+    return 'Amount'
+  }
   const paid = 'Premium Paid'
   const received = "Premium Rec'd"
 
@@ -172,9 +207,13 @@ export function AmountWording(isLong: boolean, isOpen: boolean): string {
   return isLong ? received : paid
 }
 
-export function AmountShortWording(isLong: boolean, isOpen: boolean): string {
-  const paid = 'Paid'
-  const received = "Rec'd"
+export function AmountShortWording(isLong: boolean, isOpen: boolean, isLiquidation: boolean): string {
+  if (isLiquidation) {
+    return 'Amount'
+  }
+
+  const paid = 'Premium Paid'
+  const received = "Premium Rec'd"
 
   if (isOpen) {
     return isLong ? paid : received

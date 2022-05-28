@@ -23,4 +23,9 @@ export type TradeDto = {
   positionTradeCount: number
   pnlFormatted: string
   pnlPercentFormatted: string
+  isLiquidation: boolean
+  lpFees: number | undefined
+  setCollateralTo: number | undefined
+  pricePerOption: number
+  premiumFormatted: string
 }

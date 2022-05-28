@@ -34,8 +34,13 @@ export async function RunTradeBot(
   let blockNumber: number | undefined = undefined
 
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 10000
+    blockNumber = lyraClient.provider.blockNumber - 100000
   }
+  // const trade = (
+  //   await TradeEvent.getByHash(lyraClient, '0x92548b3217179539b62f042bff95e92cdb6fccf02991789b5b71f763a7d76d44')
+  // )[0]
+  // const tradeDto = await MapToTradeDto(trade)
+  // await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
 
   lyraClient.onTrade(
     async (trade) => {
@@ -81,8 +86,27 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     positionTradeCount: noTrades,
     pnlFormatted: dollar(pnl),
     pnlPercentFormatted: `(${signed(pnlPercent)}%)`,
+    isLiquidation: trade.isLiquidation,
+    setCollateralTo: trade.setCollateralTo ? fromBigNumber(trade.setCollateralTo) : undefined,
+    pricePerOption: fromBigNumber(trade.pricePerOption),
+    lpFees: trade.liquidation ? fromBigNumber(trade.liquidation.lpFee) : undefined,
+    premiumFormatted: dollar(
+      AmountWording(fromBigNumber(trade.premium), trade.isLong, trade.isOpen, trade.isLiquidation),
+    ),
   }
   return tradeDto
+}
+
+export function AmountWording(amount: number, isLong: boolean, isOpen: boolean, isLiquidation: boolean): number {
+  if (isLiquidation) {
+    return amount * -1
+  }
+
+  if (isOpen) {
+    return isLong ? amount * -1 : amount
+  }
+
+  return isLong ? amount : amount * -1
 }
 
 export async function BroadCastTrade(
