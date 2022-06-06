@@ -173,7 +173,8 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted}`,
       true,
     )
-    tradeEmbed.addField(`Percent`, `${trade.pnlPercentFormatted}`, true)
+    tradeEmbed.addField(`\u200B`, `${trade.pnlPercentFormatted}`, true)
+    tradeEmbed.addField(`\u200B`, `\u200B`, true)
   }
 
   return tradeEmbed
