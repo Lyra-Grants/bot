@@ -156,7 +156,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
     },
   )
   tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
-  tradeEmbed.addField('Collateral', `💰 ${trade.baseCollateralFormatted}`, true)
+  tradeEmbed.addField('Collateral', `${trade.setCollateralTo ? '💰 ' + trade.baseCollateralFormatted : '-'}`, true)
 
   if (trade.leaderBoard.owner !== '') {
     tradeEmbed.addField(
