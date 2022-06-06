@@ -10,7 +10,7 @@ import { SendTweet } from '../integrations/twitter'
 import { GetEns } from '../integrations/ens'
 import { leaderboardTradesQuery, positionsQuery } from '../queries'
 import { trader } from '../types/trader'
-import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED } from '../utils/secrets'
+import { DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../utils/secrets'
 import { LeaderboardDiscord, LeaderboardTelegram, LeaderboardTwitter, TradeDiscord } from '../utils/template'
 import { NetPremiums, OpenOptionValue } from './helper'
 import { PostTelegram } from '../integrations/telegram'
@@ -105,8 +105,9 @@ export async function BroadcastLeaderBoard(
 ) {
   console.log('### Broadcast Leaderboard ###')
   if (DISCORD_ENABLED) {
+    const channelName = TESTNET ? 'kovan-trades' : 'avalon-trades'
     const embeds = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
-    await PostDiscord(embeds, discordClient)
+    await PostDiscord(embeds, discordClient, channelName)
   }
   if (TWITTER_ENABLED) {
     const tweet = LeaderboardTwitter(global.LYRA_LEADERBOARD.slice(0, 5))

@@ -4,6 +4,7 @@ import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
 import { trader } from '../types/trader'
 import { shortAddress } from './utils'
+import { TransferDto } from '../types/transferDto'
 
 const zapperUrl = 'https://zapper.fi/account/'
 const debankUrl = 'https://debank.com/profile/'
@@ -93,7 +94,7 @@ export function TradeTelegram(trade: TradeDto) {
   post.push(`👨‍ <a href='${PositionLink(trade)}'>${trade.ens ? trade.ens : shortAddress(trade.trader)}</a>\n`)
   post.push(`============================\n`)
   post.push(
-    `<a href='${EtherScanTransactionLink(trade)}'>Trxn</a> | <a href='${TradeHistoryLink(
+    `<a href='${EtherScanTransactionLink(trade.transactionHash)}'>Trxn</a> | <a href='${TradeHistoryLink(
       trade,
     )}'>History</a> | <a href='${PortfolioLink(trade.trader)}'>Portfolio</a> | <a href='${PositionLink(
       trade,
@@ -238,8 +239,8 @@ export function TradeHistoryLink(trade: TradeDto) {
   return `${LyraDappUrl()}/portfolio/history?see=${trade.trader}`
 }
 
-export function EtherScanTransactionLink(trade: TradeDto) {
-  return `${EtherScanUrl()}/tx/${trade.transactionHash}`
+export function EtherScanTransactionLink(transactionHash: string) {
+  return `${EtherScanUrl()}/tx/${transactionHash}`
 }
 
 export function FormattedDate(date: Date) {
@@ -349,4 +350,19 @@ export function LeaderboardTelegram(leaderBoard: trader[]) {
 
 export function TradeShareImage(trade: TradeDto) {
   return `${LyraDappUrl()}/position/image/${trade.asset}/${trade.positionId}`
+}
+
+export function TransferDiscord(transfer: TransferDto): MessageEmbed[] {
+  const messageEmbeds: MessageEmbed[] = []
+
+  const tradeEmbed = new MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(`💵 ${transfer.value.toFixed(2)} Lyra (transfer)`)
+    .addField('From', `${transfer.fromEns ? transfer.fromEns : shortAddress(transfer.from)}`, true)
+    .addField('To', `${transfer.toEns ? transfer.toEns : shortAddress(transfer.to)}`, true)
+    .addField('Amount', `${transfer.value.toFixed(2)} Lyra`, true)
+    .setURL(`${`https://optimistic.etherscan.io/tx/${transfer.transactionHash}`}`)
+
+  messageEmbeds.push(tradeEmbed)
+  return messageEmbeds
 }

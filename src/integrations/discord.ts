@@ -4,12 +4,12 @@ import { TradeDiscord } from '../utils/template'
 import { Client, MessageEmbed, TextChannel } from 'discord.js/typings/index.js'
 import dayjs from 'dayjs'
 
-export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean>) {
+export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean>, channelName: string) {
   try {
-    const channelName = TESTNET ? 'kovan-trades' : 'avalon-trades'
     const channels = client.channels.cache
       .filter((value) => (value as TextChannel)?.name == channelName)
       .map(async (channel) => {
+        console.log(`found channel: ${channelName}`)
         await (channel as TextChannel).send({ embeds: embeds })
       })
 
