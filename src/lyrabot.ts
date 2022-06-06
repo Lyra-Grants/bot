@@ -44,7 +44,7 @@ export async function initializeLyraBot() {
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-  await TrackTokenMoves(discordClient)
+  //await TrackTokenMoves(discordClient)
   // Monday / Wednesday / Friday (as this resets each build)
   const job: Job = scheduleJob('0 0 * * 1,3,5', async () => {
     global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
