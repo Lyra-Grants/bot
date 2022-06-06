@@ -54,6 +54,7 @@ export function TradeTwitter(trade: TradeDto) {
 
 // TELEGRAM //
 export function TradeTelegram(trade: TradeDto) {
+  const img = TradeShareImage(trade)
   const post: string[] = []
   if (!trade.isLiquidation) {
     post.push(
@@ -100,6 +101,7 @@ export function TradeTelegram(trade: TradeDto) {
   )
   post.push(`============================\n`)
   post.push(`⏱️ ${FormattedDateTime(trade.timeStamp)}\n`)
+  // post.push(`<img src='${img}' />`)
   return post.join('')
 }
 
@@ -119,10 +121,6 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
     tradeEmbed.setTitle(
       `🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
     )
-  }
-
-  if (trade.asset == 'ETH') {
-    tradeEmbed.setThumbnail('https://avalon.app.lyra.finance/images/ethereum-logo.png')
   }
 
   tradeEmbed.addFields(
@@ -158,12 +156,16 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
     },
   )
   tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
-  tradeEmbed.addField('Collateral', `💰 ${trade.baseCollateralFormatted}`)
+  tradeEmbed.addField('Collateral', `💰 ${trade.baseCollateralFormatted}`, true)
 
   if (trade.leaderBoard.owner !== '') {
-    tradeEmbed
-      .addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position}`, true)
-      .addField('Profit', `${trade.leaderBoard.netPremiumsFormatted}`, true)
+    tradeEmbed.addField(
+      `Leaderboard`,
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} ${trade.leaderBoard.netPremiumsFormatted}`,
+      true,
+    )
+  } else {
+    tradeEmbed.addField(`Leaderboard`, `-`, true)
   }
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addField(
