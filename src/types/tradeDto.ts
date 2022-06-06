@@ -28,4 +28,6 @@ export type TradeDto = {
   setCollateralTo: number | undefined
   pricePerOption: number
   premiumFormatted: string
+  isBaseCollateral: boolean | undefined
+  baseCollateralFormatted: string
 }

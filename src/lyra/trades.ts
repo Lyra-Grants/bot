@@ -56,8 +56,8 @@ export async function RunTradeBot(
 }
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const position = await trade.position()
-  const pnl = fromBigNumber(position.pnl())
-  const pnlPercent = fromBigNumber(position.pnlPercent(), 16)
+  const pnl = fromBigNumber(await trade.realizedPnl())
+  const pnlPercent = fromBigNumber(await trade.realizedPnlPercent(), 16)
   const trades = position.trades()
   const totalPremiumPaid = PremiumsPaid(trades)
   const market = await trade.market()
@@ -93,6 +93,8 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     premiumFormatted: dollar(
       AmountWording(fromBigNumber(trade.premium), trade.isLong, trade.isOpen, trade.isLiquidation),
     ),
+    isBaseCollateral: trade.isBaseCollateral,
+    baseCollateralFormatted: BaseCollateral(trade, market.name),
   }
   return tradeDto
 }
@@ -107,6 +109,20 @@ export function AmountWording(amount: number, isLong: boolean, isOpen: boolean, 
   }
 
   return isLong ? amount : amount * -1
+}
+
+export function BaseCollateral(trade: TradeEvent, asset: string) {
+  const setCollateralTo = trade.setCollateralTo ? fromBigNumber(trade.setCollateralTo) : undefined
+
+  if (setCollateralTo == undefined) {
+    return ''
+  }
+
+  if (!trade.isBaseCollateral) {
+    return `$${setCollateralTo?.toFixed(2)}`
+  }
+
+  return `${setCollateralTo?.toFixed(2)} ${asset}`
 }
 
 export async function BroadCastTrade(

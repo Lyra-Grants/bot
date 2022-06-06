@@ -41,12 +41,11 @@ export async function initializeLyraBot() {
   await SetUpTwitter()
   await SetUpTelegram()
   global.LYRA_ENS = {}
-  global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
+  global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-
   // Monday / Wednesday / Friday (as this resets each build)
   const job: Job = scheduleJob('0 0 * * 1,3,5', async () => {
-    global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
+    global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
     await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
   })
 }
@@ -64,8 +63,13 @@ export async function SetUpDiscord() {
       const { commandName } = interaction
 
       if (commandName === 'leaderboard') {
-        global.LYRA_LEADERBOARD = await GetLeaderBoard(25)
+        global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
         const post = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
+        await interaction.reply({ embeds: post })
+      }
+      if (commandName === 'top30') {
+        global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
+        const post = LeaderboardDiscord(global.LYRA_LEADERBOARD)
         await interaction.reply({ embeds: post })
       }
     })

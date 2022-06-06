@@ -21,13 +21,12 @@ export function TradeTwitter(trade: TradeDto) {
     post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'}\n`)
     post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen, trade.isLiquidation)} ${trade.premiumFormatted}\n`)
     if (trade.setCollateralTo != undefined) {
-      post.push(`💰 Collateral $${trade.setCollateralTo?.toFixed(2)}\n`)
+      post.push(`💰 Collateral ${trade.baseCollateralFormatted}\n`)
     }
   } else {
-    post.push(`💯 Liquidation 💯💯💯💯💯\n`)
+    post.push(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}\n`)
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
-    post.push(`📈 ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'} \n`)
   }
 
   if (AVALON) {
@@ -65,13 +64,12 @@ export function TradeTelegram(trade: TradeDto) {
     post.push(`${trade.isOpen ? '✅ Opened' : '🚫 Closed'}\n`)
     post.push(`💵 ${AmountWording(trade.isLong, trade.isOpen, trade.isLiquidation)} ${trade.premiumFormatted}\n`)
     if (trade.setCollateralTo != undefined) {
-      post.push(`💰 Collateral $${trade.setCollateralTo?.toFixed(2)}\n`)
+      post.push(`💰 Collateral ${trade.baseCollateralFormatted}\n`)
     }
   } else {
-    post.push(`💯 Liquidation 💯💯💯💯💯\n`)
+    post.push(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}\n`)
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
-    post.push(`📈 ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'} \n`)
   }
   if (AVALON) {
     post.push(`💻 Avalon\n`)
@@ -108,7 +106,8 @@ export function TradeTelegram(trade: TradeDto) {
 // DISCORD //
 export function TradeDiscord(trade: TradeDto): MessageEmbed {
   const url = PositionLink(trade)
-  const tradeEmbed = new MessageEmbed().setColor('#0099ff').setURL(`${url}`)
+  const img = TradeShareImage(trade)
+  const tradeEmbed = new MessageEmbed().setColor('#0099ff').setURL(`${url}`).setImage(img)
 
   if (!trade.isLiquidation) {
     tradeEmbed.setTitle(
@@ -117,7 +116,9 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
     )
   } else {
-    tradeEmbed.setTitle(`💯 Liquidation $${trade.asset} ${trade.premiumFormatted} 💯 💯 💯`)
+    tradeEmbed.setTitle(
+      `🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
+    )
   }
 
   if (trade.asset == 'ETH') {
@@ -157,6 +158,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
     },
   )
   tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
+  tradeEmbed.addField('Collateral', `💰 ${trade.baseCollateralFormatted}`)
 
   if (trade.leaderBoard.owner !== '') {
     tradeEmbed
@@ -169,14 +171,13 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted}`,
       true,
     )
-    tradeEmbed.addField(`\u200B`, `${trade.pnlPercentFormatted}`, true)
+    tradeEmbed.addField(`Percent`, `${trade.pnlPercentFormatted}`, true)
   }
 
   return tradeEmbed
 }
 
 export function ShowProfitAndLoss(positionTradeCount: number, pnl: number): boolean {
-  return false
   return positionTradeCount > 1 && pnl != 0
 }
 
@@ -261,9 +262,11 @@ export function LyraDappUrl() {
 }
 
 export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
+  const messageEmbeds: MessageEmbed[] = []
+
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`✅ Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
+    .setTitle(`✅ Top ${leaderBoard.length} ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
     .setDescription(`Last 1000 positions (unrealised profit).`)
     .addField('Trader', '-----------', true)
     .addField('💵 Profit', '-----------', true)
@@ -272,22 +275,27 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
   leaderBoard.slice(0, 5).map((trader) => {
     return leaderBoardRow(tradeEmbed, trader)
   })
+  messageEmbeds.push(tradeEmbed)
 
-  const tradeEmbed2 = new MessageEmbed()
-    .setColor('#0099ff')
-    .setDescription(`---------------------------------------------------------------`)
-  leaderBoard.slice(5, 10).map((trader) => {
-    return leaderBoardRow(tradeEmbed2, trader)
-  })
+  const traders: trader[] = []
 
-  // const tradeEmbed3 = new MessageEmbed()
-  //   .setColor('#0099ff')
-  //   .setDescription(`---------------------------------------------------------------`)
-  // leaderBoard.slice(10, 15).map((trader) => {
-  //   return leaderBoardRow(tradeEmbed3, trader)
-  // })
+  // skip 5 until end
+  leaderBoard.slice(5).reduce((group, trader, index) => {
+    group.push(trader)
+    if (index % 5 === 4) {
+      const embed = new MessageEmbed()
+        .setColor('#0099ff')
+        .setDescription(`---------------------------------------------------------------`)
+      group.map((trader) => {
+        return leaderBoardRow(embed, trader)
+      })
+      messageEmbeds.push(embed)
+      group = []
+    }
+    return group
+  }, traders)
 
-  return [tradeEmbed, tradeEmbed2]
+  return messageEmbeds
 }
 
 export function leaderBoardRow(tradeEmbed: MessageEmbed, trader: trader): MessageEmbed {
@@ -334,4 +342,8 @@ export function LeaderboardTelegram(leaderBoard: trader[]) {
   })
   post.push(`============================\n`)
   return post.join('')
+}
+
+export function TradeShareImage(trade: TradeDto) {
+  return `${LyraDappUrl()}/position/image/${trade.asset}/${trade.positionId}`
 }
