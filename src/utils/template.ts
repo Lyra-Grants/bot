@@ -74,9 +74,6 @@ export function TradeTelegram(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
-  if (AVALON) {
-    post.push(`💻 Avalon\n`)
-  }
   post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
@@ -111,7 +108,8 @@ export function TradeTelegram(trade: TradeDto) {
 export function TradeDiscord(trade: TradeDto): MessageEmbed {
   const url = PositionLink(trade)
   const img = TradeShareImage(trade)
-  const tradeEmbed = new MessageEmbed().setColor('#0099ff').setURL(`${url}`).setImage(img)
+  const tradeEmbed = new MessageEmbed().setColor('#0099ff').setURL(`${url}`)
+  //.setImage(img)
 
   if (!trade.isLiquidation) {
     tradeEmbed.setTitle(
@@ -151,24 +149,15 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       value: `${trade.size}`,
       inline: true,
     },
-    {
-      name: 'Timestamp',
-      value: `${FormattedDateTime(trade.timeStamp)}`,
-      inline: true,
-    },
   )
-  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
   tradeEmbed.addField('Collateral', `${trade.setCollateralTo ? '💰 ' + trade.baseCollateralFormatted : '-'}`, true)
+  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
 
   if (trade.leaderBoard.owner !== '') {
-    tradeEmbed.addField(
-      `Leaderboard`,
-      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} ${trade.leaderBoard.netPremiumsFormatted}`,
-      true,
-    )
-  } else {
-    tradeEmbed.addField(`Leaderboard`, `-`, true)
+    tradeEmbed.addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position}`, true)
+    tradeEmbed.addField(`\u200B`, `${trade.leaderBoard.netPremiumsFormatted}`, true)
   }
+
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addField(
       `${trade.isProfitable ? 'Profit' : 'Loss'}`,
@@ -176,8 +165,8 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       true,
     )
     tradeEmbed.addField(`\u200B`, `${trade.pnlPercentFormatted}`, true)
-    tradeEmbed.addField(`\u200B`, `\u200B`, true)
   }
+  tradeEmbed.setFooter({ text: `${FormattedDateTime(trade.timeStamp)}` })
 
   return tradeEmbed
 }

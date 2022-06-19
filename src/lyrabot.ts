@@ -45,13 +45,13 @@ export async function initializeLyraBot() {
 
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-  await GetPrice()
+  //await GetPrice()
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-  await TrackTokenMoves(discordClient, lyraClient)
+  //await TrackTokenMoves(discordClient, lyraClient)
 
-  const pricingJob: Job = scheduleJob('*/20 * * * *', async () => {
-    GetPrice()
-  })
+  // const pricingJob: Job = scheduleJob('*/20 * * * *', async () => {
+  //   GetPrice()
+  // })
 
   // Monday / Wednesday / Friday (as this resets each build)
   const leadeboardJob: Job = scheduleJob('0 0 * * 1,3,5', async () => {
