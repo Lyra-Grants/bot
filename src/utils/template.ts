@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import dayjsPluginUTC from 'dayjs/plugin/utc'
 import { TESTNET, AVALON } from '../utils/secrets'
 import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
@@ -244,11 +245,13 @@ export function EtherScanTransactionLink(transactionHash: string) {
 }
 
 export function FormattedDate(date: Date) {
-  return dayjs(date).format('DD MMM YY')
+  dayjs.extend(dayjsPluginUTC)
+  return dayjs(date).utc().format('DD MMM YY')
 }
 
 export function FormattedDateTime(date: Date) {
-  return dayjs(date).format('DD MMM YY | HH:mm')
+  dayjs.extend(dayjsPluginUTC)
+  return dayjs(date).utc().format('MMM-DD-YY HH:mm:ss') + ' UTC'
 }
 
 export function EtherScanUrl() {
@@ -354,14 +357,13 @@ export function TradeShareImage(trade: TradeDto) {
 
 export function TransferDiscord(transfer: TransferDto): MessageEmbed[] {
   const messageEmbeds: MessageEmbed[] = []
-
   const tradeEmbed = new MessageEmbed()
-    .setColor('#0099ff')
-    .setTitle(`💵 ${transfer.value.toFixed(2)} Lyra (transfer)`)
-    .addField('From', `${transfer.fromEns ? transfer.fromEns : shortAddress(transfer.from)}`, true)
-    .addField('To', `${transfer.toEns ? transfer.toEns : shortAddress(transfer.to)}`, true)
-    .addField('Amount', `${transfer.value.toFixed(2)} Lyra`, true)
+    .setColor('#00ff7f')
     .setURL(`${`https://optimistic.etherscan.io/tx/${transfer.transactionHash}`}`)
+    .setTitle(`✅ Transfer: ${transfer.amount.toFixed(2)} $LYRA ($${transfer.value.toFixed(2)})`)
+    .addField('From', `${transfer.fromEns ? transfer.fromEns : transfer.from}`, false)
+    .addField('To', `${transfer.toEns ? transfer.toEns : transfer.to}`, false)
+    .setFooter({ text: `${FormattedDateTime(transfer.timestamp)}` })
 
   messageEmbeds.push(tradeEmbed)
   return messageEmbeds

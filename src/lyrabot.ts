@@ -17,6 +17,7 @@ import { TestWallet } from './wallets/wallet'
 import faucet from './actions/faucet'
 import { LeaderboardDiscord, LeaderboardTelegram } from './utils/template'
 import { TrackTokenMoves } from './token/tracker'
+import { GetPrice } from './integrations/coingecko'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -41,12 +42,19 @@ export async function initializeLyraBot() {
   await SetUpDiscord()
   await SetUpTwitter()
   await SetUpTelegram()
+
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
+  await GetPrice()
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-  //await TrackTokenMoves(discordClient)
+  await TrackTokenMoves(discordClient, lyraClient)
+
+  const pricingJob: Job = scheduleJob('*/20 * * * *', async () => {
+    GetPrice()
+  })
+
   // Monday / Wednesday / Friday (as this resets each build)
-  const job: Job = scheduleJob('0 0 * * 1,3,5', async () => {
+  const leadeboardJob: Job = scheduleJob('0 0 * * 1,3,5', async () => {
     global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
     await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
   })
