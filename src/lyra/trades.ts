@@ -9,7 +9,7 @@ import {
   TELEGRAM_THRESHOLD,
   DISCORD_THRESHOLD,
   TESTNET,
-} from '../utils/secrets'
+} from '../secrets'
 import { dollar, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
@@ -146,7 +146,7 @@ export async function BroadCastTrade(
   // Discord //
   if (trade.premium >= DISCORD_THRESHOLD && DISCORD_ENABLED) {
     const post = [TradeDiscord(trade)]
-    const channelName = TESTNET ? 'kovan-trades' : 'avalon-trades'
+    const channelName = TESTNET ? 'kovan-trades' : 'trades'
     await PostDiscord(post, discordClient, channelName)
     discordClient?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
 

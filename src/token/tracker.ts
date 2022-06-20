@@ -1,4 +1,4 @@
-import { TESTNET } from '../utils/secrets'
+import { TESTNET } from '../secrets'
 import Lyra from '@lyrafinance/lyra-js'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'

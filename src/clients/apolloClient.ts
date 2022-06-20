@@ -1,6 +1,6 @@
 import { ApolloClient, HttpLink, InMemoryCache, InMemoryCacheConfig } from '@apollo/client'
 import fetch from 'cross-fetch'
-import { TESTNET } from '../utils/secrets'
+import { TESTNET } from '../secrets'
 
 export const apolloClient = new ApolloClient({
   link: new HttpLink({

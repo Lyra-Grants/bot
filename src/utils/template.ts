@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
-import { TESTNET, AVALON } from '../utils/secrets'
+import { TESTNET, AVALON } from '../secrets'
 import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
 import { trader } from '../types/trader'

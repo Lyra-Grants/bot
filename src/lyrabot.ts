@@ -1,6 +1,6 @@
 import { RunTradeBot } from './lyra/trades'
 import { BroadcastLeaderBoard, GetLeaderBoard } from './lyra/leaderboard'
-import { DISCORD_ACCESS_TOKEN, DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './utils/secrets'
+import { DISCORD_ACCESS_TOKEN, DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
 import { DiscordClient } from './clients/discordClient'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'

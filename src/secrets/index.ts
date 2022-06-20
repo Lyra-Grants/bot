@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv'
 import * as _ from 'lodash'
-import { convertToBoolean } from './utils'
+import { convertToBoolean } from '../utils/utils'
 
 dotenv.config({ path: '.env' })
 

@@ -1,6 +1,5 @@
 import { TradeDto } from '../types/tradeDto'
-import { DISCORD_CHANNEL_ID, TESTNET } from '../utils/secrets'
-import { TradeDiscord } from '../utils/template'
+import { TESTNET } from '../secrets'
 import { Client, MessageEmbed, TextChannel } from 'discord.js/typings/index.js'
 import dayjs from 'dayjs'
 

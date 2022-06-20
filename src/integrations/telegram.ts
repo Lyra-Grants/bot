@@ -1,5 +1,5 @@
 import { TradeDto } from '../types/tradeDto'
-import { TELEGRAM_CHANNEL, TELEGRAM_ENABLED } from '../utils/secrets'
+import { TELEGRAM_CHANNEL, TELEGRAM_ENABLED } from '../secrets'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 

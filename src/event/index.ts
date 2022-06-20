@@ -4,7 +4,7 @@ import { BlockTag, Log } from '@ethersproject/providers'
 import { Event as GenericEvent } from 'ethers'
 import Lyra, { ERC20, ERC20__factory } from '@lyrafinance/lyra-js'
 import { TransferEvent } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/ERC20'
-import { LYRA_TOKEN } from '../utils/secrets'
+import { LYRA_TOKEN } from '../secrets'
 
 export type EventListener = {
   off: () => void
