@@ -146,7 +146,7 @@ export async function BroadCastTrade(
   // Discord //
   if (trade.premium >= DISCORD_THRESHOLD && DISCORD_ENABLED) {
     const post = [TradeDiscord(trade)]
-    const channelName = TESTNET ? 'kovan-trades' : 'trades'
+    const channelName = TESTNET ? 'kovan-trades' : '📥trades'
     await PostDiscord(post, discordClient, channelName)
     discordClient?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
 
