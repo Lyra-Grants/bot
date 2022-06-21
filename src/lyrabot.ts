@@ -15,9 +15,12 @@ import { maketrade } from './actions/maketrade'
 import { ethers } from 'ethers'
 import { TestWallet } from './wallets/wallet'
 import faucet from './actions/faucet'
-import { LeaderboardDiscord, LeaderboardTelegram } from './utils/template'
+
 import { TrackTokenMoves } from './token/tracker'
 import { GetPrice } from './integrations/coingecko'
+import { LeaderboardDiscord } from './templates/leaderboard'
+import { GetStats } from './lyra/stats'
+import { StatDiscord } from './templates/stats'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -87,6 +90,13 @@ export async function SetUpDiscord() {
         global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
         const post = LeaderboardDiscord(global.LYRA_LEADERBOARD)
         await interaction.reply({ embeds: post })
+      }
+      if (commandName === 'stats') {
+        {
+          const statsDto = await GetStats(interaction.options.getString('market') as string, lyraClient)
+          const stats = StatDiscord(statsDto)
+          await interaction.reply({ embeds: stats })
+        }
       }
     })
 

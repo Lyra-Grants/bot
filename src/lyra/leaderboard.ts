@@ -6,15 +6,14 @@ import { apolloClient } from '../clients/apolloClient'
 import { Position, Trade } from '../graphql'
 import { PostDiscord } from '../integrations/discord'
 import { SendTweet } from '../integrations/twitter'
-
 import { GetEns } from '../integrations/ens'
 import { leaderboardTradesQuery, positionsQuery } from '../queries'
 import { trader } from '../types/trader'
 import { DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../secrets'
-import { LeaderboardDiscord, LeaderboardTelegram, LeaderboardTwitter, TradeDiscord } from '../utils/template'
 import { NetPremiums, OpenOptionValue } from './helper'
 import { PostTelegram } from '../integrations/telegram'
 import { dollar } from '../utils/utils'
+import { LeaderboardDiscord, LeaderboardTwitter, LeaderboardTelegram } from '../templates/leaderboard'
 
 async function GetLeaderBoardTrades(): Promise<Trade[]> {
   const trades = (

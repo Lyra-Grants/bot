@@ -1,4 +1,4 @@
-import Lyra, { Position } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 import { SendTweet } from '../integrations/twitter'
 import { TradeDto } from '../types/tradeDto'
 import {
@@ -15,12 +15,12 @@ import { TradeEvent } from '@lyrafinance/lyra-js'
 import { MapLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
-import { activityString, defaultActivity, PostDiscord } from '../integrations/discord'
+import { PostDiscord } from '../integrations/discord'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { TradeDiscord, TradeTelegram, TradeTwitter } from '../utils/template'
+import { TradeDiscord, TradeTelegram, TradeTwitter } from '../templates/trade'
 import fromBigNumber from '../utils/fromBigNumber'
 
 export async function RunTradeBot(

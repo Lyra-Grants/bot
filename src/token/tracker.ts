@@ -4,11 +4,11 @@ import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
 import { TransferDto } from '../types/transferDto'
 import { PostDiscord } from '../integrations/discord'
-import { TransferDiscord } from '../utils/template'
 import { GetEns } from '../integrations/ens'
 import { LyraEvent } from '../event'
 import { GetNotableAddress } from '../utils/notableAddresses'
 import { shortAddress, toDate } from '../utils/utils'
+import { TransferDiscord } from '../templates/transfer'
 
 export async function TrackTokenMoves(discordClient: Client<boolean>, lyra: Lyra): Promise<void> {
   console.log('### Polling for Transfers ###')
