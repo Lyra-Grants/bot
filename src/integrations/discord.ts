@@ -11,9 +11,6 @@ export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean
         console.log(`found channel: ${channelName}`)
         await (channel as TextChannel).send({ embeds: embeds })
       })
-
-    // const channel = client.channels.cache.get(DISCORD_CHANNEL_ID) as TextChannel
-    //await channel.send({ embeds: embeds })
   } catch (e: any) {
     console.log(e)
   }
@@ -26,11 +23,17 @@ export function activityString(trade: TradeDto) {
 }
 
 export async function defaultActivity(client: Client<boolean>) {
-  const network = TESTNET ? 'Kovan' : 'Avalon'
-
-  client.user?.setActivity(`24h: ${global.ETH_24HR.toFixed(2)}%`, { type: 'WATCHING' })
+  try {
+    client.user?.setActivity(`24h: ${global.ETH_24HR.toFixed(2)}%`, { type: 'WATCHING' })
+  } catch (e: any) {
+    console.log(e)
+  }
 }
 
 export async function defaultName(client: Client<boolean>) {
-  client.user?.setUsername(`ETH - $${global.ETH_PRICE.toFixed(2)}`)
+  try {
+    await client.user?.setUsername(`ETH - $${global.ETH_PRICE.toFixed(2)}`)
+  } catch (e: any) {
+    console.log(e)
+  }
 }
