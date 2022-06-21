@@ -53,6 +53,7 @@ export async function initializeLyraBot() {
 
   //Changing usernames in Discord is heavily rate limited, with only 2 requests every hour.
   const pricingJob: Job = scheduleJob('*/30 * * * *', async () => {
+    console.log('30 min pricing job running')
     await GetPrice()
     defaultActivity(discordClient)
     await defaultName(discordClient)
