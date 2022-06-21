@@ -18,7 +18,6 @@ import faucet from './actions/faucet'
 import { LeaderboardDiscord, LeaderboardTelegram } from './utils/template'
 import { TrackTokenMoves } from './token/tracker'
 import { GetPrice } from './integrations/coingecko'
-import { globalAgent } from 'http'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -54,9 +53,9 @@ export async function initializeLyraBot() {
 
   //Changing usernames in Discord is heavily rate limited, with only 2 requests every hour.
   const pricingJob: Job = scheduleJob('*/30 * * * *', async () => {
-    GetPrice()
+    await GetPrice()
     defaultActivity(discordClient)
-    defaultName(discordClient)
+    await defaultName(discordClient)
   })
 
   // Monday / Wednesday / Friday (as this resets each build)
@@ -93,7 +92,7 @@ export async function SetUpDiscord() {
     await discordClient.login(DISCORD_ACCESS_TOKEN)
 
     defaultActivity(discordClient)
-    defaultName(discordClient)
+    await defaultName(discordClient)
   }
 }
 

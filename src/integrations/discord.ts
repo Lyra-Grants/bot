@@ -1,5 +1,4 @@
 import { TradeDto } from '../types/tradeDto'
-import { TESTNET } from '../secrets'
 import { Client, MessageEmbed, TextChannel } from 'discord.js/typings/index.js'
 import dayjs from 'dayjs'
 
@@ -22,7 +21,7 @@ export function activityString(trade: TradeDto) {
   } $${trade.strike} x ${trade.size} $${trade.premium}`
 }
 
-export async function defaultActivity(client: Client<boolean>) {
+export function defaultActivity(client: Client<boolean>) {
   try {
     client.user?.setActivity(`24h: ${global.ETH_24HR.toFixed(2)}%`, { type: 'WATCHING' })
   } catch (e: any) {
