@@ -52,7 +52,8 @@ export async function initializeLyraBot() {
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
   //await TrackTokenMoves(discordClient, lyraClient)
 
-  const pricingJob: Job = scheduleJob('*/20 * * * *', async () => {
+  //Changing usernames in Discord is heavily rate limited, with only 2 requests every hour.
+  const pricingJob: Job = scheduleJob('*/30 * * * *', async () => {
     GetPrice()
     defaultActivity(discordClient)
     defaultName(discordClient)
