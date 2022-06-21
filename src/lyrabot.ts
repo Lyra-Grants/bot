@@ -6,7 +6,7 @@ import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { defaultActivity } from './integrations/discord'
+import { defaultActivity, defaultName } from './integrations/discord'
 import { TwitterClient } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import { Job, scheduleJob } from 'node-schedule'
@@ -18,6 +18,7 @@ import faucet from './actions/faucet'
 import { LeaderboardDiscord, LeaderboardTelegram } from './utils/template'
 import { TrackTokenMoves } from './token/tracker'
 import { GetPrice } from './integrations/coingecko'
+import { globalAgent } from 'http'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -38,20 +39,24 @@ export async function initializeLyraBot() {
     //faucet(lyraClient, signer)
     //maketrade(lyraClient, signer)
   }
-
+  global.ETH_24HR = 0
+  global.ETH_PRICE = 0
+  await GetPrice()
   await SetUpDiscord()
   await SetUpTwitter()
   await SetUpTelegram()
 
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-  //await GetPrice()
+
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
   //await TrackTokenMoves(discordClient, lyraClient)
 
-  // const pricingJob: Job = scheduleJob('*/20 * * * *', async () => {
-  //   GetPrice()
-  // })
+  const pricingJob: Job = scheduleJob('*/20 * * * *', async () => {
+    GetPrice()
+    defaultActivity(discordClient)
+    defaultName(discordClient)
+  })
 
   // Monday / Wednesday / Friday (as this resets each build)
   const leadeboardJob: Job = scheduleJob('0 0 * * 1,3,5', async () => {
@@ -85,7 +90,9 @@ export async function SetUpDiscord() {
     })
 
     await discordClient.login(DISCORD_ACCESS_TOKEN)
+
     defaultActivity(discordClient)
+    defaultName(discordClient)
   }
 }
 

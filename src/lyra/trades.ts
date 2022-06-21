@@ -148,16 +148,16 @@ export async function BroadCastTrade(
     const post = [TradeDiscord(trade)]
     const channelName = TESTNET ? 'kovan-trades' : '📥trades'
     await PostDiscord(post, discordClient, channelName)
-    discordClient?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
+    //discordClient?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
 
-    const waitFor = (delay: number, client: Client<boolean>) =>
-      new Promise(() =>
-        setTimeout(() => {
-          defaultActivity(client)
-        }, delay),
-      )
+    // const waitFor = (delay: number, client: Client<boolean>) =>
+    //   new Promise(() =>
+    //     setTimeout(() => {
+    //       defaultActivity(client)
+    //     }, delay),
+    //   )
 
-    await waitFor(60000, discordClient)
+    // await waitFor(60000, discordClient)
   }
 }
 

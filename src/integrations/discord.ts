@@ -28,5 +28,9 @@ export function activityString(trade: TradeDto) {
 export async function defaultActivity(client: Client<boolean>) {
   const network = TESTNET ? 'Kovan' : 'Avalon'
 
-  client.user?.setActivity(`${network} Trades`, { type: 'WATCHING' })
+  client.user?.setActivity(`24h: ${global.ETH_24HR.toFixed(2)}%`, { type: 'WATCHING' })
+}
+
+export async function defaultName(client: Client<boolean>) {
+  client.user?.setUsername(`ETH - $${global.ETH_PRICE.toFixed(2)}`)
 }
