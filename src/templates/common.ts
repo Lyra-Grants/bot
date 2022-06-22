@@ -102,3 +102,13 @@ export function FN(value: number, decimals: number) {
     maximumFractionDigits: decimals,
   })
 }
+
+// formatted number signed
+export function FNS(value: number, decimals: number) {
+  const sign = value > 0 ? '+' : ''
+
+  return `${sign}${value.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}`
+}

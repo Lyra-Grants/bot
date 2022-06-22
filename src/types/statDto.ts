@@ -1,11 +1,14 @@
 export type StatDto = {
   asset: string
-  poolValue: number
-  totalsUsd: number
-  netCollateral: number
-  netOptionsDelta: number
+  tvl: number
+  tvlChange: number
+  tokenPrice: number
+  pnlChange: number
+  openInterestUsd: number
+  openInterestBase: number
   netDelta: number
   netStdVega: number
-  pnl: number
+  tradingVolume: number
+  tradingFees: number
   timestamp: Date
 }
