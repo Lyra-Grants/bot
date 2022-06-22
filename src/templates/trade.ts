@@ -36,11 +36,7 @@ export function TradeTwitter(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
-
-  if (AVALON) {
-    post.push(`💻 Avalon\n`)
-  }
-  post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
+  post.push(`⏰Exp ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
       `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted} ${trade.pnlPercentFormatted} ${

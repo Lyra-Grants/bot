@@ -31,7 +31,7 @@ export function defaultActivity(client: Client<boolean>) {
 
 export async function defaultName(client: Client<boolean>) {
   try {
-    await client.user?.setUsername(`$${global.ETH_PRICE.toFixed(2)}`)
+    await client.user?.setUsername(`ETH - $${global.ETH_PRICE.toFixed(2)}`)
   } catch (e: any) {
     console.log(e)
   }
