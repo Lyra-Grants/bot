@@ -32,10 +32,10 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
   const liquidity = market.liquidity
   const tvl = fromBigNumber(market.tvl)
   const tvl30DAgo = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].nav) : 0
-  const tvlChange = tvl30DAgo > 0 ? (tvl - tvl30DAgo) / tvl30DAgo : 1.0
+  const tvlChange = tvl30DAgo > 0 ? ((tvl - tvl30DAgo) / tvl30DAgo) * 100 : 1.0
   const tokenPrice = fromBigNumber(liquidity.tokenPrice)
   const tokenPrice30DAgo = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].tokenPrice) : 0
-  const tokenPriceChange = tokenPrice30DAgo > 0 ? (tokenPrice - tokenPrice30DAgo) / tokenPrice30DAgo : 1.0
+  const tokenPriceChange = tokenPrice30DAgo > 0 ? ((tokenPrice - tokenPrice30DAgo) / tokenPrice30DAgo) * 100 : 1.0
   const openInterestUsd = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
 
   console.log([tokenPrice30DAgo])
