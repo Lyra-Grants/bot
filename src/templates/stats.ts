@@ -10,7 +10,7 @@ export function StatDiscord(stat: StatDto): MessageEmbed[] {
     //.setURL('')
     .setTitle(`${stat.asset} Market Vault`)
     .addField('TVL', `$${FN(stat.tvl, 0)}`, true)
-    .addField('Change (30d)', `${FNS(stat.tvlChange, 2)}%`, true)
+    .addField('Change (30d)', `${FNS(stat.tvlChange, 4)}%`, true)
     .addField('\u200B', `\u200B`, true)
     .addField('P&L (30d)', `${FNS(stat.pnlChange, 4)}%`, true)
     .addField(`Volume (30d)`, `$${FN(stat.tradingVolume, 2)}`, true)
