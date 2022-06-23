@@ -38,6 +38,10 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
   const tokenPriceChange = tokenPrice30DAgo > 0 ? (tokenPrice - tokenPrice30DAgo) / tokenPrice30DAgo : 1.0
   const openInterestUsd = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
 
+  console.log([tokenPrice30DAgo])
+  console.log([tokenPrice])
+  console.log([tokenPriceChange])
+
   const stat: StatDto = {
     asset: market.name,
     tvl: tvl,
