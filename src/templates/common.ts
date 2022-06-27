@@ -86,9 +86,6 @@ export function EtherScanUrl() {
 }
 
 export function LyraDappUrl() {
-  if (AVALON) {
-    return 'https://avalon.app.lyra.finance'
-  }
   return 'https://app.lyra.finance'
 }
 

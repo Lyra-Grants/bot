@@ -39,3 +39,9 @@ export const ENTROPY = _.defaultTo(process.env.ENTROPY, '')
 export const TEST_WALLET_ADDRESS = _.defaultTo(process.env.TEST_WALLET_ADDRESS, '')
 export const TEST_PRIVATE_KEY = _.defaultTo(process.env.TEST_PRIVATE_KEY, '')
 export const TEST_PUBLIC_KEY = _.defaultTo(process.env.TEST_PUBLIC_KEY, '')
+
+/* use these details for the token twitter client */
+export const TWITTER_APP_KEY1 = _.defaultTo(process.env.TWITTER_APP_KEY1, '')
+export const TWITTER_APP_SECRET1 = _.defaultTo(process.env.TWITTER_APP_SECRET1, '')
+export const TWITTER_ACCESS_TOKEN1 = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN1, '')
+export const TWITTER_ACCESS_SECRET1 = _.defaultTo(process.env.TWITTER_ACCESS_SECRET1, '')
