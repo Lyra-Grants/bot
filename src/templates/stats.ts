@@ -1,13 +1,13 @@
 import { MessageEmbed } from 'discord.js'
 import { StatDto } from '../types/statDto'
 
-import { FN, FNS, FormattedDateTime } from './common'
+import { FN, FNS, FormattedDateTime, VaultLink } from './common'
 
 export function StatDiscord(stat: StatDto): MessageEmbed[] {
   const messageEmbeds: MessageEmbed[] = []
   const tradeEmbed = new MessageEmbed()
     .setColor('#00ff7f')
-    //.setURL('')
+    .setURL(`${VaultLink(stat.asset)}`)
     .setTitle(`${stat.asset} Market Vault`)
     .addField('TVL', `$${FN(stat.tvl, 0)}`, true)
     .addField('Change (30d)', `${FNS(stat.tvlChange, 4)}%`, true)

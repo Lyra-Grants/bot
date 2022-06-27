@@ -60,6 +60,10 @@ export function PortfolioLink(address: string) {
   return `${LyraDappUrl()}/portfolio?see=${address}`
 }
 
+export function VaultLink(asset: string) {
+  return `${LyraDappUrl()}/vaults/${asset.toLowerCase()}`
+}
+
 export function TradeHistoryLink(trade: TradeDto) {
   return `${LyraDappUrl()}/portfolio/history?see=${trade.trader}`
 }
