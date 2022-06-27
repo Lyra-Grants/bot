@@ -2,7 +2,7 @@ import { RunTradeBot } from './lyra/trades'
 import { BroadcastLeaderBoard, GetLeaderBoard } from './lyra/leaderboard'
 import { DISCORD_ACCESS_TOKEN, DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
 import { DiscordClient } from './clients/discordClient'
-import { Client } from 'discord.js'
+import { Client, TextChannel } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
@@ -21,6 +21,7 @@ import { GetPrice } from './integrations/coingecko'
 import { LeaderboardDiscord } from './templates/leaderboard'
 import { GetStats } from './lyra/stats'
 import { StatDiscord } from './templates/stats'
+import { STATS_CHANNEL, TRADE_CHANNEL } from './constants/discordChannels'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -79,23 +80,37 @@ export async function SetUpDiscord() {
     discordClient.on('interactionCreate', async (interaction) => {
       if (!interaction.isCommand()) return
 
+      const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
+      const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
+
+      const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
 
       if (commandName === 'leaderboard') {
-        global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-        const post = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
-        await interaction.reply({ embeds: post })
+        if (channelName === TRADE_CHANNEL) {
+          if (interaction) global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
+          const post = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
+          await interaction.reply({ embeds: post })
+        } else {
+          await interaction.reply(`Command 'leaderboard' only available in <#${tradeChannel?.id}>`)
+        }
       }
       if (commandName === 'top30') {
-        global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-        const post = LeaderboardDiscord(global.LYRA_LEADERBOARD)
-        await interaction.reply({ embeds: post })
+        if (channelName === TRADE_CHANNEL) {
+          global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
+          const post = LeaderboardDiscord(global.LYRA_LEADERBOARD)
+          await interaction.reply({ embeds: post })
+        } else {
+          await interaction.reply(`Command 'top30' only available in <#${tradeChannel?.id}>`)
+        }
       }
       if (commandName === 'stats') {
-        {
+        if (channelName === STATS_CHANNEL) {
           const statsDto = await GetStats(interaction.options.getString('market') as string, lyraClient)
           const stats = StatDiscord(statsDto)
           await interaction.reply({ embeds: stats })
+        } else {
+          await interaction.reply(`Command 'stats' only available in <#${statsChannel?.id}>`)
         }
       }
     })
