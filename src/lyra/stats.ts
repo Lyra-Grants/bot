@@ -25,7 +25,8 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
         .add(tradingVolume.lpLiquidationFees)
         .add(tradingVolume.optionPriceFees)
         .add(tradingVolume.spotPriceFees)
-        .add(tradingVolume.vegaFees),
+        .add(tradingVolume.vegaFees)
+        .add(tradingVolume.varianceFees),
     ZERO_BN,
   )
 
