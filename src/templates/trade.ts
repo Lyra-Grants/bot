@@ -111,6 +111,11 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
   const url = PositionLink(trade)
   const img = TradeShareImage(trade)
   const tradeEmbed = new MessageEmbed().setColor('#0099ff').setURL(`${url}`)
+  if (trade.isLiquidation) {
+    tradeEmbed.setImage(
+      'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/59b047e6ba0fef174b8380fd26a375d4690c4908/src/img/liquidation.jpg?raw=true',
+    )
+  }
   //.setImage(img)
 
   if (!trade.isLiquidation) {
@@ -167,6 +172,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       true,
     )
     tradeEmbed.addField(`\u200B`, `${trade.pnlPercentFormatted}`, true)
+    tradeEmbed.addField(`\u200B`, `\u200B`, true)
   }
   tradeEmbed.setFooter({ text: `${FormattedDateTime(trade.timeStamp)}` })
 
