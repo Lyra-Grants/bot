@@ -9,7 +9,7 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
 
   const tradeEmbed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`✅ Top ${leaderBoard.length} ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑 💸`)
+    .setTitle(`Top ${leaderBoard.length} Lyra Profitable Traders`)
     .setDescription(`Last 1000 positions (unrealised profit).`)
     .addField('Trader', '-----------', true)
     .addField('💵 Profit', '-----------', true)
@@ -28,7 +28,7 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
     if (index % 5 === 4) {
       const embed = new MessageEmbed()
         .setColor('#0099ff')
-        .setDescription(`---------------------------------------------------------------`)
+        .setDescription(`--------------------------------------------`)
       group.map((trader) => {
         return leaderBoardRow(embed, trader)
       })
@@ -58,7 +58,7 @@ export function leaderBoardRow(tradeEmbed: MessageEmbed, trader: trader): Messag
 
 export function LeaderboardTwitter(leaderBoard: trader[]) {
   const post: string[] = []
-  post.push(`✅ Top 5 ${TESTNET ? 'Kovan' : 'Avalon'} Profitable Traders 💵 💰 🤑\n`)
+  post.push(`✅ Top 5 Lyra Profitable Traders 💵 💰 🤑\n`)
   leaderBoard.slice(0, 5).map((trader) => {
     post.push(
       `${Medal(trader.position)} ${trader.position}.  ${trader.ens ? trader.ens : shortAddress(trader.owner)}  💵 ${

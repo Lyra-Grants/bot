@@ -22,6 +22,8 @@ import { LeaderboardDiscord } from './templates/leaderboard'
 import { GetStats } from './lyra/stats'
 import { StatDiscord } from './templates/stats'
 import { STATS_CHANNEL, TRADE_CHANNEL } from './constants/discordChannels'
+import { HelpDiscord, LyraDiscord, QuantDiscord } from './templates/help'
+import { GetLyra } from './lyra/lyra'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -111,6 +113,31 @@ export async function SetUpDiscord() {
           await interaction.reply({ embeds: stats })
         } else {
           await interaction.reply(`Command 'stats' only available in <#${statsChannel?.id}>`)
+        }
+      }
+      if (commandName === 'help') {
+        if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
+          const help = HelpDiscord()
+          await interaction.reply(help)
+        } else {
+          await interaction.reply(`Command 'help' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
+        }
+      }
+      if (commandName === 'lyra') {
+        if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
+          const lyraDto = await GetLyra()
+          const embed = LyraDiscord(lyraDto)
+          await interaction.reply({ embeds: embed })
+        } else {
+          await interaction.reply(`Command 'lyra' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
+        }
+      }
+      if (commandName === 'quant') {
+        if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
+          const embed = QuantDiscord()
+          await interaction.reply({ embeds: embed })
+        } else {
+          await interaction.reply(`Command 'quant' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
         }
       }
     })

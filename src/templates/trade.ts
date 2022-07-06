@@ -110,7 +110,7 @@ export function TradeTelegram(trade: TradeDto) {
 export function TradeDiscord(trade: TradeDto): MessageEmbed {
   const url = PositionLink(trade)
   const img = TradeShareImage(trade)
-  const tradeEmbed = new MessageEmbed().setColor('#0099ff').setURL(`${url}`)
+  const tradeEmbed = new MessageEmbed().setURL(`${url}`)
   if (trade.isLiquidation) {
     tradeEmbed.setImage(
       'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/59b047e6ba0fef174b8380fd26a375d4690c4908/src/img/liquidation.jpg?raw=true',
@@ -124,10 +124,15 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
         trade.size
       } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
     )
+    if (trade.isOpen) {
+      tradeEmbed.setColor('#32cd32')
+    } else {
+      tradeEmbed.setColor('#ff4500')
+    }
   } else {
-    tradeEmbed.setTitle(
-      `🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
-    )
+    tradeEmbed
+      .setTitle(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`)
+      .setColor('#ffa500')
   }
 
   tradeEmbed.addFields(
@@ -172,9 +177,14 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       true,
     )
     tradeEmbed.addField(`\u200B`, `${trade.pnlPercentFormatted}`, true)
-    tradeEmbed.addField(`\u200B`, `\u200B`, true)
   }
-  tradeEmbed.setFooter({ text: `${FormattedDateTime(trade.timeStamp)}` })
+  tradeEmbed
+    .setFooter({
+      iconURL:
+        'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/c05bc1e3595ae80d74a37f13da7ce78b219a0b06/src/img/lyra.png?raw=true',
+      text: `Source: Lyra.js`,
+    })
+    .setTimestamp()
 
   return tradeEmbed
 }
