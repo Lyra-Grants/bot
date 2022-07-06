@@ -32,7 +32,7 @@ export function LyraDiscord(dto: LyraDto): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#60DDBF')
     .setTitle(`LYRA Stats`)
-    .addField('💵 Price', `> $${FN(dto.price, 4)} \n > **24h:** ${FNS(dto.price, 2)}%`, false)
+    .addField('💵 Price', `> $${FN(dto.price, 4)} \n > **24h:** ${FNS(dto.price_24h, 2)}%`, false)
     .addField('📈 Marketcap', `> $${FN(dto.marketCap, 0)}\n > **CG Rank:** ${FN(dto.marketCapRank, 0)} \n`, false)
     .addField('📊 Fully Diluted Valuation', `> $${FN(dto.fdv, 0)}\n`, false)
     .addField('🏦 Total Value Locked', `> $${FN(dto.tvl, 0)}\n`, false)
