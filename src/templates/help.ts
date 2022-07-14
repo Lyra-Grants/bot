@@ -27,7 +27,6 @@ export function QuantDiscord(): MessageEmbed[] {
 }
 
 export function LyraDiscord(dto: LyraDto): MessageEmbed[] {
-  const post: string[] = []
   const messageEmbeds: MessageEmbed[] = []
   const tradeEmbed = new MessageEmbed()
     .setColor('#60DDBF')

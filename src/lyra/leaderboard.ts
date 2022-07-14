@@ -14,6 +14,7 @@ import { NetPremiums, OpenOptionValue } from './helper'
 import { PostTelegram } from '../integrations/telegram'
 import { dollar } from '../utils/utils'
 import { LeaderboardDiscord, LeaderboardTwitter, LeaderboardTelegram } from '../templates/leaderboard'
+import { TRADE_CHANNEL } from '../constants/discordChannels'
 
 async function GetLeaderBoardTrades(): Promise<Trade[]> {
   const trades = (
@@ -104,7 +105,7 @@ export async function BroadcastLeaderBoard(
 ) {
   console.log('### Broadcast Leaderboard ###')
   if (DISCORD_ENABLED) {
-    const channelName = TESTNET ? 'kovan-trades' : 'avalon-trades'
+    const channelName = TESTNET ? 'kovan-trades' : TRADE_CHANNEL
     const embeds = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
     await PostDiscord(embeds, discordClient, channelName)
   }

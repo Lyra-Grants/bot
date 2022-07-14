@@ -6,6 +6,8 @@ import {
   AmountShortWording,
   AmountWording,
   EtherScanTransactionLink,
+  FN,
+  FNS,
   FormattedDate,
   FormattedDateTime,
   Medal,
@@ -15,6 +17,7 @@ import {
   TradeHistoryLink,
   TradeShareImage,
 } from './common'
+import { positionsQuery } from '../queries'
 
 // TWITTER //
 export function TradeTwitter(trade: TradeDto) {
@@ -36,6 +39,7 @@ export function TradeTwitter(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
+  post.push(`⚡ IV ${FN(trade.iv, 2)}%`)
   post.push(`⏰Exp ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
@@ -76,7 +80,8 @@ export function TradeTelegram(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
-  post.push(`⏰ ${FormattedDate(trade.expiry)}\n`)
+  post.push(`⚡ IV ${(trade.iv, 2)}%`)
+  post.push(`⏰ Exp ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
       `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted} ${trade.pnlPercentFormatted} ${
@@ -119,16 +124,13 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
   //.setImage(img)
 
   if (!trade.isLiquidation) {
-    tradeEmbed.setTitle(
-      `${trade.isOpen ? '✅' : '🚫'} ${trade.isOpen ? 'Open' : 'Close'} ${trade.isLong ? 'Long' : 'Short'} ${
-        trade.size
-      } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
-    )
-    if (trade.isOpen) {
-      tradeEmbed.setColor('#32cd32')
-    } else {
-      tradeEmbed.setColor('#ff4500')
-    }
+    tradeEmbed
+      .setTitle(
+        `${trade.isOpen ? '✅' : '🚫'} ${trade.isOpen ? 'Open' : 'Close'} ${trade.isLong ? 'Long' : 'Short'} ${
+          trade.size
+        } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
+      )
+      .setColor('#60DDBF')
   } else {
     tradeEmbed
       .setTitle(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`)
@@ -159,6 +161,11 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
     {
       name: 'Size',
       value: `${trade.size}`,
+      inline: true,
+    },
+    {
+      name: 'IV',
+      value: `${FN(trade.iv, 2)}%`,
       inline: true,
     },
   )

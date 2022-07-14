@@ -30,4 +30,5 @@ export type TradeDto = {
   premiumFormatted: string
   isBaseCollateral: boolean | undefined
   baseCollateralFormatted: string
+  iv: number
 }

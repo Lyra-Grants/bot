@@ -95,6 +95,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     ),
     isBaseCollateral: trade.isBaseCollateral,
     baseCollateralFormatted: BaseCollateral(trade, market.name),
+    iv: fromBigNumber(trade.iv) * 100,
   }
   return tradeDto
 }
