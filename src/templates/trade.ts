@@ -1,4 +1,3 @@
-import { AVALON } from '../secrets'
 import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
 import { shortAddress } from '../utils/utils'
@@ -7,7 +6,6 @@ import {
   AmountWording,
   EtherScanTransactionLink,
   FN,
-  FNS,
   FormattedDate,
   FormattedDateTime,
   Medal,
@@ -39,7 +37,7 @@ export function TradeTwitter(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
-  post.push(`⚡ IV ${FN(trade.iv, 2)}%`)
+  post.push(`⚡ IV ${FN(trade.iv, 2)}%\n`)
   post.push(`⏰Exp ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
@@ -80,7 +78,7 @@ export function TradeTelegram(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
-  post.push(`⚡ IV ${(trade.iv, 2)}%`)
+  post.push(`⚡ IV ${(trade.iv, 2)}%\n`)
   post.push(`⏰ Exp ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     post.push(
