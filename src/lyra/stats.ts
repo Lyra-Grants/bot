@@ -1,6 +1,16 @@
 import Lyra, { Market } from '@lyrafinance/lyra-js'
+import { Client } from 'discord.js'
+import { Telegraf, Context } from 'telegraf'
+import { Update } from 'telegraf/typings/core/types/typegram'
+import { TwitterApi } from 'twitter-api-v2'
 import { ZERO_BN } from '../constants/bn'
+import { STATS_CHANNEL, TRADE_CHANNEL } from '../constants/discordChannels'
 import { SECONDS_IN_MONTH } from '../constants/timeAgo'
+import { PostDiscord } from '../integrations/discord'
+import { PostTelegram } from '../integrations/telegram'
+import { SendTweet } from '../integrations/twitter'
+import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED } from '../secrets'
+import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
 import { StatDto } from '../types/statDto'
 import fromBigNumber from '../utils/fromBigNumber'
 
@@ -58,4 +68,26 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
     tradingVolume: tradingVolume30D,
   }
   return stat
+}
+
+export async function BroadCastStats(
+  dto: StatDto,
+  twitterClient: TwitterApi,
+  telegramClient: Telegraf<Context<Update>>,
+  discordClient: Client<boolean>,
+): Promise<void> {
+  if (TWITTER_ENABLED) {
+    const post = StatTwitter(dto)
+    await SendTweet(post, twitterClient)
+  }
+
+  if (TELEGRAM_ENABLED) {
+    const post = StatTelegram(dto)
+    await PostTelegram(post, telegramClient)
+  }
+
+  if (DISCORD_ENABLED) {
+    const post = StatDiscord(dto)
+    await PostDiscord(post, discordClient, STATS_CHANNEL)
+  }
 }

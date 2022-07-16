@@ -27,3 +27,31 @@ export function StatDiscord(stat: StatDto): MessageEmbed[] {
   messageEmbeds.push(tradeEmbed)
   return messageEmbeds
 }
+
+export function StatTwitter(stat: StatDto) {
+  const post: string[] = []
+  post.push(`${stat.asset} Market Vault\n`)
+  post.push(`💵 P&L (30d) ${FNS(stat.pnlChange, 4)}%\n`)
+  post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
+  post.push(`📊 Volume (30d) $${FN(stat.tradingVolume, 2)}\n`)
+  post.push(`🪙 Token Value $${FN(stat.tokenPrice, 4)}\n`)
+  post.push(`💰 Fees (30d) $${FN(stat.tradingFees, 2)}\n`)
+  post.push(`📈 Open Interest $${FN(stat.openInterestUsd, 2)}\n`)
+  post.push(`\nOptions for everyone, start trading 👇\n`)
+  post.push(`${VaultLink(stat.asset)}\n`)
+  return post.join('')
+}
+
+export function StatTelegram(stat: StatDto) {
+  const post: string[] = []
+  post.push(`<a href="${VaultLink(stat.asset)}">${stat.asset} Market Vault</a>\n`)
+  post.push(`💵 P&L (30d) ${FNS(stat.pnlChange, 4)}%\n`)
+  post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
+  post.push(`📊 Volume (30d) $${FN(stat.tradingVolume, 2)}\n`)
+  post.push(`🪙 Token Value $${FN(stat.tokenPrice, 4)}\n`)
+  post.push(`💰 Fees (30d) $${FN(stat.tradingFees, 2)}\n`)
+  post.push(`📈 Open Interest $${FN(stat.openInterestUsd, 2)}\n`)
+  post.push(`🧮 Net Delta ${FNS(stat.netDelta, 3)}\n`)
+  post.push(`〽️ Net Std. Vega ${FNS(stat.netStdVega, 3)}\n`)
+  return post.join('')
+}

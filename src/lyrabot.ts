@@ -19,7 +19,7 @@ import faucet from './actions/faucet'
 import { TrackTokenMoves } from './token/tracker'
 import { GetPrice } from './integrations/coingecko'
 import { LeaderboardDiscord } from './templates/leaderboard'
-import { GetStats } from './lyra/stats'
+import { BroadCastStats, GetStats } from './lyra/stats'
 import { StatDiscord } from './templates/stats'
 import { STATS_CHANNEL, TRADE_CHANNEL } from './constants/discordChannels'
 import { HelpDiscord, LyraDiscord, QuantDiscord } from './templates/help'
@@ -69,6 +69,11 @@ export async function initializeLyraBot() {
   const leadeboardJob: Job = scheduleJob('0 0 * * 1,3,5', async () => {
     global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
     await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
+  })
+
+  const statsJob: Job = scheduleJob('0 1 * * 1,3,5', async () => {
+    const statsDto = await GetStats('eth', lyraClient)
+    await BroadCastStats(statsDto, twitterClient, telegramClient, discordClient)
   })
 }
 
