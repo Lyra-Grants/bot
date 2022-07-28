@@ -49,10 +49,6 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
   const tokenPriceChange = tokenPrice30DAgo > 0 ? ((tokenPrice - tokenPrice30DAgo) / tokenPrice30DAgo) * 100 : 1.0
   const openInterestUsd = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
 
-  console.log([tokenPrice30DAgo])
-  console.log([tokenPrice])
-  console.log([tokenPriceChange])
-
   const stat: StatDto = {
     asset: market.name,
     tvl: tvl,
@@ -66,6 +62,7 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
     timestamp: new Date(),
     tradingFees: fromBigNumber(fees),
     tradingVolume: tradingVolume30D,
+    utilisationRate: liquidity.utilization,
   }
   return stat
 }
@@ -78,16 +75,17 @@ export async function BroadCastStats(
 ): Promise<void> {
   if (TWITTER_ENABLED) {
     const post = StatTwitter(dto)
-    await SendTweet(post, twitterClient)
+    // await SendTweet(post, twitterClient)
   }
 
   if (TELEGRAM_ENABLED) {
     const post = StatTelegram(dto)
-    await PostTelegram(post, telegramClient)
+    //await PostTelegram(post, telegramClient)
   }
 
   if (DISCORD_ENABLED) {
     const post = StatDiscord(dto)
-    await PostDiscord(post, discordClient, STATS_CHANNEL)
+    console.log(post)
+    // await PostDiscord(post, discordClient, STATS_CHANNEL)
   }
 }

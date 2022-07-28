@@ -11,4 +11,5 @@ export type StatDto = {
   tradingVolume: number
   tradingFees: number
   timestamp: Date
+  utilisationRate: number
 }
