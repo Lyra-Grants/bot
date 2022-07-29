@@ -33,7 +33,7 @@ export async function RunTradeBot(
 
   const blockNumber: number | undefined = undefined
 
-  // blockNumber = lyraClient.provider.blockNumber - 10000
+  //blockNumber = lyraClient.provider.blockNumber - 52000
 
   // const trade = (
   //   await TradeEvent.getByHash(lyraClient, '0x92548b3217179539b62f042bff95e92cdb6fccf02991789b5b71f763a7d76d44')

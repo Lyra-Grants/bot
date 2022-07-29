@@ -122,13 +122,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
   //.setImage(img)
 
   if (!trade.isLiquidation) {
-    tradeEmbed
-      .setTitle(
-        `${trade.isOpen ? '✅' : '🚫'} ${trade.isOpen ? 'Open' : 'Close'} ${trade.isLong ? 'Long' : 'Short'} ${
-          trade.size
-        } $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
-      )
-      .setColor('#60DDBF')
+    tradeEmbed.setTitle(`${trade.asset} Trade ${trade.isOpen ? 'Opened' : 'Closed'}`).setColor('#60DDBF')
   } else {
     tradeEmbed
       .setTitle(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`)
@@ -137,52 +131,40 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
 
   tradeEmbed.addFields(
     {
-      name: 'Trade Type',
-      value: `${trade.isCall ? '📈' : '📉'} ${trade.isLong ? 'LONG' : 'SHORT'} ${trade.isCall ? 'CALL' : 'PUT'}`,
-      inline: true,
+      name: `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} ${trade.asset} $${trade.strike} ${
+        trade.isCall ? 'Call' : 'Put'
+      }`,
+      value: `> **IV** ${FN(trade.iv, 2)}%\n > **Exp** ${FormattedDate(trade.expiry)} ${
+        trade.setCollateralTo != undefined ? '\n > **Collateral** ' + trade.baseCollateralFormatted : ''
+      }`,
+      inline: false,
     },
     {
-      name: 'Strike',
-      value: `$${trade.strike}`,
-      inline: true,
+      name: `💵 **${AmountShortWording(trade.isLong, trade.isOpen, trade.isLiquidation)}**`,
+      value: `> ${trade.premiumFormatted}`,
+      inline: false,
     },
     {
-      name: 'Expiry',
-      value: `${FormattedDate(trade.expiry)}`,
-      inline: true,
-    },
-    {
-      name: `${AmountShortWording(trade.isLong, trade.isOpen, trade.isLiquidation)}`,
-      value: `💵 ${trade.premiumFormatted}`,
-      inline: true,
-    },
-    {
-      name: 'Size',
-      value: `${trade.size}`,
-      inline: true,
-    },
-    {
-      name: 'IV',
-      value: `${FN(trade.iv, 2)}%`,
-      inline: true,
+      name: '👨 Trader',
+      value: `> ${trade.ens ? trade.ens : trade.trader}`,
+      inline: false,
     },
   )
-  tradeEmbed.addField('Collateral', `${trade.setCollateralTo ? '💰 ' + trade.baseCollateralFormatted : '-'}`, true)
-  tradeEmbed.addField('Trader', `👨‍ ${trade.ens ? trade.ens : shortAddress(trade.trader)}`, true)
-
-  if (trade.leaderBoard.owner !== '') {
-    tradeEmbed.addField(`Leaderboard`, `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position}`, true)
-    tradeEmbed.addField(`\u200B`, `${trade.leaderBoard.netPremiumsFormatted}`, true)
-  }
-
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
-    tradeEmbed.addField(
-      `${trade.isProfitable ? 'Profit' : 'Loss'}`,
-      `${trade.isProfitable ? '🟢' : '🔴'} ${trade.pnlFormatted}`,
-      true,
-    )
-    tradeEmbed.addField(`\u200B`, `${trade.pnlPercentFormatted}`, true)
+    tradeEmbed.addFields({
+      name: `${trade.isProfitable ? '🟢' : '🔴'} ${trade.isProfitable ? 'Profit' : 'Loss'}`,
+      value: `> ${trade.pnlFormatted} ${trade.pnlPercentFormatted}`,
+      inline: false,
+    })
   }
+  if (trade.leaderBoard.owner !== '') {
+    tradeEmbed.addFields({
+      name: `${Medal(trade.leaderBoard.position)} Leaderboard`,
+      value: `> #${trade.leaderBoard.position} ${trade.leaderBoard.netPremiumsFormatted}`,
+      inline: false,
+    })
+  }
+
   tradeEmbed
     .setFooter({
       iconURL:
