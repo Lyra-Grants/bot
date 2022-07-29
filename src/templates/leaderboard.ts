@@ -73,7 +73,7 @@ export function LeaderboardTwitter(leaderBoard: trader[]) {
 
 export function LeaderboardTelegram(leaderBoard: trader[]) {
   const post: string[] = []
-  post.push(`✅ Top 10 ${TESTNET ? 'Kovan' : 'Avalon'} Traders 💵 💰 🤑\n`)
+  post.push(`✅ Top 10 Lyra Traders 💵 💰 🤑\n`)
   post.push(`Profits from last 1000 positions.\n`)
   post.push(`============================\n`)
   leaderBoard.slice(0, 10).map((trader) => {

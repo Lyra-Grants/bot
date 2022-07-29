@@ -187,7 +187,7 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
     .setFooter({
       iconURL:
         'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/c05bc1e3595ae80d74a37f13da7ce78b219a0b06/src/img/lyra.png?raw=true',
-      text: `Source: Lyra.js`,
+      text: `Lyra.js`,
     })
     .setTimestamp()
 

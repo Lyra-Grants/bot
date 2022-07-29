@@ -31,11 +31,10 @@ export async function RunTradeBot(
 ) {
   console.log('### Polling for Trades ###')
 
-  let blockNumber: number | undefined = undefined
+  const blockNumber: number | undefined = undefined
 
-  if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 10000
-  }
+  // blockNumber = lyraClient.provider.blockNumber - 10000
+
   // const trade = (
   //   await TradeEvent.getByHash(lyraClient, '0x92548b3217179539b62f042bff95e92cdb6fccf02991789b5b71f763a7d76d44')
   // )[0]
@@ -62,6 +61,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const totalPremiumPaid = PremiumsPaid(trades)
   const market = await trade.market()
   const noTrades = trades.length
+  const ens = await GetEns(trade.trader)
 
   const tradeDto: TradeDto = {
     asset: market.name,
@@ -75,7 +75,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     trader: trade.trader,
     transactionHash: trade.transactionHash,
     isOpen: trade.isOpen,
-    ens: await GetEns(trade.trader),
+    ens: ens,
     leaderBoard: MapLeaderBoard(global.LYRA_LEADERBOARD, trade.trader),
     pnl: pnl,
     pnlPercent: pnlPercent,

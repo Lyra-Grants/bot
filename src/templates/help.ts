@@ -42,7 +42,7 @@ export function LyraDiscord(dto: LyraDto): MessageEmbed[] {
     )
     .setFooter({
       iconURL: 'https://raw.githubusercontent.com/Lyra-Grants/lyra-avalon-bot/main/src/img/coingecko.png',
-      text: `Source: CoinGecko`,
+      text: `CoinGecko`,
     })
     .setTimestamp()
 

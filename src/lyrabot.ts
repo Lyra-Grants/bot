@@ -24,6 +24,7 @@ import { StatDiscord } from './templates/stats'
 import { STATS_CHANNEL, TRADE_CHANNEL } from './constants/discordChannels'
 import { HelpDiscord, LyraDiscord, QuantDiscord } from './templates/help'
 import { GetLyra } from './lyra/lyra'
+import { optimismInfuraProvider } from './clients/ethersClient'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -34,10 +35,14 @@ export async function initializeLyraBot() {
   let deployment: Deployment
   if (TESTNET) {
     deployment = Deployment.Kovan
+    lyraClient = new Lyra(deployment)
   } else {
-    deployment = Deployment.Mainnet
+    lyraClient = new Lyra({
+      provider: optimismInfuraProvider,
+      subgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/mainnet',
+      blockSubgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/optimism-mainnet-blocks',
+    })
   }
-  lyraClient = new Lyra(deployment)
 
   if (TESTNET) {
     //const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
