@@ -62,7 +62,7 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
     timestamp: new Date(),
     tradingFees: fromBigNumber(fees),
     tradingVolume: tradingVolume30D,
-    utilisationRate: liquidity.utilization,
+    utilisationRate: liquidity.utilization * 100,
   }
   return stat
 }
