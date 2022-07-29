@@ -75,17 +75,17 @@ export async function BroadCastStats(
 ): Promise<void> {
   if (TWITTER_ENABLED) {
     const post = StatTwitter(dto)
-    // await SendTweet(post, twitterClient)
+    await SendTweet(post, twitterClient)
   }
 
   if (TELEGRAM_ENABLED) {
     const post = StatTelegram(dto)
-    //await PostTelegram(post, telegramClient)
+    await PostTelegram(post, telegramClient)
   }
 
   if (DISCORD_ENABLED) {
     const post = StatDiscord(dto)
     console.log(post)
-    // await PostDiscord(post, discordClient, STATS_CHANNEL)
+    await PostDiscord(post, discordClient, STATS_CHANNEL)
   }
 }
