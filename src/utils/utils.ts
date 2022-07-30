@@ -27,3 +27,7 @@ export function signed(value: number): string {
   const nonNeg = value > 0 ? value : value * -1
   return `${value > 0 ? '+' : '-'}${nonNeg.toFixed(2)}`
 }
+
+export function firstAddress(value: string): string {
+  return `${value.slice(0, 5)}`
+}

@@ -8,4 +8,8 @@ export type TransferDto = {
   toEns: string
   timestamp: Date
   blockNumber: number
+  notableTo: boolean
+  notableFrom: boolean
+  fromAddress: string
+  toAddress: string
 }

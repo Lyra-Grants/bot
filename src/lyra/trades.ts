@@ -33,7 +33,7 @@ export async function RunTradeBot(
 
   const blockNumber: number | undefined = undefined
 
-  //blockNumber = lyraClient.provider.blockNumber - 52000
+  //blockNumber = lyraClient.provider.blockNumber - 10000
 
   // const trade = (
   //   await TradeEvent.getByHash(lyraClient, '0x92548b3217179539b62f042bff95e92cdb6fccf02991789b5b71f763a7d76d44')
@@ -96,6 +96,9 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     isBaseCollateral: trade.isBaseCollateral,
     baseCollateralFormatted: BaseCollateral(trade, market.name),
     iv: fromBigNumber(trade.iv) * 100,
+    fee: fromBigNumber(trade.fee),
+    optionPrice: fromBigNumber(trade.pricePerOption),
+    spot: fromBigNumber(trade.spotPrice),
   }
   return tradeDto
 }

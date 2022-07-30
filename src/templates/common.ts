@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
-import { TESTNET, AVALON } from '../secrets'
+import { TESTNET } from '../secrets'
 import { TradeDto } from '../types/tradeDto'
 
 export const zapperUrl = 'https://zapper.fi/account/'
@@ -27,21 +27,6 @@ export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: b
   if (isLiquidation) {
     return 'Amount'
   }
-  const paid = 'Premium Paid'
-  const received = "Premium Rec'd"
-
-  if (isOpen) {
-    return isLong ? paid : received
-  }
-
-  return isLong ? received : paid
-}
-
-export function AmountShortWording(isLong: boolean, isOpen: boolean, isLiquidation: boolean): string {
-  if (isLiquidation) {
-    return 'Amount'
-  }
-
   const paid = 'Premium Paid'
   const received = "Premium Rec'd"
 

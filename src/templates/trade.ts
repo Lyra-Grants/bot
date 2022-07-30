@@ -2,7 +2,6 @@ import { TradeDto } from '../types/tradeDto'
 import { MessageEmbed } from 'discord.js'
 import { shortAddress } from '../utils/utils'
 import {
-  AmountShortWording,
   AmountWording,
   EtherScanTransactionLink,
   FN,
@@ -119,10 +118,14 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/59b047e6ba0fef174b8380fd26a375d4690c4908/src/img/liquidation.jpg?raw=true',
     )
   }
-  //.setImage(img)
-
   if (!trade.isLiquidation) {
-    tradeEmbed.setTitle(`${trade.asset} Trade ${trade.isOpen ? 'Opened' : 'Closed'}`).setColor('#60DDBF')
+    tradeEmbed
+      .setTitle(
+        `${trade.isOpen ? '✅ Opened:' : '🚫 Closed:'} ${trade.isLong ? 'Long' : 'Short'} ${trade.size} ${
+          trade.asset
+        } $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
+      )
+      .setColor('#60DDBF')
   } else {
     tradeEmbed
       .setTitle(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`)
@@ -131,25 +134,37 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
 
   tradeEmbed.addFields(
     {
-      name: `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} ${trade.asset} $${trade.strike} ${
-        trade.isCall ? 'Call' : 'Put'
-      }`,
-      value: `> **IV** ${FN(trade.iv, 2)}%\n > **Exp** ${FormattedDate(trade.expiry)} ${
-        trade.setCollateralTo != undefined ? '\n > **Collateral** ' + trade.baseCollateralFormatted : ''
-      }`,
+      name: `⏰ Expiry`,
+      value: `> ${FormattedDate(trade.expiry)}`,
       inline: false,
     },
     {
-      name: `💵 **${AmountShortWording(trade.isLong, trade.isOpen, trade.isLiquidation)}**`,
+      name: `💵 ${AmountWording(trade.isLong, trade.isOpen, trade.isLiquidation)}`,
       value: `> ${trade.premiumFormatted}`,
       inline: false,
     },
-    {
-      name: '👨 Trader',
-      value: `> ${trade.ens ? trade.ens : trade.trader}`,
-      inline: false,
-    },
   )
+  if (trade.setCollateralTo != undefined) {
+    tradeEmbed.addFields({
+      name: `💰 Collateral`,
+      value: `> ${trade.baseCollateralFormatted}`,
+      inline: false,
+    })
+  }
+  tradeEmbed.addFields({
+    name: `📈 Info`,
+    value: `> **IV:** ${FN(trade.iv, 2)}%\n > **Fee:** $${FN(trade.fee, 2)}\n > **Option Price:** $${FN(
+      trade.optionPrice,
+      2,
+    )}\n > **Spot Price:** $${FN(trade.spot, 2)}\n`,
+    inline: false,
+  })
+
+  tradeEmbed.addFields({
+    name: '👨 Trader',
+    value: `> ${trade.ens ? trade.ens : trade.trader}`,
+    inline: false,
+  })
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addFields({
       name: `${trade.isProfitable ? '🟢' : '🔴'} ${trade.isProfitable ? 'Profit' : 'Loss'}`,

@@ -31,4 +31,7 @@ export type TradeDto = {
   isBaseCollateral: boolean | undefined
   baseCollateralFormatted: string
   iv: number
+  fee: number
+  optionPrice: number
+  spot: number
 }

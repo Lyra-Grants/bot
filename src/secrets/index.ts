@@ -15,7 +15,6 @@ export const TWITTER_ACCESS_SECRET = _.defaultTo(process.env.TWITTER_ACCESS_SECR
 export const TWITTER_THRESHOLD = _.defaultTo(process.env.TWITTER_THRESHOLD, 100)
 export const TELEGRAM_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 100)
 export const DISCORD_THRESHOLD = _.defaultTo(process.env.DISCORD_THRESHOLD, 0)
-export const LYRA_TOKEN = _.defaultTo(process.env.LYRA_TOKEN, '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb')
 
 export const TWITTER_ENABLED: boolean = _.defaultTo(
   convertToBoolean(process.env.TWITTER_ENABLED as string),
@@ -42,8 +41,10 @@ export const TEST_WALLET_ADDRESS = _.defaultTo(process.env.TEST_WALLET_ADDRESS, 
 export const TEST_PRIVATE_KEY = _.defaultTo(process.env.TEST_PRIVATE_KEY, '')
 export const TEST_PUBLIC_KEY = _.defaultTo(process.env.TEST_PUBLIC_KEY, '')
 
-/* use these details for the token twitter client */
+/* use these details for the token / lp twitter client */
 export const TWITTER_APP_KEY1 = _.defaultTo(process.env.TWITTER_APP_KEY1, '')
 export const TWITTER_APP_SECRET1 = _.defaultTo(process.env.TWITTER_APP_SECRET1, '')
 export const TWITTER_ACCESS_TOKEN1 = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN1, '')
 export const TWITTER_ACCESS_SECRET1 = _.defaultTo(process.env.TWITTER_ACCESS_SECRET1, '')
+
+export const TOKEN_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 10000)

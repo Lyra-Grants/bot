@@ -7,7 +7,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { defaultActivity, defaultName } from './integrations/discord'
-import { TwitterClient } from './clients/twitterClient'
+import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import { Job, scheduleJob } from 'node-schedule'
 import Lyra, { Deployment } from '@lyrafinance/lyra-js'
@@ -15,34 +15,37 @@ import { maketrade } from './actions/maketrade'
 import { ethers } from 'ethers'
 import { TestWallet } from './wallets/wallet'
 import faucet from './actions/faucet'
-
-import { TrackTokenMoves } from './token/tracker'
 import { GetPrice } from './integrations/coingecko'
 import { LeaderboardDiscord } from './templates/leaderboard'
 import { BroadCastStats, GetStats } from './lyra/stats'
 import { StatDiscord } from './templates/stats'
-import { STATS_CHANNEL, TRADE_CHANNEL } from './constants/discordChannels'
-import { HelpDiscord, LyraDiscord, QuantDiscord } from './templates/help'
+import {
+  DEPOSITS_CHANNEL,
+  STATS_CHANNEL,
+  TOKEN_CHANNEL,
+  TRADER_CHANNEL,
+  TRADE_CHANNEL,
+} from './constants/discordChannels'
+import { HelpDiscord, QuantDiscord } from './templates/help'
 import { GetLyra } from './lyra/lyra'
 import { optimismInfuraProvider } from './clients/ethersClient'
+import { TrackEvents } from './event/blockEvent'
+import { LyraDiscord } from './templates/coingecko'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
+let twitterClient1: TwitterApi
 let telegramClient: Telegraf<Context<Update>>
 let lyraClient: Lyra
 
 export async function initializeLyraBot() {
   let deployment: Deployment
-  if (TESTNET) {
-    deployment = Deployment.Kovan
-    lyraClient = new Lyra(deployment)
-  } else {
-    lyraClient = new Lyra({
-      provider: optimismInfuraProvider,
-      subgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/mainnet',
-      blockSubgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/optimism-mainnet-blocks',
-    })
-  }
+
+  lyraClient = new Lyra({
+    provider: optimismInfuraProvider,
+    subgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/mainnet',
+    blockSubgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/optimism-mainnet-blocks',
+  })
 
   if (TESTNET) {
     //const signer = new ethers.Wallet(TestWallet().privateKey, lyraClient.provider)
@@ -60,7 +63,7 @@ export async function initializeLyraBot() {
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
 
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-  //await TrackTokenMoves(discordClient, lyraClient)
+  //await TrackEvents(discordClient, telegramClient, twitterClient, lyraClient)
 
   //Changing usernames in Discord is heavily rate limited, with only 2 requests every hour.
   const pricingJob: Job = scheduleJob('*/30 * * * *', async () => {
@@ -94,6 +97,9 @@ export async function SetUpDiscord() {
 
       const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
       const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
+      const tokenChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TOKEN_CHANNEL)
+      const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
+      const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
 
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
@@ -163,6 +169,8 @@ export async function SetUpTwitter() {
   if (TWITTER_ENABLED) {
     twitterClient = TwitterClient
     twitterClient.readWrite
+    twitterClient1 = TwitterClient1
+    twitterClient1.readWrite
   }
 }
 

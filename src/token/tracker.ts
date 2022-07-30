@@ -1,68 +1,101 @@
-import { TESTNET } from '../secrets'
-import Lyra from '@lyrafinance/lyra-js'
+import { DISCORD_ENABLED, TOKEN_THRESHOLD, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
 import { TransferDto } from '../types/transferDto'
 import { PostDiscord } from '../integrations/discord'
+import { TransferDiscord, TransferTwitter } from '../templates/transfer'
 import { GetEns } from '../integrations/ens'
-import { LyraEvent } from '../event'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import { shortAddress, toDate } from '../utils/utils'
-import { TransferDiscord } from '../templates/transfer'
+import { firstAddress, toDate } from '../utils/utils'
+import { Context, Telegraf } from 'telegraf'
+import { Update } from 'telegraf/typings/core/types/typegram'
+import { PostTelegram } from '../integrations/telegram'
+import { TwitterClient } from '../clients/twitterClient'
+import { SendTweet } from '../integrations/twitter'
+import Lyra from '@lyrafinance/lyra-js/dist/types/lyra'
+import { Event as GenericEvent } from 'ethers'
+import { TwitterApi } from 'twitter-api-v2'
+import { TOKEN_CHANNEL } from '../constants/discordChannels'
+import { ERC20__factory } from '@lyrafinance/lyra-js'
+import { TransferEvent } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/ERC20'
 
-export async function TrackTokenMoves(discordClient: Client<boolean>, lyra: Lyra): Promise<void> {
-  console.log('### Polling for Transfers ###')
+export async function TrackTransfer(
+  discordClient: Client<boolean>,
+  telegramClient: Telegraf<Context<Update>>,
+  twitterClient: TwitterApi,
+  lyra: Lyra,
+  genericEvent: GenericEvent,
+): Promise<void> {
+  const event = parseEvent(genericEvent as TransferEvent)
+  const amount = fromBigNumber(event.args.value)
+  const value = global.LYRA_PRICE * amount
 
-  let blockNumber: number | undefined = undefined
-  if (TESTNET) {
-    blockNumber = lyra.provider.blockNumber - 10000
-  }
+  console.log(`Transfer Value: ${value}`)
 
-  LyraEvent.on(
-    lyra,
-    async (event) => {
-      const amount = fromBigNumber(event.args.value)
-      const value = global.LYRA_PRICE * amount
-
-      if (value >= 1000) {
-        try {
-          let timestamp = 0
-          try {
-            timestamp = (await lyra.provider.getBlock(event.blockNumber)).timestamp
-          } catch (ex) {
-            console.log(ex)
-          }
-          const from = GetNotableAddress(event.args.from)
-          const to = GetNotableAddress(event.args.to)
-          const fromEns = await GetEns(event.args.from)
-          const toEns = await GetEns(event.args.to)
-
-          const transferDto: TransferDto = {
-            from: from === '' ? '🧑 ' + shortAddress(event.args.from) : from,
-            to: to === '' ? '🧑 ' + shortAddress(event.args.to) : to,
-            amount: amount,
-            transactionHash: event.transactionHash,
-            fromEns: fromEns,
-            toEns: toEns,
-            timestamp: timestamp === 0 ? toDate(Date.now()) : toDate(timestamp),
-            blockNumber: event.blockNumber,
-            value: value,
-          }
-
-          console.log(transferDto)
-          BroadCastTransfer(transferDto, discordClient)
-        } catch (ex) {
-          console.log(ex)
-        }
-      } else {
-        console.log('Transfer less than threshold value')
+  if (value >= TOKEN_THRESHOLD) {
+    try {
+      let timestamp = 0
+      try {
+        timestamp = (await lyra.provider.getBlock(event.blockNumber)).timestamp
+      } catch (ex) {
+        console.log(ex)
       }
-    },
-    { startBlockNumber: blockNumber },
-  )
+      const from = GetNotableAddress(event.args.from)
+      const to = GetNotableAddress(event.args.to)
+      const fromEns = await GetEns(event.args.from)
+      const toEns = await GetEns(event.args.to)
+
+      const transferDto: TransferDto = {
+        from: from === '' ? event.args.from : from,
+        to: to === '' ? event.args.to : to,
+        amount: amount,
+        transactionHash: event.transactionHash,
+        fromEns: fromEns,
+        toEns: toEns,
+        timestamp: timestamp === 0 ? toDate(Date.now()) : toDate(timestamp),
+        blockNumber: event.blockNumber,
+        value: value,
+        notableTo: to !== '',
+        notableFrom: from !== '',
+        fromAddress: event.args.from,
+        toAddress: event.args.to,
+      }
+      console.log('Transfer Found')
+
+      BroadCastTransfer(transferDto, discordClient, telegramClient)
+    } catch (ex) {
+      console.log(ex)
+    }
+  } else {
+    console.log(`Transfer less than $${TOKEN_THRESHOLD} threshold value`)
+  }
 }
 
-export async function BroadCastTransfer(transferDto: TransferDto, discordClient: Client<boolean>): Promise<void> {
-  const post = TransferDiscord(transferDto)
-  await PostDiscord(post, discordClient, 'lyra-token-transfers')
+export async function BroadCastTransfer(
+  transferDto: TransferDto,
+  discordClient: Client<boolean>,
+  telegramClient: Telegraf<Context<Update>>,
+): Promise<void> {
+  if (DISCORD_ENABLED) {
+    //const post = TransferDiscord(transferDto)
+    //await PostDiscord(post, discordClient, TOKEN_CHANNEL)
+  }
+  if (TELEGRAM_ENABLED) {
+    // const post = TransferTelegram(transferDto)
+    // await PostTelegram(post, telegramClient)
+  }
+
+  if (TWITTER_ENABLED) {
+    // const post = TransferTwitter(transferDto)
+    // await SendTweet(post, TwitterClient)
+  }
+}
+
+export function parseEvent(event: TransferEvent): TransferEvent {
+  const parsedEvent = ERC20__factory.createInterface().parseLog(event)
+
+  if ((parsedEvent.args as TransferEvent['args']).length > 0) {
+    event.args = parsedEvent.args as TransferEvent['args']
+  }
+  return event
 }

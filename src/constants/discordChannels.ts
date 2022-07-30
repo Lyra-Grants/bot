@@ -1,2 +1,5 @@
 export const TRADE_CHANNEL = '📥trades'
 export const STATS_CHANNEL = '🤖vaults'
+export const TOKEN_CHANNEL = '🟢token'
+export const DEPOSITS_CHANNEL = '🏦deposits'
+export const TRADER_CHANNEL = '👔traders'
