@@ -60,9 +60,7 @@ export async function TrackTransfer(
         fromAddress: event.args.from,
         toAddress: event.args.to,
       }
-      console.log('Transfer Found')
-
-      BroadCastTransfer(transferDto, discordClient, telegramClient)
+      BroadCastTransfer(transferDto, discordClient, telegramClient, twitterClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -75,10 +73,11 @@ export async function BroadCastTransfer(
   transferDto: TransferDto,
   discordClient: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
+  twitterClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
-    //const post = TransferDiscord(transferDto)
-    //await PostDiscord(post, discordClient, TOKEN_CHANNEL)
+    const post = TransferDiscord(transferDto)
+    await PostDiscord(post, discordClient, TOKEN_CHANNEL)
   }
   if (TELEGRAM_ENABLED) {
     // const post = TransferTelegram(transferDto)
@@ -86,8 +85,8 @@ export async function BroadCastTransfer(
   }
 
   if (TWITTER_ENABLED) {
-    // const post = TransferTwitter(transferDto)
-    // await SendTweet(post, TwitterClient)
+    const post = TransferTwitter(transferDto)
+    await SendTweet(post, twitterClient)
   }
 }
 

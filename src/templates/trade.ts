@@ -144,27 +144,38 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       inline: false,
     },
   )
-  if (trade.setCollateralTo != undefined) {
+
+  if (trade.setCollateralTo != undefined && trade.setCollateralTo > 0) {
     tradeEmbed.addFields({
       name: `💰 Collateral`,
       value: `> ${trade.baseCollateralFormatted}`,
       inline: false,
     })
   }
-  tradeEmbed.addFields({
-    name: `📈 Info`,
-    value: `> **IV:** ${FN(trade.iv, 2)}%\n > **Fee:** $${FN(trade.fee, 2)}\n > **Option Price:** $${FN(
-      trade.optionPrice,
-      2,
-    )}\n > **Spot Price:** $${FN(trade.spot, 2)}\n`,
-    inline: false,
-  })
 
-  tradeEmbed.addFields({
-    name: '👨 Trader',
-    value: `> ${trade.ens ? trade.ens : trade.trader}`,
-    inline: false,
-  })
+  tradeEmbed.addFields(
+    {
+      name: `🏷️ Prices`,
+      value: `> Option: $${FN(trade.optionPrice, 2)}\n > Spot: $${FN(trade.spot, 2)}`,
+      inline: false,
+    },
+    {
+      name: `⚡ IV`,
+      value: `> ${FN(trade.iv, 2)}%`,
+      inline: false,
+    },
+    {
+      name: `💸 Fees`,
+      value: `> $${FN(trade.fee, 2)}`,
+      inline: false,
+    },
+    {
+      name: '👨 Trader',
+      value: `> ${trade.ens ? trade.ens : trade.trader}`,
+      inline: false,
+    },
+  )
+
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
     tradeEmbed.addFields({
       name: `${trade.isProfitable ? '🟢' : '🔴'} ${trade.isProfitable ? 'Profit' : 'Loss'}`,

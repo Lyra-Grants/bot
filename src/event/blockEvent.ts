@@ -12,26 +12,24 @@ import { TrackTransfer } from '../token/tracker'
 export async function TrackEvents(
   discordClient: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
-  twitterClient: TwitterApi,
+  twitterClient1: TwitterApi,
   rpcClient: Lyra,
 ): Promise<void> {
   console.log('### Polling Events ###')
   let blockNumber: number | undefined = undefined
   if (TESTNET) {
-    blockNumber = rpcClient.provider.blockNumber - 10000
+    blockNumber = rpcClient.provider.blockNumber - 2000
   }
-
+  let count = 0
   BlockEvent.on(
     rpcClient,
     async (event) => {
-      // track different events based on event type
-      // can do this using the topic - topic[0] is the type of even
-      // Object.entries(groupedEvent).forEach(([key, value]) => {
-      //   console.log(key, value)
-      // })
       if (event.topics[0] === TRANSFER_TOPIC) {
         // deal with token transfers
-        TrackTransfer(discordClient, telegramClient, twitterClient, rpcClient, event)
+        if (count == 0) {
+          TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event)
+        }
+        count++
       }
     },
     {

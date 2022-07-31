@@ -1,6 +1,5 @@
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
-import { TESTNET } from '../secrets'
 import { TradeDto } from '../types/tradeDto'
 
 export const zapperUrl = 'https://zapper.fi/account/'
@@ -68,9 +67,6 @@ export function FormattedDateTime(date: Date) {
 }
 
 export function EtherScanUrl() {
-  if (TESTNET) {
-    return 'https://kovan-optimistic.etherscan.io'
-  }
   return 'https://optimistic.etherscan.io'
 }
 

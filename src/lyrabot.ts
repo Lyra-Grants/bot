@@ -1,5 +1,5 @@
 import { RunTradeBot } from './lyra/trades'
-import { BroadcastLeaderBoard, GetLeaderBoard } from './lyra/leaderboard'
+import { GetLeaderBoard } from './lyra/leaderboard'
 import { DISCORD_ACCESS_TOKEN, DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
 import { DiscordClient } from './clients/discordClient'
 import { Client, TextChannel } from 'discord.js'
@@ -9,15 +9,14 @@ import { Update } from 'telegraf/typings/core/types/typegram'
 import { defaultActivity, defaultName } from './integrations/discord'
 import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
-import { Job, scheduleJob } from 'node-schedule'
-import Lyra, { Deployment } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
 import { maketrade } from './actions/maketrade'
 import { ethers } from 'ethers'
 import { TestWallet } from './wallets/wallet'
 import faucet from './actions/faucet'
 import { GetPrice } from './integrations/coingecko'
 import { LeaderboardDiscord } from './templates/leaderboard'
-import { BroadCastStats, GetStats } from './lyra/stats'
+import { GetStats } from './lyra/stats'
 import { StatDiscord } from './templates/stats'
 import {
   DEPOSITS_CHANNEL,
@@ -27,10 +26,12 @@ import {
   TRADE_CHANNEL,
 } from './constants/discordChannels'
 import { HelpDiscord, QuantDiscord } from './templates/help'
-import { GetLyra } from './lyra/lyra'
 import { optimismInfuraProvider } from './clients/ethersClient'
 import { TrackEvents } from './event/blockEvent'
-import { LyraDiscord } from './templates/coingecko'
+import { CoinGeckoDiscord, CoinGeckoTwitter } from './templates/coingecko'
+import { GetCoinGecko } from './lyra/coingecko'
+import { CoinGeckoJob, LeaderboardJob, PricingJob, StatsJob } from './schedule'
+import { SendTweet } from './integrations/twitter'
 
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
@@ -39,8 +40,6 @@ let telegramClient: Telegraf<Context<Update>>
 let lyraClient: Lyra
 
 export async function initializeLyraBot() {
-  let deployment: Deployment
-
   lyraClient = new Lyra({
     provider: optimismInfuraProvider,
     subgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/mainnet',
@@ -52,6 +51,7 @@ export async function initializeLyraBot() {
     //faucet(lyraClient, signer)
     //maketrade(lyraClient, signer)
   }
+
   global.ETH_24HR = 0
   global.ETH_PRICE = 0
   await GetPrice()
@@ -63,26 +63,12 @@ export async function initializeLyraBot() {
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
 
   await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-  //await TrackEvents(discordClient, telegramClient, twitterClient, lyraClient)
+  await TrackEvents(discordClient, telegramClient, twitterClient1, lyraClient)
 
-  //Changing usernames in Discord is heavily rate limited, with only 2 requests every hour.
-  const pricingJob: Job = scheduleJob('*/30 * * * *', async () => {
-    console.log('30 min pricing job running')
-    await GetPrice()
-    defaultActivity(discordClient)
-    await defaultName(discordClient)
-  })
-
-  // Monday / Wednesday / Friday (as this resets each build)
-  const leadeboardJob: Job = scheduleJob('0 0 * * 1,3,5', async () => {
-    global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-    await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
-  })
-
-  const statsJob: Job = scheduleJob('0 1 * * 1,3,5', async () => {
-    const statsDto = await GetStats('eth', lyraClient)
-    await BroadCastStats(statsDto, twitterClient, telegramClient, discordClient)
-  })
+  PricingJob(discordClient)
+  LeaderboardJob(discordClient, twitterClient, telegramClient)
+  StatsJob(discordClient, twitterClient, telegramClient, lyraClient)
+  CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyraClient)
 }
 
 export async function SetUpDiscord() {
@@ -141,8 +127,8 @@ export async function SetUpDiscord() {
       }
       if (commandName === 'lyra') {
         if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
-          const lyraDto = await GetLyra()
-          const embed = LyraDiscord(lyraDto)
+          const lyraDto = await GetCoinGecko()
+          const embed = CoinGeckoDiscord(lyraDto)
           await interaction.reply({ embeds: embed })
         } else {
           await interaction.reply(`Command 'lyra' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)

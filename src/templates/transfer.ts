@@ -1,26 +1,16 @@
 import { MessageEmbed } from 'discord.js'
 import { TransferDto } from '../types/transferDto'
-import { FN, FormattedDateTime } from './common'
+import { EtherScanTransactionLink, FN, FormattedDateTime, LyraDappUrl } from './common'
 
 // TWITTER
-export function TransferTwitter(transfer: TransferDto) {
+export function TransferTwitter(dto: TransferDto) {
   const post: string[] = []
-  post.push(
-    `${transfer.amount.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })} $LYRA ($${transfer.value.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}) transfer \n`,
-  )
-  post.push(
-    `from ${
-      transfer.fromEns ? transfer.fromEns : transfer.notableFrom ? transfer.from : '🧑 ' + transfer.fromAddress
-    }\n`,
-  )
-  post.push(`to ${transfer.toEns ? transfer.toEns : transfer.notableTo ? transfer.to : '🧑 ' + transfer.toAddress}\n`)
-  post.push(`https://optimistic.etherscan.io/tx/${transfer.transactionHash}`)
+  post.push(`${FN(dto.amount, 2)} $LYRA ($${FN(dto.value, 2)}) transfer \n`)
+  post.push(`from ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
+  post.push(`to ${dto.toEns ? dto.toEns : dto.notableTo ? dto.to : '🧑 ' + dto.toAddress}\n\n`)
+  post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n\n`)
+  post.push(`\nOptions for everyone, start trading 👇\n`)
+  post.push(`${LyraDappUrl()}`)
   return post.join('')
 }
 
