@@ -47,4 +47,4 @@ export const TWITTER_APP_SECRET1 = _.defaultTo(process.env.TWITTER_APP_SECRET1, 
 export const TWITTER_ACCESS_TOKEN1 = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN1, '')
 export const TWITTER_ACCESS_SECRET1 = _.defaultTo(process.env.TWITTER_ACCESS_SECRET1, '')
 
-export const TOKEN_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 10000)
+export const TOKEN_THRESHOLD = _.defaultTo(process.env.TOKEN_THRESHOLD, 1000)
