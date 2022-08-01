@@ -6,8 +6,8 @@ import { EtherScanTransactionLink, FN, LyraDappUrl } from './common'
 export function DepositTwitter(dto: DepositDto) {
   const post: string[] = []
   post.push(`💵 $${FN(dto.amount, 2)} sUSD deposit (queued)\n`)
-  post.push(`by: ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
-  post.push(`to: Lyra Eth Market Vault\n\n`)
+  post.push(`by ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
+  post.push(`to 🔷 Eth Market Vault\n\n`)
   post.push(`🏦 Total queued: $${FN(dto.totalQueued, 0)}\n`)
   post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n`)
   post.push(`\nOptions for everyone, start trading 👇\n`)
@@ -24,7 +24,7 @@ export function DepositDiscord(dto: DepositDto): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#00ff7f')
     .setURL(`${`https://optimistic.etherscan.io/tx/${dto.transactionHash}`}`)
-    .setTitle(`Deposit: Eth Market Vault (queued)`)
+    .setTitle(`Deposit: 🔷 Eth Market Vault (queued)`)
     .addFields(
       {
         name: `💵 Amount:`,
