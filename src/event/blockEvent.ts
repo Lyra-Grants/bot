@@ -8,6 +8,7 @@ import { DEPOSIT_QUEUED, TRANSFER_TOPIC } from '../constants/topics'
 import { CONTRACT_ADDRESSES } from '../constants/contractAddresses'
 import Lyra from '@lyrafinance/lyra-js'
 import { TrackTransfer } from '../token/tracker'
+import { TrackDeposits } from '../lyra/deposits'
 
 export async function TrackEvents(
   discordClient: Client<boolean>,
@@ -18,15 +19,19 @@ export async function TrackEvents(
   console.log('### Polling Events ###')
   let blockNumber: number | undefined = undefined
   if (TESTNET) {
-    blockNumber = rpcClient.provider.blockNumber - 2000
+    blockNumber = rpcClient.provider.blockNumber - 10000
   }
 
   BlockEvent.on(
     rpcClient,
     async (event) => {
-      if (event.topics[0] === TRANSFER_TOPIC) {
+      if (event.topics[0].toLowerCase() === TRANSFER_TOPIC) {
         // deal with token transfers
         TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event)
+      }
+      if (event.topics[0].toLowerCase() == DEPOSIT_QUEUED) {
+        // deal with q'd deposits
+        TrackDeposits(discordClient, telegramClient, twitterClient1, rpcClient, event)
       }
     },
     {

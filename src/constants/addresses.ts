@@ -119,4 +119,5 @@ export const NotableAddresses: { [key: string]: string } = {
   '0x3245d3204eeb67afba7b0ba9143e8081365e08a6': 'Angle',
   '0xf4b03870807059042b98c7abe889d5e9ed787371': 'Mover',
   '0xfb0dadb835fade151abf6780beafb12fc5ba0e1f': 'PoolTogether',
+  '0x5db73886c4730dbf3c562ebf8044e19e8c93843e': '🟢 Lyra Eth Vault',
 }
