@@ -81,19 +81,17 @@ export async function BroadCastDeposit(
   twitterClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
-    //const post = DepositDiscord(dto)
-    //await PostDiscord(post, discordClient, DEPOSITS_CHANNEL)
+    const post = DepositDiscord(dto)
+    await PostDiscord(post, discordClient, DEPOSITS_CHANNEL)
   }
   if (TELEGRAM_ENABLED) {
     // const post = TransferTelegram(transferDto)
     // await PostTelegram(post, telegramClient)
   }
-  const post = DepositTwitter(dto)
-  console.log(post)
+
   if (TWITTER_ENABLED) {
     const post = DepositTwitter(dto)
-    console.log(post)
-    // await SendTweet(post, twitterClient)
+    await SendTweet(post, twitterClient)
   }
 }
 
