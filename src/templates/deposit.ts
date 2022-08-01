@@ -6,8 +6,8 @@ import { EtherScanTransactionLink, FN, LyraDappUrl } from './common'
 export function DepositTwitter(dto: DepositDto) {
   const post: string[] = []
   post.push(`💵 $${FN(dto.amount, 2)} sUSD deposit (queued)\n`)
-  post.push(`by ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
-  post.push(`to 🔷 Eth Market Vault\n\n`)
+  post.push(`from ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
+  post.push(`to 🔷 Eth Market Vault (Lyra)\n\n`)
   post.push(`🏦 Total queued: $${FN(dto.totalQueued, 0)}\n`)
   post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n`)
   post.push(`\nOptions for everyone, start trading 👇\n`)
