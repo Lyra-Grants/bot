@@ -120,4 +120,5 @@ export const NotableAddresses: { [key: string]: string } = {
   '0xf4b03870807059042b98c7abe889d5e9ed787371': 'Mover',
   '0xfb0dadb835fade151abf6780beafb12fc5ba0e1f': 'PoolTogether',
   '0x5db73886c4730dbf3c562ebf8044e19e8c93843e': '🟢 Lyra Eth Vault',
+  '0xde48b1b5853cc63b1d05e507414d3e02831722f8': '🟢 Lyra Staking',
 }

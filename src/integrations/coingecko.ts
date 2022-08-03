@@ -1,4 +1,3 @@
-import { response } from 'express'
 import { CoinGeckoClient } from '../clients/coinGeckoClient'
 import { LyraDto } from '../types/lyraDto'
 import printObject from '../utils/printObject'
