@@ -135,12 +135,12 @@ export async function SetUpDiscord() {
         }
       }
       if (commandName === 'quant') {
-        if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
-          const embed = QuantDiscord()
-          await interaction.reply({ embeds: embed })
-        } else {
-          await interaction.reply(`Command 'quant' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
-        }
+        //if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
+        const embed = QuantDiscord()
+        await interaction.reply({ embeds: embed })
+        // } else {
+        //  await interaction.reply(`Command 'quant' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
+        //}
       }
     })
 
