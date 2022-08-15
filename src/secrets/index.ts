@@ -47,5 +47,15 @@ export const TWITTER_APP_SECRET1 = _.defaultTo(process.env.TWITTER_APP_SECRET1, 
 export const TWITTER_ACCESS_TOKEN1 = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN1, '')
 export const TWITTER_ACCESS_SECRET1 = _.defaultTo(process.env.TWITTER_ACCESS_SECRET1, '')
 
+/* Lyra Quant */
+export const TWITTER_APP_KEY2 = _.defaultTo(process.env.TWITTER_APP_KEY2, '')
+export const TWITTER_APP_SECRET2 = _.defaultTo(process.env.TWITTER_APP_SECRET2, '')
+export const TWITTER_ACCESS_TOKEN2 = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN2, '')
+export const TWITTER_ACCESS_SECRET2 = _.defaultTo(process.env.TWITTER_ACCESS_SECRET2, '')
+
 export const TOKEN_THRESHOLD = _.defaultTo(process.env.TOKEN_THRESHOLD, 1000)
 export const DEPOSIT_THRESHOLD = _.defaultTo(process.env.DEPOSIT_THRESHOLD, 1000)
+
+export const QUANT_TRADE_THRESHOLD = _.defaultTo(process.env.QUANT_TRADE_THESHOLD, 10000)
+export const QUANT_TOKEN_THRESHOLD = _.defaultTo(process.env.QUANT_TOKEN_THRESHOLD, 50000)
+export const QUANT_DEPOSIT_THRESHOLD = _.defaultTo(process.env.QUANT_DEPOSIT_THRESHOLD, 100000)

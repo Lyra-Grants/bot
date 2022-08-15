@@ -1,33 +1,28 @@
 import {
   DISCORD_ENABLED,
-  TOKEN_THRESHOLD,
   TELEGRAM_ENABLED,
-  TESTNET,
   TWITTER_ENABLED,
   DEPOSIT_THRESHOLD,
+  QUANT_DEPOSIT_THRESHOLD,
 } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
-import { TransferDto } from '../types/transferDto'
 import { PostDiscord } from '../integrations/discord'
-import { TransferDiscord, TransferTwitter } from '../templates/transfer'
 import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import { firstAddress, toDate } from '../utils/utils'
+import { toDate } from '../utils/utils'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { PostTelegram } from '../integrations/telegram'
-import { TwitterClient } from '../clients/twitterClient'
 import { SendTweet } from '../integrations/twitter'
 import Lyra from '@lyrafinance/lyra-js/dist/types/lyra'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
-import { DEPOSITS_CHANNEL, TOKEN_CHANNEL } from '../constants/discordChannels'
-import { ERC20__factory, LiquidityPool__factory } from '@lyrafinance/lyra-js'
-import { TransferEvent } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/ERC20'
+import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
+import { LiquidityPool__factory } from '@lyrafinance/lyra-js'
 import { DepositQueuedEvent } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
 import { DepositDto } from '../types/depositDto'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
+import { RandomDegen } from '../constants/degenMessage'
 
 export async function TrackDeposits(
   discordClient: Client<boolean>,
@@ -35,6 +30,7 @@ export async function TrackDeposits(
   twitterClient: TwitterApi,
   lyra: Lyra,
   genericEvent: GenericEvent,
+  quantClient: TwitterApi,
 ): Promise<void> {
   const event = parseEvent(genericEvent as DepositQueuedEvent)
   const amount = fromBigNumber(event.args.amountDeposited)
@@ -64,8 +60,9 @@ export async function TrackDeposits(
         fromAddress: event.args.depositor,
         toAddress: event.address,
         totalQueued: fromBigNumber(event.args.totalQueuedDeposits),
+        degenMessage: RandomDegen(),
       }
-      BroadCastDeposit(dto, discordClient, telegramClient, twitterClient)
+      BroadCastDeposit(dto, discordClient, telegramClient, twitterClient, quantClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -79,6 +76,7 @@ export async function BroadCastDeposit(
   discordClient: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
+  quantClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = DepositDiscord(dto)
@@ -90,8 +88,16 @@ export async function BroadCastDeposit(
   }
 
   if (TWITTER_ENABLED) {
-    const post = DepositTwitter(dto)
+    const post = DepositTwitter(dto, false)
     await SendTweet(post, twitterClient)
+
+    if (dto.value > QUANT_DEPOSIT_THRESHOLD) {
+      console.log(`QUANT TRADE: $${dto.value} > ${QUANT_DEPOSIT_THRESHOLD}`)
+      const post = DepositTwitter(dto, true)
+      await SendTweet(post, quantClient)
+    } else {
+      console.log(`$${dto.value} < ${QUANT_DEPOSIT_THRESHOLD}`)
+    }
   }
 }
 

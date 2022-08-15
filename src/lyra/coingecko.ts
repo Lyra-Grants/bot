@@ -7,7 +7,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import { PostDiscord } from '../integrations/discord'
 import { SendTweet } from '../integrations/twitter'
 import { DISCORD_ENABLED, TWITTER_ENABLED } from '../secrets'
-import { STATS_CHANNEL } from '../constants/discordChannels'
+import { TOKEN_CHANNEL } from '../constants/discordChannels'
 import { CoinGeckoDiscord, CoinGeckoTwitter } from '../templates/coingecko'
 
 export async function GetCoinGecko(): Promise<LyraDto> {
@@ -22,7 +22,7 @@ export async function BroadcastCoinGecko(
 ) {
   if (DISCORD_ENABLED) {
     const embeds = CoinGeckoDiscord(lyraDto)
-    await PostDiscord(embeds, discordClient, STATS_CHANNEL)
+    await PostDiscord(embeds, discordClient, TOKEN_CHANNEL)
   }
   if (TWITTER_ENABLED) {
     const post = CoinGeckoTwitter(lyraDto)

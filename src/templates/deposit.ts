@@ -3,15 +3,19 @@ import { DepositDto } from '../types/depositDto'
 import { EtherScanTransactionLink, FN, LyraDappUrl } from './common'
 
 // TWITTER
-export function DepositTwitter(dto: DepositDto) {
+export function DepositTwitter(dto: DepositDto, _isQuant = false) {
   const post: string[] = []
-  post.push(`💵 $${FN(dto.amount, 2)} sUSD deposit (queued)\n`)
+  post.push(`💵 $${FN(dto.amount, 2)} sUSD Deposit\n\n`)
   post.push(`from ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
-  post.push(`to 🔷 Eth Market Vault (Lyra)\n\n`)
-  post.push(`🏦 Total queued: $${FN(dto.totalQueued, 0)}\n`)
-  post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n`)
-  post.push(`\nOptions for everyone, start trading 👇\n`)
-  post.push(`${LyraDappUrl()}`)
+  post.push(`to 🔷 Eth Market Vault\n\n`)
+  if (!_isQuant) {
+    post.push(`🏦 Total queued: $${FN(dto.totalQueued, 0)}\n`)
+    post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n`)
+    post.push(`\nOptions for everyone, start trading 👇\n`)
+    post.push(`${LyraDappUrl()}`)
+  } else {
+    post.push(`\n${dto.degenMessage}\n\n`)
+  }
   return post.join('')
 }
 
@@ -24,7 +28,7 @@ export function DepositDiscord(dto: DepositDto): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#00ff7f')
     .setURL(`${`https://optimistic.etherscan.io/tx/${dto.transactionHash}`}`)
-    .setTitle(`Deposit: 🔷 Eth Market Vault (queued)`)
+    .setTitle(`Deposit: 🔷 Eth Market Vault`)
     .addFields(
       {
         name: `💵 Amount:`,

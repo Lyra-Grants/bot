@@ -9,6 +9,7 @@ import {
   TELEGRAM_THRESHOLD,
   DISCORD_THRESHOLD,
   TESTNET,
+  QUANT_TRADE_THRESHOLD,
 } from '../secrets'
 import { dollar, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
@@ -22,25 +23,27 @@ import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { TradeDiscord, TradeTelegram, TradeTwitter } from '../templates/trade'
 import fromBigNumber from '../utils/fromBigNumber'
+import { RandomDegen } from '../constants/degenMessage'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
+  quantClient: TwitterApi,
 ) {
   console.log('### Polling for Trades ###')
 
   let blockNumber: number | undefined = undefined
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 5000
+    blockNumber = lyraClient.provider.blockNumber - 100000
   }
 
   lyraClient.onTrade(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)
-        await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
+        await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient, quantClient)
       } catch (e: any) {
         console.log(e)
       }
@@ -94,6 +97,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     fee: fromBigNumber(trade.fee),
     optionPrice: fromBigNumber(trade.pricePerOption),
     spot: fromBigNumber(trade.spotPrice),
+    degenMessage: RandomDegen(),
   }
   return tradeDto
 }
@@ -129,11 +133,22 @@ export async function BroadCastTrade(
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   discordClient: Client<boolean>,
+  quantClient: TwitterApi,
 ): Promise<void> {
   // Twitter //
-  if (trade.premium >= TWITTER_THRESHOLD && TWITTER_ENABLED) {
-    const post = TradeTwitter(trade)
-    await SendTweet(post, twitterClient)
+  if (TWITTER_ENABLED) {
+    if (trade.premium >= TWITTER_THRESHOLD) {
+      const tweet = TradeTwitter(trade, false)
+      await SendTweet(tweet, twitterClient)
+    }
+    if (trade.premium >= QUANT_TRADE_THRESHOLD || trade.isLiquidation || (trade.pnlPercent > 400 && trade.pnl > 500)) {
+      console.log(`$${trade.premium} big! > $${QUANT_TRADE_THRESHOLD}`)
+      const quantTweet = TradeTwitter(trade, true)
+      console.log(quantTweet)
+      await SendTweet(quantTweet, quantClient)
+    } else {
+      console.log(`$${trade.premium} less than quant threshold: $${QUANT_TRADE_THRESHOLD}`)
+    }
   }
 
   // Telegram //

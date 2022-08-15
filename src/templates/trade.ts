@@ -14,10 +14,9 @@ import {
   TradeHistoryLink,
   TradeShareImage,
 } from './common'
-import { positionsQuery } from '../queries'
 
 // TWITTER //
-export function TradeTwitter(trade: TradeDto) {
+export function TradeTwitter(trade: TradeDto, _isQuant = false) {
   const post: string[] = []
 
   if (!trade.isLiquidation) {
@@ -53,6 +52,9 @@ export function TradeTwitter(trade: TradeDto) {
     )
   }
   post.push(`👨‍ ${trade.ens ? trade.ens : trade.trader}\n`)
+  if (_isQuant) {
+    post.push(`\n${trade.degenMessage}\n\n`)
+  }
   post.push(`${PositionLink(trade)}\n`)
   return post.join('')
 }
@@ -190,6 +192,12 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       inline: false,
     })
   }
+
+  tradeEmbed.addFields({
+    name: `-----`,
+    value: `> ${trade.degenMessage}`,
+    inline: false,
+  })
 
   tradeEmbed
     .setFooter({

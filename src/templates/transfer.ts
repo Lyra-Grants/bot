@@ -5,7 +5,7 @@ import { EtherScanTransactionLink, FN, FormattedDateTime, LyraDappUrl } from './
 // TWITTER
 export function TransferTwitter(dto: TransferDto) {
   const post: string[] = []
-  post.push(`${FN(dto.amount, 2)} $LYRA ($${FN(dto.value, 2)}) transfer \n`)
+  post.push(`${FN(dto.amount, 2)} $LYRA ($${FN(dto.value, 2)}) transfer \n\n`)
   post.push(`from ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
   post.push(`to ${dto.toEns ? dto.toEns : dto.notableTo ? dto.to : '🧑 ' + dto.toAddress}\n\n`)
   post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n\n`)

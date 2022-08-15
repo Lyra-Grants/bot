@@ -1,4 +1,11 @@
-import { DISCORD_ENABLED, TOKEN_THRESHOLD, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../secrets'
+import {
+  DISCORD_ENABLED,
+  TOKEN_THRESHOLD,
+  TELEGRAM_ENABLED,
+  TESTNET,
+  TWITTER_ENABLED,
+  QUANT_TOKEN_THRESHOLD,
+} from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
 import { TransferDto } from '../types/transferDto'
@@ -25,6 +32,7 @@ export async function TrackTransfer(
   twitterClient: TwitterApi,
   lyra: Lyra,
   genericEvent: GenericEvent,
+  quantClient: TwitterApi,
 ): Promise<void> {
   const event = parseEvent(genericEvent as TransferEvent)
   const amount = fromBigNumber(event.args.value)
@@ -60,7 +68,7 @@ export async function TrackTransfer(
         fromAddress: event.args.from,
         toAddress: event.args.to,
       }
-      BroadCastTransfer(transferDto, discordClient, telegramClient, twitterClient)
+      BroadCastTransfer(transferDto, discordClient, telegramClient, twitterClient, quantClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -74,6 +82,7 @@ export async function BroadCastTransfer(
   discordClient: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
+  quantClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = TransferDiscord(transferDto)
@@ -87,6 +96,10 @@ export async function BroadCastTransfer(
   if (TWITTER_ENABLED) {
     const post = TransferTwitter(transferDto)
     await SendTweet(post, twitterClient)
+
+    if (transferDto.value > QUANT_TOKEN_THRESHOLD) {
+      await SendTweet(post, quantClient)
+    }
   }
 }
 

@@ -7,7 +7,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { defaultActivity, defaultName } from './integrations/discord'
-import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
+import { TwitterClient, TwitterClient1, TwitterClient2 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import Lyra from '@lyrafinance/lyra-js'
 import { maketrade } from './actions/maketrade'
@@ -36,6 +36,7 @@ import { SendTweet } from './integrations/twitter'
 let discordClient: Client<boolean>
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
+let twitterClient2: TwitterApi
 let telegramClient: Telegraf<Context<Update>>
 let lyraClient: Lyra
 
@@ -62,8 +63,8 @@ export async function initializeLyraBot() {
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
 
-  await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient)
-  await TrackEvents(discordClient, telegramClient, twitterClient1, lyraClient)
+  await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient, twitterClient2)
+  await TrackEvents(discordClient, telegramClient, twitterClient1, lyraClient, twitterClient2)
 
   PricingJob(discordClient)
   LeaderboardJob(discordClient, twitterClient, telegramClient)
@@ -126,12 +127,12 @@ export async function SetUpDiscord() {
         }
       }
       if (commandName === 'lyra') {
-        if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
+        if (channelName === TOKEN_CHANNEL) {
           const lyraDto = await GetCoinGecko()
           const embed = CoinGeckoDiscord(lyraDto)
           await interaction.reply({ embeds: embed })
         } else {
-          await interaction.reply(`Command 'lyra' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
+          await interaction.reply(`Command 'lyra' only available in <#${tokenChannel?.id}>`)
         }
       }
       if (commandName === 'quant') {
@@ -157,6 +158,8 @@ export async function SetUpTwitter() {
     twitterClient.readWrite
     twitterClient1 = TwitterClient1
     twitterClient1.readWrite
+    twitterClient2 = TwitterClient2
+    twitterClient2.readWrite
   }
 }
 

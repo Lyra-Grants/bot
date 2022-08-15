@@ -34,4 +34,5 @@ export type TradeDto = {
   fee: number
   optionPrice: number
   spot: number
+  degenMessage: string
 }

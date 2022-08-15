@@ -13,4 +13,5 @@ export type DepositDto = {
   fromAddress: string
   toAddress: string
   totalQueued: number
+  degenMessage: string
 }
