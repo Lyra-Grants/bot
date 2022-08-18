@@ -36,7 +36,7 @@ export async function RunTradeBot(
 
   let blockNumber: number | undefined = undefined
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 100000
+    blockNumber = lyraClient.provider.blockNumber - 10000
   }
 
   lyraClient.onTrade(
@@ -141,14 +141,14 @@ export async function BroadCastTrade(
       const tweet = TradeTwitter(trade, false)
       await SendTweet(tweet, twitterClient)
     }
-    if (trade.premium >= QUANT_TRADE_THRESHOLD || trade.isLiquidation || (trade.pnlPercent > 400 && trade.pnl > 500)) {
-      console.log(`$${trade.premium} big! > $${QUANT_TRADE_THRESHOLD}`)
-      const quantTweet = TradeTwitter(trade, true)
-      console.log(quantTweet)
-      await SendTweet(quantTweet, quantClient)
-    } else {
-      console.log(`$${trade.premium} less than quant threshold: $${QUANT_TRADE_THRESHOLD}`)
-    }
+    // if (trade.premium >= QUANT_TRADE_THRESHOLD || trade.isLiquidation || (trade.pnlPercent > 400 && trade.pnl > 500)) {
+    //   console.log(`$${trade.premium} big! > $${QUANT_TRADE_THRESHOLD}`)
+    //   const quantTweet = TradeTwitter(trade, true)
+    //   console.log(quantTweet)
+    //   await SendTweet(quantTweet, quantClient)
+    // } else {
+    //   console.log(`$${trade.premium} less than quant threshold: $${QUANT_TRADE_THRESHOLD}`)
+    // }
   }
 
   // Telegram //

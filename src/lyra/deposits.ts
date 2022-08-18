@@ -91,13 +91,13 @@ export async function BroadCastDeposit(
     const post = DepositTwitter(dto, false)
     await SendTweet(post, twitterClient)
 
-    if (dto.value > QUANT_DEPOSIT_THRESHOLD) {
-      console.log(`QUANT TRADE: $${dto.value} > ${QUANT_DEPOSIT_THRESHOLD}`)
-      const post = DepositTwitter(dto, true)
-      await SendTweet(post, quantClient)
-    } else {
-      console.log(`$${dto.value} < ${QUANT_DEPOSIT_THRESHOLD}`)
-    }
+    // if (dto.value > QUANT_DEPOSIT_THRESHOLD) {
+    //   console.log(`QUANT TRADE: $${dto.value} > ${QUANT_DEPOSIT_THRESHOLD}`)
+    //   const post = DepositTwitter(dto, true)
+    //   await SendTweet(post, quantClient)
+    // } else {
+    //   console.log(`$${dto.value} < ${QUANT_DEPOSIT_THRESHOLD}`)
+    // }
   }
 }
 

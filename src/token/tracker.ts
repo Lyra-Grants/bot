@@ -97,9 +97,9 @@ export async function BroadCastTransfer(
     const post = TransferTwitter(transferDto)
     await SendTweet(post, twitterClient)
 
-    if (transferDto.value > QUANT_TOKEN_THRESHOLD) {
-      await SendTweet(post, quantClient)
-    }
+    // if (transferDto.value > QUANT_TOKEN_THRESHOLD) {
+    //   await SendTweet(post, quantClient)
+    // }
   }
 }
 
