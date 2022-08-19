@@ -1,6 +1,7 @@
 import { TradeDto } from '../types/tradeDto'
 import { Client, MessageEmbed, TextChannel } from 'discord.js/typings/index.js'
 import dayjs from 'dayjs'
+import { FN } from '../templates/common'
 
 export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean>, channelName: string) {
   try {
@@ -21,17 +22,25 @@ export function activityString(trade: TradeDto) {
   } $${trade.strike} x ${trade.size} $${trade.premium}`
 }
 
-export function defaultActivity(client: Client<boolean>) {
+export function defaultActivity(client: Client<boolean>, isBtc = false) {
   try {
-    client.user?.setActivity(`24h: ${global.ETH_24HR.toFixed(2)}%`, { type: 'WATCHING' })
+    if (!isBtc) {
+      client.user?.setActivity(`24h: ${FN(global.ETH_24HR, 2)}%`, { type: 'WATCHING' })
+    } else {
+      client.user?.setActivity(`24h: ${FN(global.BTC_24HR, 2)}%`, { type: 'WATCHING' })
+    }
   } catch (e: any) {
     console.log(e)
   }
 }
 
-export async function defaultName(client: Client<boolean>) {
+export async function defaultName(client: Client<boolean>, isBtc = false) {
   try {
-    await client.user?.setUsername(`ETH - $${global.ETH_PRICE.toFixed(2)}`)
+    if (!isBtc) {
+      await client.user?.setUsername(`ETH - $${FN(global.ETH_PRICE, 2)}`)
+    } else {
+      await client.user?.setUsername(`BTC - $${FN(global.BTC_PRICE, 2)}`)
+    }
   } catch (e: any) {
     console.log(e)
   }

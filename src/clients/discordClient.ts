@@ -4,3 +4,8 @@ export const DiscordClient = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
   partials: ['USER', 'MESSAGE'],
 })
+
+export const DiscordClientBtc = new Client({
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+  partials: ['USER', 'MESSAGE'],
+})

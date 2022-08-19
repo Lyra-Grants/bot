@@ -10,12 +10,16 @@ import { BroadcastCoinGecko, GetCoinGecko } from '../lyra/coingecko'
 import { GetLeaderBoard, BroadcastLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
 
-export function PricingJob(discordClient: Client<boolean>): void {
+export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Client<boolean>): void {
   console.log('30 min pricing job running')
   scheduleJob('*/30 * * * *', async () => {
     await GetPrice()
+    // ETH
     defaultActivity(discordClient)
     await defaultName(discordClient)
+    // BTC
+    defaultActivity(discordClientBtc, true)
+    await defaultName(discordClientBtc, true)
   })
 }
 
@@ -33,14 +37,19 @@ export function LeaderboardJob(
 
 export function StatsJob(
   discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
 ): void {
   console.log('Mon Wed Fri Stats job')
   scheduleJob('0 1 * * 1,3,5', async () => {
+    //ETH
     const statsDto = await GetStats('eth', lyraClient)
     await BroadCastStats(statsDto, twitterClient, telegramClient, discordClient)
+    //BTC
+    const statsDtoBtc = await GetStats('btc', lyraClient)
+    await BroadCastStats(statsDtoBtc, twitterClient, telegramClient, discordClientBtc)
   })
 }
 

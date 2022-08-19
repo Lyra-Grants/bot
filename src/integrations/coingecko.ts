@@ -5,13 +5,15 @@ import printObject from '../utils/printObject'
 export async function GetPrice(): Promise<void> {
   try {
     await CoinGeckoClient.simple
-      .price({ ids: ['ethereum', 'lyra-finance'], vs_currencies: 'usd', include_24hr_change: true })
+      .price({ ids: ['ethereum', 'lyra-finance', 'bitcoin'], vs_currencies: 'usd', include_24hr_change: true })
       .then((resp) => {
         printObject(resp.data)
         global.ETH_PRICE = resp.data['ethereum'].usd
         global.ETH_24HR = resp.data['ethereum'].usd_24h_change
         global.LYRA_PRICE = resp.data['lyra-finance'].usd
         global.LYRA_24HR = resp.data['lyra-finance'].usd_24h_change
+        global.BTC_PRICE = resp.data['bitcoin'].usd
+        global.BTC_24HR = resp.data['bitcoin'].usd_24h_change
       })
   } catch (error) {
     console.log(error)

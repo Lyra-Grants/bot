@@ -1,7 +1,14 @@
 import { RunTradeBot } from './lyra/trades'
 import { GetLeaderBoard } from './lyra/leaderboard'
-import { DISCORD_ACCESS_TOKEN, DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
-import { DiscordClient } from './clients/discordClient'
+import {
+  DISCORD_ACCESS_TOKEN,
+  DISCORD_ACCESS_TOKEN_BTC,
+  DISCORD_ENABLED,
+  TELEGRAM_ENABLED,
+  TESTNET,
+  TWITTER_ENABLED,
+} from './secrets'
+import { DiscordClient, DiscordClientBtc } from './clients/discordClient'
 import { Client, TextChannel } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
@@ -34,6 +41,7 @@ import { CoinGeckoJob, LeaderboardJob, PricingJob, StatsJob } from './schedule'
 import { SendTweet } from './integrations/twitter'
 
 let discordClient: Client<boolean>
+let discordClientBtc: Client<boolean>
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let twitterClient2: TwitterApi
@@ -57,18 +65,19 @@ export async function initializeLyraBot() {
   global.ETH_PRICE = 0
   await GetPrice()
   await SetUpDiscord()
+  await SetUpDiscordBtc()
   await SetUpTwitter()
   await SetUpTelegram()
 
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
 
-  await RunTradeBot(discordClient, twitterClient, telegramClient, lyraClient, twitterClient2)
-  await TrackEvents(discordClient, telegramClient, twitterClient1, lyraClient, twitterClient2)
+  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyraClient, twitterClient2)
+  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient1, lyraClient, twitterClient2)
 
-  PricingJob(discordClient)
+  PricingJob(discordClient, discordClientBtc)
   LeaderboardJob(discordClient, twitterClient, telegramClient)
-  StatsJob(discordClient, twitterClient, telegramClient, lyraClient)
+  StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyraClient)
   CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyraClient)
 }
 
@@ -111,7 +120,8 @@ export async function SetUpDiscord() {
       }
       if (commandName === 'stats') {
         if (channelName === STATS_CHANNEL) {
-          const statsDto = await GetStats(interaction.options.getString('market') as string, lyraClient)
+          //const statsDto = await GetStats(interaction.options.getString('market') as string, lyraClient)
+          const statsDto = await GetStats('eth', lyraClient)
           const stats = StatDiscord(statsDto)
           await interaction.reply({ embeds: stats })
         } else {
@@ -149,6 +159,39 @@ export async function SetUpDiscord() {
 
     defaultActivity(discordClient)
     await defaultName(discordClient)
+  }
+}
+
+export async function SetUpDiscordBtc() {
+  if (DISCORD_ENABLED) {
+    discordClientBtc = DiscordClientBtc
+    discordClientBtc.on('ready', async (client) => {
+      console.debug('Discord bot BTC is online!')
+    })
+
+    discordClientBtc.on('interactionCreate', async (interaction) => {
+      if (!interaction.isCommand()) return
+
+      const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
+
+      const channelName = (interaction?.channel as TextChannel).name
+      const { commandName } = interaction
+
+      if (commandName === 'stats') {
+        if (channelName === STATS_CHANNEL) {
+          const statsDto = await GetStats('btc', lyraClient)
+          const stats = StatDiscord(statsDto)
+          await interaction.reply({ embeds: stats })
+        } else {
+          await interaction.reply(`Command 'stats' only available in <#${statsChannel?.id}>`)
+        }
+      }
+    })
+
+    await discordClientBtc.login(DISCORD_ACCESS_TOKEN_BTC)
+
+    defaultActivity(discordClientBtc, true)
+    await defaultName(discordClientBtc, true)
   }
 }
 

@@ -12,6 +12,7 @@ import { TrackDeposits } from '../lyra/deposits'
 
 export async function TrackEvents(
   discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient1: TwitterApi,
   rpcClient: Lyra,
@@ -32,7 +33,7 @@ export async function TrackEvents(
       }
       if (event.topics[0].toLowerCase() === DEPOSIT_QUEUED) {
         // deal with q'd deposits
-        TrackDeposits(discordClient, telegramClient, twitterClient1, rpcClient, event, quantClient)
+        TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event, quantClient)
       }
     },
     {

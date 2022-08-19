@@ -8,7 +8,7 @@ export function StatDiscord(stat: StatDto): MessageEmbed[] {
   const tradeEmbed = new MessageEmbed()
     .setColor('#627EEA')
     .setURL(`${VaultLink(stat.asset)}`)
-    .setTitle(`${stat.asset} Market Vault`)
+    .setTitle(`${stat.asset === 'ETH' ? '🔷' : '🔶'} ${stat.asset} Market Vault`)
     .addField('TVL', `$${FN(stat.tvl, 0)}`, true)
     .addField('Change (30d)', `${FNS(stat.tvlChange, 4)}%`, true)
     .addField('Token Value', `$${FN(stat.tokenPrice, 4)}`, true)
@@ -31,7 +31,7 @@ export function StatDiscord(stat: StatDto): MessageEmbed[] {
 
 export function StatTwitter(stat: StatDto) {
   const post: string[] = []
-  post.push(`${stat.asset} Market Vault\n`)
+  post.push(`${stat.asset === 'ETH' ? '🔷' : '🔶'} ${stat.asset} Market Vault\n`)
   post.push(`💵 P&L (30d) ${FNS(stat.pnlChange, 4)}%\n`)
   post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
   post.push(`📊 Volume (30d) $${FN(stat.tradingVolume, 2)}\n`)
@@ -46,7 +46,7 @@ export function StatTwitter(stat: StatDto) {
 
 export function StatTelegram(stat: StatDto) {
   const post: string[] = []
-  post.push(`<a href="${VaultLink(stat.asset)}">${stat.asset} Market Vault</a>\n`)
+  post.push(`<a href="${VaultLink(stat.asset)}">${stat.asset === 'ETH' ? '🔷' : '🔶'} ${stat.asset} Market Vault</a>\n`)
   post.push(`💵 P&L (30d) ${FNS(stat.pnlChange, 4)}%\n`)
   post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
   post.push(`📊 Volume (30d) $${FN(stat.tradingVolume, 2)}\n`)

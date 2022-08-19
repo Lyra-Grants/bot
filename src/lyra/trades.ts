@@ -27,6 +27,7 @@ import { RandomDegen } from '../constants/degenMessage'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
@@ -43,7 +44,7 @@ export async function RunTradeBot(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)
-        await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient, quantClient)
+        await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient, discordClientBtc, quantClient)
       } catch (e: any) {
         console.log(e)
       }
@@ -133,6 +134,7 @@ export async function BroadCastTrade(
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
   quantClient: TwitterApi,
 ): Promise<void> {
   // Twitter //
@@ -161,7 +163,12 @@ export async function BroadCastTrade(
   if (trade.premium >= DISCORD_THRESHOLD && DISCORD_ENABLED) {
     const post = [TradeDiscord(trade)]
     const channelName = TESTNET ? 'kovan-trades' : '📥trades'
-    await PostDiscord(post, discordClient, channelName)
+
+    if (trade.asset === 'ETH') {
+      await PostDiscord(post, discordClient, channelName)
+    } else {
+      await PostDiscord(post, discordClientBtc, channelName)
+    }
     //discordClient?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
 
     // const waitFor = (delay: number, client: Client<boolean>) =>

@@ -21,7 +21,7 @@ export function TradeTwitter(trade: TradeDto, _isQuant = false) {
 
   if (!trade.isLiquidation) {
     post.push(
-      `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} $${trade.asset} $${trade.strike} ${
+      `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} $${trade.asset} $${FN(trade.strike, 0)} ${
         trade.isCall ? 'Call' : 'Put'
       }\n`,
     )
@@ -31,7 +31,7 @@ export function TradeTwitter(trade: TradeDto, _isQuant = false) {
       post.push(`💰 Collateral ${trade.baseCollateralFormatted}\n`)
     }
   } else {
-    post.push(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}\n`)
+    post.push(`🔥 Liquidation ${trade.size} $${trade.asset} $${FN(trade.strike, 0)} ${trade.isCall ? 'Call' : 'Put'}\n`)
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
@@ -65,7 +65,7 @@ export function TradeTelegram(trade: TradeDto) {
   const post: string[] = []
   if (!trade.isLiquidation) {
     post.push(
-      `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} $${trade.asset} $${trade.strike} ${
+      `📈 ${trade.isLong ? 'Long' : 'Short'} ${trade.size} $${trade.asset} $${FN(trade.strike, 0)} ${
         trade.isCall ? 'Call' : 'Put'
       }\n`,
     )
@@ -75,7 +75,7 @@ export function TradeTelegram(trade: TradeDto) {
       post.push(`💰 Collateral ${trade.baseCollateralFormatted}\n`)
     }
   } else {
-    post.push(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}\n`)
+    post.push(`🔥 Liquidation ${trade.size} $${trade.asset} $${FN(trade.strike, 0)} ${trade.isCall ? 'Call' : 'Put'}\n`)
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
@@ -125,12 +125,12 @@ export function TradeDiscord(trade: TradeDto): MessageEmbed {
       .setTitle(
         `${trade.isOpen ? '✅ Opened:' : '🚫 Closed:'} ${trade.isLong ? 'Long' : 'Short'} ${trade.size} ${
           trade.asset
-        } $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`,
+        } $${FN(trade.strike, 0)} ${trade.isCall ? 'Call' : 'Put'}`,
       )
       .setColor('#60DDBF')
   } else {
     tradeEmbed
-      .setTitle(`🔥 Liquidation ${trade.size} $${trade.asset} $${trade.strike} ${trade.isCall ? 'Call' : 'Put'}`)
+      .setTitle(`🔥 Liquidation ${trade.size} $${trade.asset} $${FN(trade.strike, 0)} ${trade.isCall ? 'Call' : 'Put'}`)
       .setColor('#ffa500')
   }
 

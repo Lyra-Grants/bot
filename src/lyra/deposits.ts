@@ -23,9 +23,12 @@ import { DepositQueuedEvent } from '@lyrafinance/lyra-js/dist/types/contracts/ty
 import { DepositDto } from '../types/depositDto'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { RandomDegen } from '../constants/degenMessage'
+import { ETH_LIQUIDITY_POOL } from '../constants/contractAddresses'
+import printObject from '../utils/printObject'
 
 export async function TrackDeposits(
   discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
   lyra: Lyra,
@@ -46,6 +49,7 @@ export async function TrackDeposits(
       const toEns = await GetEns(event.address)
 
       const dto: DepositDto = {
+        market: event.address.toLowerCase() === ETH_LIQUIDITY_POOL ? 'Eth' : 'BTC',
         from: from === '' ? event.args.depositor : from,
         to: to === '' ? event.args.beneficiary : to,
         amount: amount,
@@ -62,7 +66,7 @@ export async function TrackDeposits(
         totalQueued: fromBigNumber(event.args.totalQueuedDeposits),
         degenMessage: RandomDegen(),
       }
-      BroadCastDeposit(dto, discordClient, telegramClient, twitterClient, quantClient)
+      BroadCastDeposit(dto, discordClient, discordClientBtc, telegramClient, twitterClient, quantClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -74,13 +78,19 @@ export async function TrackDeposits(
 export async function BroadCastDeposit(
   dto: DepositDto,
   discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
   quantClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = DepositDiscord(dto)
-    await PostDiscord(post, discordClient, DEPOSITS_CHANNEL)
+    //printObject(post)
+    if (dto.market === 'Eth') {
+      await PostDiscord(post, discordClient, DEPOSITS_CHANNEL)
+    } else {
+      await PostDiscord(post, discordClientBtc, DEPOSITS_CHANNEL)
+    }
   }
   if (TELEGRAM_ENABLED) {
     // const post = TransferTelegram(transferDto)
