@@ -17,7 +17,7 @@ export type EventListenerOptions = {
 }
 export class BlockEvent {
   static on(rpcClient: Lyra, callback: EventListenerCallback, options?: EventListenerOptions): EventListener {
-    const ms = options?.pollInterval ?? 7.5 * 1000
+    const ms = options?.pollInterval ?? 75 * 1000
     const startBlockTag = options?.startBlockNumber ?? 'latest'
 
     let timeout: NodeJS.Timeout | null
