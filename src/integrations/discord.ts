@@ -1,5 +1,5 @@
 import { TradeDto } from '../types/tradeDto'
-import { ActivityType, Client, EmbedBuilder, TextChannel } from 'discord.js/typings/index.js'
+import { ActivityType, Client, EmbedBuilder, TextChannel } from 'discord.js'
 import dayjs from 'dayjs'
 import { FN } from '../templates/common'
 
