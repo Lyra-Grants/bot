@@ -49,7 +49,7 @@ export async function RunTradeBot(
         console.log(e)
       }
     },
-    { startBlockNumber: blockNumber, pollInterval: 75000 },
+    { startBlockNumber: blockNumber, pollInterval: 30000 },
   )
 }
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
