@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 
 export function HelpDiscord(): string {
   const post: string[] = []
@@ -17,9 +17,9 @@ export function HelpDiscord(): string {
   return post.join('')
 }
 
-export function QuantDiscord(): MessageEmbed[] {
-  const messageEmbeds: MessageEmbed[] = []
-  const embed = new MessageEmbed()
+export function QuantDiscord(): EmbedBuilder[] {
+  const messageEmbeds: EmbedBuilder[] = []
+  const embed = new EmbedBuilder()
   embed.setImage(
     'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/c05bc1e3595ae80d74a37f13da7ce78b219a0b06/src/img/quant.png?raw=true',
   )

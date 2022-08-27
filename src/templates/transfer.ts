@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import { TransferDto } from '../types/transferDto'
 import { EtherScanTransactionLink, FN, FormattedDateTime, LyraDappUrl } from './common'
 
@@ -18,9 +18,9 @@ export function TransferTwitter(dto: TransferDto) {
 // todo
 
 // DISCORD
-export function TransferDiscord(transfer: TransferDto): MessageEmbed[] {
-  const messageEmbeds: MessageEmbed[] = []
-  const tradeEmbed = new MessageEmbed()
+export function TransferDiscord(transfer: TransferDto): EmbedBuilder[] {
+  const messageEmbeds: EmbedBuilder[] = []
+  const tradeEmbed = new EmbedBuilder()
     .setColor('#00ff7f')
     .setURL(`${`https://optimistic.etherscan.io/tx/${transfer.transactionHash}`}`)
     .setTitle(`✅ Transfer: ${FN(transfer.amount, 2)} LYRA ($${FN(transfer.value, 2)})`)

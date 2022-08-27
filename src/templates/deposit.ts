@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import { DepositDto } from '../types/depositDto'
 import { EtherScanTransactionLink, FN, LyraDappUrl } from './common'
 
@@ -19,9 +19,9 @@ export function DepositTwitter(dto: DepositDto, _isQuant = false) {
 // todo
 
 // DISCORD
-export function DepositDiscord(dto: DepositDto): MessageEmbed[] {
-  const messageEmbeds: MessageEmbed[] = []
-  const tradeEmbed = new MessageEmbed()
+export function DepositDiscord(dto: DepositDto): EmbedBuilder[] {
+  const messageEmbeds: EmbedBuilder[] = []
+  const tradeEmbed = new EmbedBuilder()
     .setColor('#00ff7f')
     .setURL(`${`https://optimistic.etherscan.io/tx/${dto.transactionHash}`}`)
     .setTitle(`Deposit: ${dto.market === 'Eth' ? '🔷' : '🔶'} ${dto.market} Market Vault`)

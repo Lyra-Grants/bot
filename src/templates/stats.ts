@@ -1,24 +1,26 @@
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import { StatDto } from '../types/statDto'
 
 import { FN, FNS, FormattedDateTime, VaultLink } from './common'
 
-export function StatDiscord(stat: StatDto): MessageEmbed[] {
-  const messageEmbeds: MessageEmbed[] = []
-  const tradeEmbed = new MessageEmbed()
+export function StatDiscord(stat: StatDto): EmbedBuilder[] {
+  const messageEmbeds: EmbedBuilder[] = []
+  const tradeEmbed = new EmbedBuilder()
     .setColor('#627EEA')
     .setURL(`${VaultLink(stat.asset)}`)
     .setTitle(`${stat.asset === 'ETH' ? '🔷' : '🔶'} ${stat.asset} Market Vault`)
-    .addField('TVL', `$${FN(stat.tvl, 0)}`, true)
-    .addField('Change (30d)', `${FNS(stat.tvlChange, 4)}%`, true)
-    .addField('Token Value', `$${FN(stat.tokenPrice, 4)}`, true)
-    .addField('P&L (30d)', `${FNS(stat.pnlChange, 4)}%`, true)
-    .addField(`Volume (30d)`, `$${FN(stat.tradingVolume, 2)}`, true)
-    .addField(`Fees (30d)`, `$${FN(stat.tradingFees, 2)}`, true)
-    .addField('Open Interest', `$${FN(stat.openInterestUsd, 2)}`, true)
-    .addField('Net Delta', `${FNS(stat.netDelta, 3)}`, true)
-    .addField('Net Std. Vega', `${FNS(stat.netStdVega, 3)}`, true)
-    .addField('Utilization', `${FN(stat.utilisationRate, 2)}%`, true)
+    .addFields(
+      { name: 'TVL', value: `$${FN(stat.tvl, 0)}`, inline: true },
+      { name: 'Change (30d)', value: `${FNS(stat.tvlChange, 4)}%`, inline: true },
+      { name: 'Token Value', value: `$${FN(stat.tokenPrice, 4)}`, inline: true },
+      { name: 'P&L (30d)', value: `${FNS(stat.pnlChange, 4)}%`, inline: true },
+      { name: `Volume (30d)`, value: `$${FN(stat.tradingVolume, 2)}`, inline: true },
+      { name: `Fees (30d)`, value: `$${FN(stat.tradingFees, 2)}`, inline: true },
+      { name: 'Open Interest', value: `$${FN(stat.openInterestUsd, 2)}`, inline: true },
+      { name: 'Net Delta', value: `${FNS(stat.netDelta, 3)}`, inline: true },
+      { name: 'Net Std. Vega', value: `${FNS(stat.netStdVega, 3)}`, inline: true },
+      { name: 'Utilization', value: `${FN(stat.utilisationRate, 2)}%`, inline: true },
+    )
     .setFooter({
       iconURL:
         'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/c05bc1e3595ae80d74a37f13da7ce78b219a0b06/src/img/lyra.png?raw=true',

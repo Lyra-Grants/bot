@@ -1,9 +1,9 @@
 import { TradeDto } from '../types/tradeDto'
-import { Client, MessageEmbed, TextChannel } from 'discord.js/typings/index.js'
+import { ActivityType, Client, EmbedBuilder, TextChannel } from 'discord.js/typings/index.js'
 import dayjs from 'dayjs'
 import { FN } from '../templates/common'
 
-export async function PostDiscord(embeds: MessageEmbed[], client: Client<boolean>, channelName: string) {
+export async function PostDiscord(embeds: EmbedBuilder[], client: Client<boolean>, channelName: string) {
   try {
     const channels = client.channels.cache
       .filter((value) => (value as TextChannel)?.name == channelName)
@@ -25,9 +25,9 @@ export function activityString(trade: TradeDto) {
 export function defaultActivity(client: Client<boolean>, isBtc = false) {
   try {
     if (!isBtc) {
-      client.user?.setActivity(`24h: ${FN(global.ETH_24HR, 2)}%`, { type: 'WATCHING' })
+      client.user?.setActivity(`24h: ${FN(global.ETH_24HR, 2)}%`, { type: ActivityType.Watching })
     } else {
-      client.user?.setActivity(`24h: ${FN(global.BTC_24HR, 2)}%`, { type: 'WATCHING' })
+      client.user?.setActivity(`24h: ${FN(global.BTC_24HR, 2)}%`, { type: ActivityType.Watching })
     }
   } catch (e: any) {
     console.log(e)

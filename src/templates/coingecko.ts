@@ -1,10 +1,10 @@
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import { LyraDto } from '../types/lyraDto'
 import { FN, FNS, LyraDappUrl } from './common'
 
-export function CoinGeckoDiscord(dto: LyraDto): MessageEmbed[] {
-  const messageEmbeds: MessageEmbed[] = []
-  const tradeEmbed = new MessageEmbed()
+export function CoinGeckoDiscord(dto: LyraDto): EmbedBuilder[] {
+  const messageEmbeds: EmbedBuilder[] = []
+  const tradeEmbed = new EmbedBuilder()
     .setColor('#60DDBF')
     .setTitle(`LYRA Stats`)
     .addFields(

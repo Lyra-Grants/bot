@@ -1,5 +1,5 @@
 import { TradeDto } from '../types/tradeDto'
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import { shortAddress } from '../utils/utils'
 import {
   AmountWording,
@@ -111,10 +111,10 @@ export function TradeTelegram(trade: TradeDto) {
 }
 
 // DISCORD //
-export function TradeDiscord(trade: TradeDto): MessageEmbed {
+export function TradeDiscord(trade: TradeDto): EmbedBuilder {
   const url = PositionLink(trade)
   const img = TradeShareImage(trade)
-  const tradeEmbed = new MessageEmbed().setURL(`${url}`)
+  const tradeEmbed = new EmbedBuilder().setURL(`${url}`)
   if (trade.isLiquidation) {
     tradeEmbed.setImage(
       'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/59b047e6ba0fef174b8380fd26a375d4690c4908/src/img/liquidation.jpg?raw=true',

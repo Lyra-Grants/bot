@@ -1,19 +1,20 @@
-import { TESTNET } from '../secrets'
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import { trader } from '../types/trader'
 import { shortAddress } from '../utils/utils'
 import { Medal, PortfolioLink } from './common'
 
-export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
-  const messageEmbeds: MessageEmbed[] = []
+export function LeaderboardDiscord(leaderBoard: trader[]): EmbedBuilder[] {
+  const messageEmbeds: EmbedBuilder[] = []
 
-  const tradeEmbed = new MessageEmbed()
+  const tradeEmbed = new EmbedBuilder()
     .setColor('#0099ff')
     .setTitle(`Top ${leaderBoard.length} Lyra Profitable Traders`)
     .setDescription(`Last 1000 positions (unrealised profit).`)
-    .addField('Trader', '-----------', true)
-    .addField('💵 Profit', '-----------', true)
-    .addField(`\u200B`, `\u200B`, true)
+    .addFields(
+      { name: 'Trader', value: '-----------', inline: true },
+      { name: '💵 Profit', value: '-----------', inline: true },
+      { name: `\u200B`, value: `\u200B`, inline: true },
+    )
   //\u200b
   leaderBoard.slice(0, 5).map((trader) => {
     return leaderBoardRow(tradeEmbed, trader)
@@ -26,7 +27,7 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
   leaderBoard.slice(5).reduce((group, trader, index) => {
     group.push(trader)
     if (index % 5 === 4) {
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setColor('#0099ff')
         .setDescription(`--------------------------------------------`)
       group.map((trader) => {
@@ -41,19 +42,24 @@ export function LeaderboardDiscord(leaderBoard: trader[]): MessageEmbed[] {
   return messageEmbeds
 }
 
-export function leaderBoardRow(tradeEmbed: MessageEmbed, trader: trader): MessageEmbed {
-  return tradeEmbed
-    .addField(
-      `${Medal(trader.position)} ${trader.position}.`,
-      `${trader.ens ? trader.ens : shortAddress(trader.owner)}`,
-      true,
-    )
-    .addField(
-      `${trader.netPremiumsFormatted}`,
-      `${trader.openOptionsFormatted == '' ? '(0)' : trader.openOptionsFormatted}`,
-      true,
-    )
-    .addField(`\u200B`, `\u200B`, true)
+export function leaderBoardRow(tradeEmbed: EmbedBuilder, trader: trader): EmbedBuilder {
+  return tradeEmbed.addFields(
+    {
+      name: `${Medal(trader.position)} ${trader.position}.`,
+      value: `${trader.ens ? trader.ens : shortAddress(trader.owner)}`,
+      inline: true,
+    },
+    {
+      name: `${trader.netPremiumsFormatted}`,
+      value: `${trader.openOptionsFormatted == '' ? '(0)' : trader.openOptionsFormatted}`,
+      inline: true,
+    },
+    {
+      name: `\u200B`,
+      value: `\u200B`,
+      inline: true,
+    },
+  )
 }
 
 export function LeaderboardTwitter(leaderBoard: trader[]) {

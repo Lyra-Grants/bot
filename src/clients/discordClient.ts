@@ -1,11 +1,11 @@
-import { Client, Intents } from 'discord.js'
+import { Client, GatewayIntentBits, Partials } from 'discord.js'
 
 export const DiscordClient = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
-  partials: ['USER', 'MESSAGE'],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+  partials: [Partials.User, Partials.Message],
 })
 
 export const DiscordClientBtc = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
-  partials: ['USER', 'MESSAGE'],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+  partials: [Partials.User, Partials.Message],
 })
