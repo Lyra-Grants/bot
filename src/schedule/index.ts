@@ -1,11 +1,13 @@
 import Lyra from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
-import { Job, scheduleJob } from 'node-schedule'
+import { scheduleJob } from 'node-schedule'
 import { Telegraf, Context } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { TwitterApi } from 'twitter-api-v2'
+import { BroadCast } from '../event/broadcast'
 import { GetPrice } from '../integrations/coingecko'
 import { defaultActivity, defaultName } from '../integrations/discord'
+import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { BroadcastCoinGecko, GetCoinGecko } from '../lyra/coingecko'
 import { GetLeaderBoard, BroadcastLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
@@ -63,5 +65,17 @@ export function CoinGeckoJob(
   scheduleJob('0 2 * * 1,3,5', async () => {
     const lyraDto = await GetCoinGecko()
     await BroadcastCoinGecko(discordClient, twitterClient, telegramClient, lyraDto)
+  })
+}
+
+export function ArbitrageJob(
+  discordClient: Client<boolean>,
+  twitterClient: TwitterApi,
+  telegramClient: Telegraf<Context<Update>>,
+  lyraClient: Lyra,
+): void {
+  scheduleJob('0 4 * * 1,3,5', async () => {
+    const arbDto = await GetArbitrageDeals(lyraClient)
+    await BroadCast(arbDto, twitterClient, telegramClient, discordClient)
   })
 }

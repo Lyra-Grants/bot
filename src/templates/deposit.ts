@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js'
-import { DepositDto } from '../types/depositDto'
+import { DepositDto } from '../types/lyra'
 import { EtherScanTransactionLink, FN, LyraDappUrl } from './common'
 
 // TWITTER

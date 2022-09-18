@@ -16,7 +16,6 @@ export async function TrackEvents(
   telegramClient: Telegraf<Context<Update>>,
   twitterClient1: TwitterApi,
   rpcClient: Lyra,
-  quantClient: TwitterApi,
 ): Promise<void> {
   console.log('### Polling Events ###')
   let blockNumber: number | undefined = undefined
@@ -28,12 +27,10 @@ export async function TrackEvents(
     rpcClient,
     async (event) => {
       if (event.topics[0].toLowerCase() === TRANSFER_TOPIC) {
-        // deal with token transfers
-        TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event, quantClient)
+        TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event)
       }
       if (event.topics[0].toLowerCase() === DEPOSIT_QUEUED) {
-        // deal with q'd deposits
-        TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event, quantClient)
+        TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event)
       }
     },
     {

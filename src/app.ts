@@ -1,5 +1,4 @@
 import { initializeLyraBot } from './lyrabot'
-import printObject from './utils/printObject'
 import { Generate } from './wallets/wallet'
 
 // const TestWallet = Generate()

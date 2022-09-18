@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js'
-import { LyraDto } from '../types/lyraDto'
+import { LyraDto } from '../types/lyra'
 import { FN, FNS, LyraDappUrl } from './common'
 
 export function CoinGeckoDiscord(dto: LyraDto): EmbedBuilder[] {

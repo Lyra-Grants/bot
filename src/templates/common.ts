@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
-import { TradeDto } from '../types/tradeDto'
+import { TradeDto } from '../types/lyra'
 
 export const zapperUrl = 'https://zapper.fi/account/'
 export const debankUrl = 'https://debank.com/profile/'
@@ -59,6 +59,11 @@ export function EtherScanTransactionLink(transactionHash: string) {
 export function FormattedDate(date: Date) {
   dayjs.extend(dayjsPluginUTC)
   return dayjs(date).utc().format('DD MMM YY')
+}
+
+export function FormattedDateShort(date: Date) {
+  dayjs.extend(dayjsPluginUTC)
+  return dayjs(date).utc().format('DDMMMYY').toUpperCase()
 }
 
 export function FormattedDateTime(date: Date) {

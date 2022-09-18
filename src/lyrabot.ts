@@ -14,7 +14,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { defaultActivity, defaultName } from './integrations/discord'
-import { TwitterClient, TwitterClient1, TwitterClient2 } from './clients/twitterClient'
+import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import Lyra from '@lyrafinance/lyra-js'
 import { maketrade } from './actions/maketrade'
@@ -26,6 +26,7 @@ import { LeaderboardDiscord } from './templates/leaderboard'
 import { GetStats } from './lyra/stats'
 import { StatDiscord } from './templates/stats'
 import {
+  ARBS_CHANNEL,
   DEPOSITS_CHANNEL,
   STATS_CHANNEL,
   TOKEN_CHANNEL,
@@ -37,19 +38,20 @@ import { optimismInfuraProvider } from './clients/ethersClient'
 import { TrackEvents } from './event/blockEvent'
 import { CoinGeckoDiscord, CoinGeckoTwitter } from './templates/coingecko'
 import { GetCoinGecko } from './lyra/coingecko'
-import { CoinGeckoJob, LeaderboardJob, PricingJob, StatsJob } from './schedule'
-import { SendTweet } from './integrations/twitter'
+import { ArbitrageJob, CoinGeckoJob, LeaderboardJob, PricingJob, StatsJob } from './schedule'
+import printObject from './utils/printObject'
+import { GetArbitrageDeals } from './lyra/arbitrage'
+import { ArbDiscord } from './templates/arb'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
-let twitterClient2: TwitterApi
 let telegramClient: Telegraf<Context<Update>>
-let lyraClient: Lyra
+let lyra: Lyra
 
 export async function initializeLyraBot() {
-  lyraClient = new Lyra({
+  lyra = new Lyra({
     provider: optimismInfuraProvider,
     subgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/mainnet',
     blockSubgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/optimism-mainnet-blocks',
@@ -60,9 +62,9 @@ export async function initializeLyraBot() {
     //faucet(lyraClient, signer)
     //maketrade(lyraClient, signer)
   }
-
   global.ETH_24HR = 0
   global.ETH_PRICE = 0
+
   await GetPrice()
   await SetUpDiscord()
   await SetUpDiscordBtc()
@@ -72,13 +74,14 @@ export async function initializeLyraBot() {
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
 
-  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyraClient, twitterClient2)
-  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient1, lyraClient, twitterClient2)
+  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient1, lyra)
 
   PricingJob(discordClient, discordClientBtc)
   LeaderboardJob(discordClient, twitterClient, telegramClient)
-  StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyraClient)
-  CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyraClient)
+  StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+  CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
+  ArbitrageJob(discordClient, twitterClient, telegramClient, lyra)
 }
 
 export async function SetUpDiscord() {
@@ -96,6 +99,7 @@ export async function SetUpDiscord() {
       const tokenChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TOKEN_CHANNEL)
       const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
       const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
+      const arbChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === ARBS_CHANNEL)
 
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
@@ -121,7 +125,7 @@ export async function SetUpDiscord() {
       if (commandName === 'stats') {
         if (channelName === STATS_CHANNEL) {
           //const statsDto = await GetStats(interaction.options.getString('market') as string, lyraClient)
-          const statsDto = await GetStats('eth', lyraClient)
+          const statsDto = await GetStats('eth', lyra)
           const stats = StatDiscord(statsDto)
           await interaction.reply({ embeds: stats })
         } else {
@@ -153,6 +157,15 @@ export async function SetUpDiscord() {
         //  await interaction.reply(`Command 'quant' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
         //}
       }
+      if (commandName === 'arbs') {
+        if (channelName === ARBS_CHANNEL) {
+          const arbs = await GetArbitrageDeals(lyra)
+          const embed = ArbDiscord(arbs)
+          await interaction.reply({ embeds: embed })
+        } else {
+          await interaction.reply(`Command 'arbs' only available in <#${arbChannel?.id}>`)
+        }
+      }
     })
 
     await discordClient.login(DISCORD_ACCESS_TOKEN)
@@ -179,7 +192,7 @@ export async function SetUpDiscordBtc() {
 
       if (commandName === 'stats') {
         if (channelName === STATS_CHANNEL) {
-          const statsDto = await GetStats('btc', lyraClient)
+          const statsDto = await GetStats('btc', lyra)
           const stats = StatDiscord(statsDto)
           await interaction.reply({ embeds: stats })
         } else {
@@ -201,8 +214,6 @@ export async function SetUpTwitter() {
     twitterClient.readWrite
     twitterClient1 = TwitterClient1
     twitterClient1.readWrite
-    twitterClient2 = TwitterClient2
-    twitterClient2.readWrite
   }
 }
 

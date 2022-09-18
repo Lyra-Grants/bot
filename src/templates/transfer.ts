@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js'
-import { TransferDto } from '../types/transferDto'
-import { EtherScanTransactionLink, FN, FormattedDateTime, LyraDappUrl } from './common'
+import { TransferDto } from '../types/lyra'
+import { EtherScanTransactionLink, FN, LyraDappUrl } from './common'
 
 // TWITTER
 export function TransferTwitter(dto: TransferDto) {
@@ -13,9 +13,6 @@ export function TransferTwitter(dto: TransferDto) {
   post.push(`${LyraDappUrl()}`)
   return post.join('')
 }
-
-// TELEGRAM
-// todo
 
 // DISCORD
 export function TransferDiscord(transfer: TransferDto): EmbedBuilder[] {

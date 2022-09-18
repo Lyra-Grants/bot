@@ -1,9 +1,9 @@
 import { EmbedBuilder } from 'discord.js'
-import { trader } from '../types/trader'
+import { Trader } from '../types/lyra'
 import { shortAddress } from '../utils/utils'
 import { Medal, PortfolioLink } from './common'
 
-export function LeaderboardDiscord(leaderBoard: trader[]): EmbedBuilder[] {
+export function LeaderboardDiscord(leaderBoard: Trader[]): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
 
   const tradeEmbed = new EmbedBuilder()
@@ -21,7 +21,7 @@ export function LeaderboardDiscord(leaderBoard: trader[]): EmbedBuilder[] {
   })
   messageEmbeds.push(tradeEmbed)
 
-  const traders: trader[] = []
+  const traders: Trader[] = []
 
   // skip 5 until end
   leaderBoard.slice(5).reduce((group, trader, index) => {
@@ -42,7 +42,7 @@ export function LeaderboardDiscord(leaderBoard: trader[]): EmbedBuilder[] {
   return messageEmbeds
 }
 
-export function leaderBoardRow(tradeEmbed: EmbedBuilder, trader: trader): EmbedBuilder {
+export function leaderBoardRow(tradeEmbed: EmbedBuilder, trader: Trader): EmbedBuilder {
   return tradeEmbed.addFields(
     {
       name: `${Medal(trader.position)} ${trader.position}.`,
@@ -62,7 +62,7 @@ export function leaderBoardRow(tradeEmbed: EmbedBuilder, trader: trader): EmbedB
   )
 }
 
-export function LeaderboardTwitter(leaderBoard: trader[]) {
+export function LeaderboardTwitter(leaderBoard: Trader[]) {
   const post: string[] = []
   post.push(`✅ Top 5 Lyra Profitable Traders 💵 💰 🤑\n`)
   leaderBoard.slice(0, 5).map((trader) => {
@@ -77,7 +77,7 @@ export function LeaderboardTwitter(leaderBoard: trader[]) {
   return post.join('')
 }
 
-export function LeaderboardTelegram(leaderBoard: trader[]) {
+export function LeaderboardTelegram(leaderBoard: Trader[]) {
   const post: string[] = []
   post.push(`✅ Top 10 Lyra Traders 💵 💰 🤑\n`)
   post.push(`Profits from last 1000 positions.\n`)

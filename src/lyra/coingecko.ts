@@ -1,5 +1,5 @@
 import { GetLyraInfo } from '../integrations/coingecko'
-import { LyraDto } from '../types/lyraDto'
+import { LyraDto } from '../types/lyra'
 import { Client } from 'discord.js'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'

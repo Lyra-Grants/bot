@@ -94,7 +94,7 @@ export const NotableAddresses: { [key: string]: string } = {
   '0x27f7e8d7c63c414eae2bb07e1a9b9057a1d382cf': 'Atila',
   '0x352fb838a3ae9b0ef2f0ebf24191acaf4ab9ecec': 'dHedge',
   '0x57cebcea3eec6ad7d75963aa8df07e1de8c94389': 'Infinity Wallet',
-  '0x05d235d8ba95bfc457f9a11f:64cf869f0f3f60f9': 'Kromatika',
+  '0x05d235d8ba95bfc457f9a11f64cf869f0f3f60f9': 'Kromatika',
   '0xa6e8772af29b29b9202a073f8e36f447689beef6': 'Interest Protocol',
   '0xe1c0e5ac8ab0dab88e682b9a8653bc7a943fb80f': 'Elk Finance',
   '0x7a79e2e867d36a91bb47e0929787305c95e793c5': 'Pickle Finance',
@@ -123,4 +123,5 @@ export const NotableAddresses: { [key: string]: string } = {
   '0x3c73cd65d708a5c951f0cc19a4d0bb6559ae20c5': '🟢 Lyra Btc Vault',
   '0xde48b1b5853cc63b1d05e507414d3e02831722f8': '🟢 Lyra Staking',
   '0xd4c00fe7657791c2a43025de483f05e49a5f76a6': '🟢 Lyra MultiSig',
+  '0x0000000000000000000000000000000000000000': '🌉 Optimism Bridge',
 }

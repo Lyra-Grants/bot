@@ -1,7 +1,7 @@
 /* eslint-disable no-var */
 
 declare global {
-  var LYRA_LEADERBOARD: trader[] = []
+  var LYRA_LEADERBOARD: Trader[] = []
   var LYRA_ENS: { [key: string]: string } = {}
   var LYRA_PRICE: number
   var LYRA_24HR: number
@@ -9,6 +9,11 @@ declare global {
   var ETH_24HR: number
   var BTC_PRICE: number
   var BTC_24HR: number
+}
+
+declare module '*.json' {
+  const value: any
+  export default value
 }
 
 export {}

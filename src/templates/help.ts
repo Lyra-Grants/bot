@@ -11,6 +11,8 @@ export function HelpDiscord(): string {
   post.push('/stats <vault>   | Vault stats\n')
   post.push('/lyra            | LYRA info\n')
   post.push('/quant           | Completely sure of the math?\n')
+  post.push('/arbs            | Lyra / Deribit arbs\n')
+
   // post.push('/trader <addr>   | Last 5 trades\n')
 
   post.push('```\n')

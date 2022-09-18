@@ -1,6 +1,6 @@
 import Lyra from '@lyrafinance/lyra-js'
 import { SendTweet } from '../integrations/twitter'
-import { TradeDto } from '../types/tradeDto'
+import { TradeDto } from '../types/lyra'
 import {
   DISCORD_ENABLED,
   TELEGRAM_ENABLED,
@@ -9,7 +9,6 @@ import {
   TELEGRAM_THRESHOLD,
   DISCORD_THRESHOLD,
   TESTNET,
-  QUANT_TRADE_THRESHOLD,
 } from '../secrets'
 import { dollar, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
@@ -31,7 +30,6 @@ export async function RunTradeBot(
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
-  quantClient: TwitterApi,
 ) {
   console.log('### Polling for Trades ###')
 
@@ -44,7 +42,7 @@ export async function RunTradeBot(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)
-        await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient, discordClientBtc, quantClient)
+        await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient, discordClientBtc)
       } catch (e: any) {
         console.log(e)
       }
@@ -80,7 +78,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     pnlPercent: pnlPercent,
     totalPremiumPaid: totalPremiumPaid,
     isProfitable: pnl > 0,
-    timeStamp: toDate(trade.timestamp),
+    timestamp: toDate(trade.timestamp),
     positionId: trade.positionId,
     positionTradeCount: noTrades,
     pnlFormatted: dollar(pnl),
@@ -99,6 +97,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     optionPrice: fromBigNumber(trade.pricePerOption),
     spot: fromBigNumber(trade.spotPrice),
     degenMessage: RandomDegen(),
+    blockNumber: trade.blockNumber,
   }
   return tradeDto
 }
@@ -135,7 +134,6 @@ export async function BroadCastTrade(
   telegramClient: Telegraf<Context<Update>>,
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  quantClient: TwitterApi,
 ): Promise<void> {
   // Twitter //
   if (TWITTER_ENABLED) {
@@ -143,14 +141,6 @@ export async function BroadCastTrade(
       const tweet = TradeTwitter(trade, false)
       await SendTweet(tweet, twitterClient)
     }
-    // if (trade.premium >= QUANT_TRADE_THRESHOLD || trade.isLiquidation || (trade.pnlPercent > 400 && trade.pnl > 500)) {
-    //   console.log(`$${trade.premium} big! > $${QUANT_TRADE_THRESHOLD}`)
-    //   const quantTweet = TradeTwitter(trade, true)
-    //   console.log(quantTweet)
-    //   await SendTweet(quantTweet, quantClient)
-    // } else {
-    //   console.log(`$${trade.premium} less than quant threshold: $${QUANT_TRADE_THRESHOLD}`)
-    // }
   }
 
   // Telegram //
@@ -169,16 +159,6 @@ export async function BroadCastTrade(
     } else {
       await PostDiscord(post, discordClientBtc, channelName)
     }
-    //discordClient?.user?.setActivity(activityString(trade), { type: 'WATCHING' })
-
-    // const waitFor = (delay: number, client: Client<boolean>) =>
-    //   new Promise(() =>
-    //     setTimeout(() => {
-    //       defaultActivity(client)
-    //     }, delay),
-    //   )
-
-    // await waitFor(60000, discordClient)
   }
 }
 

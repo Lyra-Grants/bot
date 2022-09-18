@@ -1,10 +1,4 @@
-import {
-  DISCORD_ENABLED,
-  TELEGRAM_ENABLED,
-  TWITTER_ENABLED,
-  DEPOSIT_THRESHOLD,
-  QUANT_DEPOSIT_THRESHOLD,
-} from '../secrets'
+import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED, DEPOSIT_THRESHOLD } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
 import { PostDiscord } from '../integrations/discord'
@@ -20,7 +14,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
 import { LiquidityPool__factory } from '@lyrafinance/lyra-js'
 import { DepositQueuedEvent } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
-import { DepositDto } from '../types/depositDto'
+import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { RandomDegen } from '../constants/degenMessage'
 import { ETH_LIQUIDITY_POOL } from '../constants/contractAddresses'
@@ -33,7 +27,6 @@ export async function TrackDeposits(
   twitterClient: TwitterApi,
   lyra: Lyra,
   genericEvent: GenericEvent,
-  quantClient: TwitterApi,
 ): Promise<void> {
   const event = parseEvent(genericEvent as DepositQueuedEvent)
   const amount = fromBigNumber(event.args.amountDeposited)
@@ -66,7 +59,7 @@ export async function TrackDeposits(
         totalQueued: fromBigNumber(event.args.totalQueuedDeposits),
         degenMessage: RandomDegen(),
       }
-      BroadCastDeposit(dto, discordClient, discordClientBtc, telegramClient, twitterClient, quantClient)
+      BroadCastDeposit(dto, discordClient, discordClientBtc, telegramClient, twitterClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -81,7 +74,6 @@ export async function BroadCastDeposit(
   discordClientBtc: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
-  quantClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = DepositDiscord(dto)
@@ -92,22 +84,10 @@ export async function BroadCastDeposit(
       await PostDiscord(post, discordClientBtc, DEPOSITS_CHANNEL)
     }
   }
-  if (TELEGRAM_ENABLED) {
-    // const post = TransferTelegram(transferDto)
-    // await PostTelegram(post, telegramClient)
-  }
 
   if (TWITTER_ENABLED) {
     const post = DepositTwitter(dto, false)
     await SendTweet(post, twitterClient)
-
-    // if (dto.value > QUANT_DEPOSIT_THRESHOLD) {
-    //   console.log(`QUANT TRADE: $${dto.value} > ${QUANT_DEPOSIT_THRESHOLD}`)
-    //   const post = DepositTwitter(dto, true)
-    //   await SendTweet(post, quantClient)
-    // } else {
-    //   console.log(`$${dto.value} < ${QUANT_DEPOSIT_THRESHOLD}`)
-    // }
   }
 }
 

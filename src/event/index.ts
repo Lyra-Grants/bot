@@ -52,11 +52,6 @@ export class BlockEvent {
           if (events.length > 0) {
             console.debug(`Found ${events.length} events`)
           }
-          // need to group the events
-          // return group of events
-          // const groups = groupBy(events, (e) => e.transactionHash)
-          // callback(groups)
-
           await Promise.all(
             events.map((x) => {
               callback(x)

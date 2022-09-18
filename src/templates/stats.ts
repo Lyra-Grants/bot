@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js'
-import { StatDto } from '../types/statDto'
+import { StatDto } from '../types/lyra'
 
 import { FN, FNS, FormattedDateTime, VaultLink } from './common'
 

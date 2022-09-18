@@ -1,4 +1,4 @@
-import { TradeDto } from '../types/tradeDto'
+import { TradeDto } from '../types/lyra'
 import { ActivityType, Client, EmbedBuilder, TextChannel } from 'discord.js'
 import dayjs from 'dayjs'
 import { FN } from '../templates/common'

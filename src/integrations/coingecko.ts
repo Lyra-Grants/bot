@@ -1,5 +1,5 @@
 import { CoinGeckoClient } from '../clients/coinGeckoClient'
-import { LyraDto } from '../types/lyraDto'
+import { LyraDto } from '../types/lyra'
 import printObject from '../utils/printObject'
 
 export async function GetPrice(): Promise<void> {

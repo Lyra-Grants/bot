@@ -1,4 +1,4 @@
-import { TradeDto } from '../types/tradeDto'
+import { TradeDto } from '../types/lyra'
 import { EmbedBuilder } from 'discord.js'
 import { shortAddress } from '../utils/utils'
 import {
@@ -105,7 +105,7 @@ export function TradeTelegram(trade: TradeDto) {
     )}'>Position</a>\n`,
   )
   post.push(`============================\n`)
-  post.push(`⏱️ ${FormattedDateTime(trade.timeStamp)}\n`)
+  post.push(`⏱️ ${FormattedDateTime(trade.timestamp)}\n`)
   // post.push(`<img src='${img}' />`)
   return post.join('')
 }

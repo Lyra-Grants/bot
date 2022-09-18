@@ -8,7 +8,7 @@ import { PostDiscord } from '../integrations/discord'
 import { SendTweet } from '../integrations/twitter'
 import { GetEns } from '../integrations/ens'
 import { leaderboardTradesQuery, positionsQuery } from '../queries'
-import { trader } from '../types/trader'
+import { Trader } from '../types/lyra'
 import { DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../secrets'
 import { NetPremiums, OpenOptionValue } from './helper'
 import { PostTelegram } from '../integrations/telegram'
@@ -49,7 +49,7 @@ export async function GetLeaderBoard(take: number) {
         return sum + optionValue
       }, 0)
       const balance = netPremiums + openOptionsValue
-      const trader: trader = {
+      const trader: Trader = {
         owner: owner,
         balance: balance,
         netPremiums: netPremiums,
@@ -75,8 +75,8 @@ export async function GetLeaderBoard(take: number) {
   return traders
 }
 
-export function MapLeaderBoard(leaderboard: trader[], traderAddress: string): trader {
-  const EMPTY: trader = {
+export function MapLeaderBoard(leaderboard: Trader[], traderAddress: string): Trader {
+  const EMPTY: Trader = {
     owner: '',
     balance: 0,
     netPremiums: 0,

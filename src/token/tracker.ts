@@ -1,23 +1,14 @@
-import {
-  DISCORD_ENABLED,
-  TOKEN_THRESHOLD,
-  TELEGRAM_ENABLED,
-  TESTNET,
-  TWITTER_ENABLED,
-  QUANT_TOKEN_THRESHOLD,
-} from '../secrets'
+import { DISCORD_ENABLED, TOKEN_THRESHOLD, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
-import { TransferDto } from '../types/transferDto'
+import { TransferDto } from '../types/lyra'
 import { PostDiscord } from '../integrations/discord'
 import { TransferDiscord, TransferTwitter } from '../templates/transfer'
 import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import { firstAddress, toDate } from '../utils/utils'
+import { toDate } from '../utils/utils'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { PostTelegram } from '../integrations/telegram'
-import { TwitterClient } from '../clients/twitterClient'
 import { SendTweet } from '../integrations/twitter'
 import Lyra from '@lyrafinance/lyra-js/dist/types/lyra'
 import { Event as GenericEvent } from 'ethers'
@@ -32,7 +23,6 @@ export async function TrackTransfer(
   twitterClient: TwitterApi,
   lyra: Lyra,
   genericEvent: GenericEvent,
-  quantClient: TwitterApi,
 ): Promise<void> {
   const event = parseEvent(genericEvent as TransferEvent)
   const amount = fromBigNumber(event.args.value)
@@ -68,7 +58,7 @@ export async function TrackTransfer(
         fromAddress: event.args.from,
         toAddress: event.args.to,
       }
-      BroadCastTransfer(transferDto, discordClient, telegramClient, twitterClient, quantClient)
+      BroadCastTransfer(transferDto, discordClient, telegramClient, twitterClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -82,24 +72,15 @@ export async function BroadCastTransfer(
   discordClient: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
-  quantClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = TransferDiscord(transferDto)
     await PostDiscord(post, discordClient, TOKEN_CHANNEL)
   }
-  if (TELEGRAM_ENABLED) {
-    // const post = TransferTelegram(transferDto)
-    // await PostTelegram(post, telegramClient)
-  }
 
   if (TWITTER_ENABLED) {
     const post = TransferTwitter(transferDto)
     await SendTweet(post, twitterClient)
-
-    // if (transferDto.value > QUANT_TOKEN_THRESHOLD) {
-    //   await SendTweet(post, quantClient)
-    // }
   }
 }
 
