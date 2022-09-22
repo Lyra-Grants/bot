@@ -162,10 +162,10 @@ export async function SetUpDiscord() {
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
           try {
-            //const arbs = await GetArbitrageDeals(lyra)
-            //const embed = ArbDiscord(arbs)
-            //console.log('----EMBED----')
-            //printObject(embed)
+            const arbs = await GetArbitrageDeals(lyra)
+            const embed = ArbDiscord(arbs)
+            console.log('----EMBED----')
+            printObject(embed)
             const messageEmbeds: EmbedBuilder[] = []
             messageEmbeds.push(
               new EmbedBuilder()
