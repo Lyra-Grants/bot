@@ -162,7 +162,7 @@ export async function SetUpDiscord() {
           await interaction.deferReply()
           const arbs = await GetArbitrageDeals(lyra)
           const embed = ArbDiscord(arbs)
-          await interaction.reply({ embeds: embed })
+          await interaction.editReply({ embeds: embed })
         } else {
           await interaction.reply(`Command 'arbs' only available in <#${arbChannel?.id}>`)
         }
