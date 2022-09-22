@@ -162,8 +162,10 @@ export async function SetUpDiscord() {
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
           try {
-            const arbs = await GetArbitrageDeals(lyra).then(async (arbs) => {
+            await GetArbitrageDeals(lyra).then(async (arbs) => {
+              console.log('here1')
               const embed = ArbDiscord(arbs)
+              console.log('here1')
               await interaction.reply({ embeds: embed })
             })
           } catch (e) {

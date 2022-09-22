@@ -67,7 +67,7 @@ type TermStrikesOptions = {
   [term: string]: { [strike: string]: OptionsMap[] }
 }
 
-export const useRatesData = async (marketName: string, lyraClient: Lyra, filterSell = false) => {
+export async function useRatesData(marketName: string, lyraClient: Lyra, filterSell = false) {
   const providers: ProviderType[] = [ProviderType.LYRA, ProviderType.DERIBIT]
 
   const [deribit, lyra] = await Promise.all([getDeribitRates(), getLyraRates(marketName, lyraClient)])
