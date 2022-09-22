@@ -9,7 +9,7 @@ import {
   TWITTER_ENABLED,
 } from './secrets'
 import { DiscordClient, DiscordClientBtc } from './clients/discordClient'
-import { Client, TextChannel } from 'discord.js'
+import { Client, EmbedBuilder, TextChannel } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
@@ -162,12 +162,20 @@ export async function SetUpDiscord() {
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
           try {
-            const arbs = await GetArbitrageDeals(lyra)
-            const embed = ArbDiscord(arbs)
-            console.log('----EMBED----')
-            printObject(embed)
+            //const arbs = await GetArbitrageDeals(lyra)
+            //const embed = ArbDiscord(arbs)
+            //console.log('----EMBED----')
+            //printObject(embed)
+            const messageEmbeds: EmbedBuilder[] = []
+            messageEmbeds.push(
+              new EmbedBuilder()
+                .setColor('#60DDBF')
+                .setTitle(`🔷 ETH Arbitrage: DERIBIT | LYRA`)
+                .addFields({ name: 'test', value: 'test', inline: false }),
+            )
+
             console.log('----EMBED END----')
-            await interaction.reply({ embeds: embed })
+            await interaction.reply({ embeds: messageEmbeds })
           } catch (e) {
             console.log(e)
             await interaction.reply('Cannot retrieve arbs.')
