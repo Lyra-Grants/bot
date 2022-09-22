@@ -162,23 +162,12 @@ export async function SetUpDiscord() {
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
           try {
-            const arbs = await GetArbitrageDeals(lyra)
-            const embed = ArbDiscord(arbs)
-            console.log('----EMBED----')
-            printObject(embed)
-            const messageEmbeds: EmbedBuilder[] = []
-            messageEmbeds.push(
-              new EmbedBuilder()
-                .setColor('#60DDBF')
-                .setTitle(`🔷 ETH Arbitrage: DERIBIT | LYRA`)
-                .addFields({ name: 'test', value: 'test', inline: false }),
-            )
-
-            console.log('----EMBED END----')
-            await interaction.reply({ embeds: messageEmbeds })
+            const arbs = await GetArbitrageDeals(lyra).then(async (arbs) => {
+              const embed = ArbDiscord(arbs)
+              await interaction.reply({ embeds: embed })
+            })
           } catch (e) {
             console.log(e)
-            await interaction.reply('Cannot retrieve arbs.')
           }
         } else {
           await interaction.reply(`Command 'arbs' only available in <#${arbChannel?.id}>`)
