@@ -96,6 +96,7 @@ export async function SetUpDiscord() {
         console.log('Not an interaction')
         return
       }
+      printObject(interaction)
 
       const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
       const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
@@ -103,9 +104,10 @@ export async function SetUpDiscord() {
       // const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
       //const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
       const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)
-
+      console.log(arbChannel)
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
+      console.log(commandName)
 
       if (commandName === 'leaderboard') {
         if (channelName === TRADE_CHANNEL) {
@@ -165,6 +167,9 @@ export async function SetUpDiscord() {
           try {
             const arbs = await GetArbitrageDeals(lyra)
             const embed = ArbDiscord(arbs)
+            console.log('----EMBED----')
+            printObject(embed)
+            console.log('----EMBED END----')
             await interaction.reply({ embeds: embed })
           } catch (e) {
             console.log(e)
