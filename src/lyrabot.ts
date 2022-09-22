@@ -92,14 +92,17 @@ export async function SetUpDiscord() {
     })
 
     discordClient.on('interactionCreate', async (interaction) => {
-      if (!interaction.isCommand()) return
+      if (!interaction.isCommand()) {
+        console.log('Not an interaction')
+        return
+      }
 
       const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
       const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
       const tokenChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TOKEN_CHANNEL)
-      const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
-      const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
-      const arbChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === ARBS_CHANNEL)
+      // const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
+      //const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
+      const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)
 
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
@@ -159,9 +162,14 @@ export async function SetUpDiscord() {
       }
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
-          const arbs = await GetArbitrageDeals(lyra)
-          const embed = ArbDiscord(arbs)
-          await interaction.reply({ embeds: embed })
+          try {
+            const arbs = await GetArbitrageDeals(lyra)
+            const embed = ArbDiscord(arbs)
+            await interaction.reply({ embeds: embed })
+          } catch (e) {
+            console.log(e)
+            interaction.reply('Cannot retrieve arbs.')
+          }
         } else {
           await interaction.reply(`Command 'arbs' only available in <#${arbChannel?.id}>`)
         }
