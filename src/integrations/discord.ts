@@ -2,17 +2,23 @@ import { TradeDto } from '../types/lyra'
 import { ActivityType, Client, EmbedBuilder, TextChannel } from 'discord.js'
 import dayjs from 'dayjs'
 import { FN } from '../templates/common'
+import printObject from '../utils/printObject'
+import { TESTNET } from '../secrets'
 
-export async function PostDiscord(embeds: EmbedBuilder[], client: Client<boolean>, channelName: string) {
-  try {
-    const channels = client.channels.cache
-      .filter((value) => (value as TextChannel)?.name == channelName)
-      .map(async (channel) => {
-        console.log(`found channel: ${channelName}`)
-        await (channel as TextChannel).send({ embeds: embeds })
-      })
-  } catch (e: any) {
-    console.log(e)
+export async function PostDiscord(embed: EmbedBuilder[], client: Client<boolean>, channelName: string) {
+  if (TESTNET) {
+    printObject(embed)
+  } else {
+    try {
+      const channels = client.channels.cache
+        .filter((value) => (value as TextChannel)?.name == channelName)
+        .map(async (channel) => {
+          console.log(`found channel: ${channelName}`)
+          await (channel as TextChannel).send({ embeds: embed })
+        })
+    } catch (e: any) {
+      console.log(e)
+    }
   }
 }
 

@@ -79,7 +79,7 @@ export type TradeDto = BaseDto & {
   degenMessage: string
 }
 
-export type LyraDto = {
+export type LyraDto = BaseEvent & {
   price: number
   marketCap: number
   totalSupply: number

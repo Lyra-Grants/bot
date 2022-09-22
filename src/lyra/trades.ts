@@ -23,6 +23,7 @@ import { Update } from 'telegraf/typings/core/types/typegram'
 import { TradeDiscord, TradeTelegram, TradeTwitter } from '../templates/trade'
 import fromBigNumber from '../utils/fromBigNumber'
 import { RandomDegen } from '../constants/degenMessage'
+import { TRADE_CHANNEL } from '../constants/discordChannels'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -135,24 +136,19 @@ export async function BroadCastTrade(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
 ): Promise<void> {
-  // Twitter //
-  if (TWITTER_ENABLED) {
-    if (trade.premium >= TWITTER_THRESHOLD) {
-      const tweet = TradeTwitter(trade, false)
-      await SendTweet(tweet, twitterClient)
-    }
+  if (trade.premium >= TWITTER_THRESHOLD && TWITTER_ENABLED) {
+    const tweet = TradeTwitter(trade)
+    await SendTweet(tweet, twitterClient)
   }
 
-  // Telegram //
   if (trade.premium >= TELEGRAM_THRESHOLD && TELEGRAM_ENABLED) {
     const post = TradeTelegram(trade)
     await PostTelegram(post, telegramClient)
   }
 
-  // Discord //
   if (trade.premium >= DISCORD_THRESHOLD && DISCORD_ENABLED) {
     const post = [TradeDiscord(trade)]
-    const channelName = TESTNET ? 'kovan-trades' : '📥trades'
+    const channelName = TRADE_CHANNEL
 
     if (trade.asset === 'ETH') {
       await PostDiscord(post, discordClient, channelName)

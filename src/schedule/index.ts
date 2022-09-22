@@ -8,7 +8,7 @@ import { BroadCast } from '../event/broadcast'
 import { GetPrice } from '../integrations/coingecko'
 import { defaultActivity, defaultName } from '../integrations/discord'
 import { GetArbitrageDeals } from '../lyra/arbitrage'
-import { BroadcastCoinGecko, GetCoinGecko } from '../lyra/coingecko'
+import { GetCoinGecko } from '../lyra/coingecko'
 import { GetLeaderBoard, BroadcastLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
 
@@ -64,7 +64,7 @@ export function CoinGeckoJob(
   console.log('Mon Wed Fri Stats job')
   scheduleJob('0 2 * * 1,3,5', async () => {
     const lyraDto = await GetCoinGecko()
-    await BroadcastCoinGecko(discordClient, twitterClient, telegramClient, lyraDto)
+    await BroadCast(lyraDto, twitterClient, telegramClient, discordClient)
   })
 }
 

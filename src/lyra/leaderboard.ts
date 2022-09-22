@@ -105,14 +105,16 @@ export async function BroadcastLeaderBoard(
 ) {
   console.log('### Broadcast Leaderboard ###')
   if (DISCORD_ENABLED) {
-    const channelName = TESTNET ? 'kovan-trades' : TRADE_CHANNEL
+    const channelName = TRADE_CHANNEL
     const embeds = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
     await PostDiscord(embeds, discordClient, channelName)
   }
+
   if (TWITTER_ENABLED) {
-    const tweet = LeaderboardTwitter(global.LYRA_LEADERBOARD.slice(0, 5))
-    await SendTweet(tweet, twitterClient)
+    const post = LeaderboardTwitter(global.LYRA_LEADERBOARD.slice(0, 5))
+    await SendTweet(post, twitterClient)
   }
+
   if (TELEGRAM_ENABLED) {
     const post = LeaderboardTelegram(global.LYRA_LEADERBOARD.slice(0, 10))
     await PostTelegram(post, telegramClient)

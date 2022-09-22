@@ -1,4 +1,4 @@
-import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED, DEPOSIT_THRESHOLD } from '../secrets'
+import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED, DEPOSIT_THRESHOLD, TESTNET } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
 import { PostDiscord } from '../integrations/discord'
@@ -59,7 +59,7 @@ export async function TrackDeposits(
         totalQueued: fromBigNumber(event.args.totalQueuedDeposits),
         degenMessage: RandomDegen(),
       }
-      BroadCastDeposit(dto, discordClient, discordClientBtc, telegramClient, twitterClient)
+      await BroadCastDeposit(dto, discordClient, discordClientBtc, telegramClient, twitterClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -77,7 +77,7 @@ export async function BroadCastDeposit(
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = DepositDiscord(dto)
-    //printObject(post)
+
     if (dto.market === 'Eth') {
       await PostDiscord(post, discordClient, DEPOSITS_CHANNEL)
     } else {

@@ -15,8 +15,7 @@ import {
   TradeShareImage,
 } from './common'
 
-// TWITTER //
-export function TradeTwitter(trade: TradeDto, _isQuant = false) {
+export function TradeTwitter(trade: TradeDto) {
   const post: string[] = []
 
   if (!trade.isLiquidation) {
@@ -52,14 +51,10 @@ export function TradeTwitter(trade: TradeDto, _isQuant = false) {
     )
   }
   post.push(`👨‍ ${trade.ens ? trade.ens : trade.trader}\n`)
-  if (_isQuant) {
-    post.push(`\n${trade.degenMessage}\n\n`)
-  }
   post.push(`${PositionLink(trade)}\n`)
   return post.join('')
 }
 
-// TELEGRAM //
 export function TradeTelegram(trade: TradeDto) {
   const img = TradeShareImage(trade)
   const post: string[] = []
@@ -110,7 +105,6 @@ export function TradeTelegram(trade: TradeDto) {
   return post.join('')
 }
 
-// DISCORD //
 export function TradeDiscord(trade: TradeDto): EmbedBuilder {
   const url = PositionLink(trade)
   const img = TradeShareImage(trade)

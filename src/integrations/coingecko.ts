@@ -1,4 +1,5 @@
 import { CoinGeckoClient } from '../clients/coinGeckoClient'
+import { EventType } from '../constants/eventType'
 import { LyraDto } from '../types/lyra'
 import printObject from '../utils/printObject'
 
@@ -36,6 +37,7 @@ export async function GetLyraInfo(): Promise<LyraDto | undefined> {
       mc_tvl_ratio: resp.data['market_data']['mcap_to_tvl_ratio'],
       circSupply: resp.data['market_data']['circulating_supply'],
       maxSupply: resp.data['market_data']['max_supply'],
+      eventType: EventType.CoinGecko,
     }
   } catch (error) {
     console.log(error)

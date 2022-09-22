@@ -9,7 +9,7 @@ import { SECONDS_IN_MONTH } from '../constants/timeAgo'
 import { PostDiscord } from '../integrations/discord'
 import { PostTelegram } from '../integrations/telegram'
 import { SendTweet } from '../integrations/twitter'
-import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED } from '../secrets'
+import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED, TESTNET } from '../secrets'
 import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
 import { StatDto } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
@@ -85,7 +85,6 @@ export async function BroadCastStats(
 
   if (DISCORD_ENABLED) {
     const post = StatDiscord(dto)
-    console.log(post)
     await PostDiscord(post, discordClient, STATS_CHANNEL)
   }
 }
