@@ -33,7 +33,7 @@ export async function GetArbitrageDeals(lyra: Lyra) {
   return event
 }
 
-const useDeals = async (marketName: string, lyra: Lyra) => {
+export async function useDeals(marketName: string, lyra: Lyra) {
   const { allRates } = await useRatesData(marketName, lyra)
   const res: Deal[] = []
   const providers = [ProviderType.LYRA, ProviderType.DERIBIT]

@@ -51,7 +51,7 @@ export function ArbDiscord(dto: ArbDto): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder().setColor('#60DDBF').setTitle(`🔷 ETH Arbitrage: DERIBIT | LYRA`)
 
-  dto.arbs.slice(0, 5).map((arb) => {
+  dto.arbs.slice(0, 1).map((arb) => {
     Arb(arb, embed)
   })
   embed
