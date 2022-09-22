@@ -96,6 +96,7 @@ export async function SetUpDiscord() {
         console.log('Not an interaction')
         return
       }
+      console.log('Interaction Created!')
       console.log(interaction)
 
       const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
@@ -155,12 +156,8 @@ export async function SetUpDiscord() {
         }
       }
       if (commandName === 'quant') {
-        //if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
         const embed = QuantDiscord()
         await interaction.reply({ embeds: embed })
-        // } else {
-        //  await interaction.reply(`Command 'quant' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
-        //}
       }
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
@@ -168,7 +165,7 @@ export async function SetUpDiscord() {
             const arbs = await GetArbitrageDeals(lyra)
             const embed = ArbDiscord(arbs)
             console.log('----EMBED----')
-            console.log(embed)
+            printObject(embed)
             console.log('----EMBED END----')
             await interaction.reply({ embeds: embed })
           } catch (e) {
