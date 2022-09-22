@@ -96,7 +96,7 @@ export async function SetUpDiscord() {
         console.log('Not an interaction')
         return
       }
-      printObject(interaction)
+      console.log(interaction)
 
       const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
       const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
@@ -168,12 +168,12 @@ export async function SetUpDiscord() {
             const arbs = await GetArbitrageDeals(lyra)
             const embed = ArbDiscord(arbs)
             console.log('----EMBED----')
-            printObject(embed)
+            console.log(embed)
             console.log('----EMBED END----')
             await interaction.reply({ embeds: embed })
           } catch (e) {
             console.log(e)
-            interaction.reply('Cannot retrieve arbs.')
+            await interaction.reply('Cannot retrieve arbs.')
           }
         } else {
           await interaction.reply(`Command 'arbs' only available in <#${arbChannel?.id}>`)
