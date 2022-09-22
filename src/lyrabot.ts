@@ -105,10 +105,8 @@ export async function SetUpDiscord() {
       // const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
       //const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
       const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)
-      console.log(arbChannel)
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
-      console.log(commandName)
 
       if (commandName === 'leaderboard') {
         if (channelName === TRADE_CHANNEL) {
@@ -161,16 +159,10 @@ export async function SetUpDiscord() {
       }
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
-          try {
-            await GetArbitrageDeals(lyra).then(async (arbs) => {
-              console.log('here1')
-              const embed = ArbDiscord(arbs)
-              console.log('here1')
-              await interaction.reply({ embeds: embed })
-            })
-          } catch (e) {
-            console.log(e)
-          }
+          interaction.deferReply()
+          const arbs = await GetArbitrageDeals(lyra)
+          const embed = ArbDiscord(arbs)
+          await interaction.reply({ embeds: embed })
         } else {
           await interaction.reply(`Command 'arbs' only available in <#${arbChannel?.id}>`)
         }
