@@ -159,7 +159,7 @@ export async function SetUpDiscord() {
       }
       if (commandName === 'arbs') {
         if (channelName === ARBS_CHANNEL) {
-          interaction.deferReply()
+          await interaction.deferReply()
           const arbs = await GetArbitrageDeals(lyra)
           const embed = ArbDiscord(arbs)
           await interaction.reply({ embeds: embed })
