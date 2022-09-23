@@ -9,7 +9,7 @@ import {
   TWITTER_ENABLED,
 } from './secrets'
 import { DiscordClient, DiscordClientBtc } from './clients/discordClient'
-import { Client, EmbedBuilder, TextChannel } from 'discord.js'
+import { ChatInputCommandInteraction, Client, EmbedBuilder, GuildBasedChannel, TextChannel } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
@@ -36,7 +36,7 @@ import {
 import { HelpDiscord, QuantDiscord } from './templates/help'
 import { optimismInfuraProvider } from './clients/ethersClient'
 import { TrackEvents } from './event/blockEvent'
-import { CoinGeckoDiscord, CoinGeckoTwitter } from './templates/coingecko'
+import { CoinGeckoDiscord } from './templates/coingecko'
 import { GetCoinGecko } from './lyra/coingecko'
 import { ArbitrageJob, CoinGeckoJob, LeaderboardJob, PricingJob, StatsJob } from './schedule'
 import printObject from './utils/printObject'
@@ -62,12 +62,13 @@ export async function initializeLyraBot() {
     //faucet(lyraClient, signer)
     //maketrade(lyraClient, signer)
   }
-  global.ETH_24HR = 0
-  global.ETH_PRICE = 0
+
+  discordClientBtc = DiscordClientBtc
+  discordClient = DiscordClient
 
   await GetPrice()
-  await SetUpDiscord()
-  await SetUpDiscordBtc()
+  await SetUpDiscord(discordClient, 'eth', DISCORD_ACCESS_TOKEN)
+  await SetUpDiscord(discordClientBtc, 'btc', DISCORD_ACCESS_TOKEN_BTC)
   await SetUpTwitter()
   await SetUpTelegram()
 
@@ -81,131 +82,128 @@ export async function initializeLyraBot() {
   LeaderboardJob(discordClient, twitterClient, telegramClient)
   StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
-  ArbitrageJob(discordClient, twitterClient, telegramClient, lyra)
+  ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
 }
 
-export async function SetUpDiscord() {
+async function SetUpDiscord(discordClient: Client<boolean>, market: string, accessToken: string) {
   if (DISCORD_ENABLED) {
-    discordClient = DiscordClient
+    const isBtc = market == 'btc'
     discordClient.on('ready', async (client) => {
-      console.debug('Discord bot is online!')
+      console.debug(`Discord bot ${market}  is online!`)
     })
 
     discordClient.on('interactionCreate', async (interaction) => {
       if (!interaction.isCommand()) {
-        console.log('Not an interaction')
         return
       }
-      console.log('Interaction Created!')
-      console.log(interaction)
 
       const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
       const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
       const tokenChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TOKEN_CHANNEL)
+      const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)
       // const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
       //const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
-      const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
 
-      if (commandName === 'leaderboard') {
-        if (channelName === TRADE_CHANNEL) {
-          if (interaction) global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-          const post = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
-          await interaction.reply({ embeds: post })
-        } else {
-          await interaction.reply(`Command 'leaderboard' only available in <#${tradeChannel?.id}>`)
+      // eth only
+      if (!isBtc) {
+        if (commandName === 'leaderboard') {
+          if (channelName === TRADE_CHANNEL) {
+            if (interaction) global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
+            const post = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
+            await interaction.reply({ embeds: post })
+          } else {
+            await interaction.reply(`Command 'leaderboard' only available in <#${tradeChannel?.id}>`)
+          }
         }
-      }
-      if (commandName === 'top30') {
-        if (channelName === TRADE_CHANNEL) {
-          global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-          const post = LeaderboardDiscord(global.LYRA_LEADERBOARD)
-          await interaction.reply({ embeds: post })
-        } else {
-          await interaction.reply(`Command 'top30' only available in <#${tradeChannel?.id}>`)
+        if (commandName === 'top30') {
+          if (channelName === TRADE_CHANNEL) {
+            global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
+            const post = LeaderboardDiscord(global.LYRA_LEADERBOARD)
+            await interaction.reply({ embeds: post })
+          } else {
+            await interaction.reply(`Command 'top30' only available in <#${tradeChannel?.id}>`)
+          }
         }
-      }
-      if (commandName === 'stats') {
-        if (channelName === STATS_CHANNEL) {
-          //const statsDto = await GetStats(interaction.options.getString('market') as string, lyraClient)
-          const statsDto = await GetStats('eth', lyra)
-          const stats = StatDiscord(statsDto)
-          await interaction.reply({ embeds: stats })
-        } else {
-          await interaction.reply(`Command 'stats' only available in <#${statsChannel?.id}>`)
+        if (commandName === 'help') {
+          if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
+            const help = HelpDiscord()
+            await interaction.reply(help)
+          } else {
+            await interaction.reply(
+              `Command 'help' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `,
+            )
+          }
         }
-      }
-      if (commandName === 'help') {
-        if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
-          const help = HelpDiscord()
-          await interaction.reply(help)
-        } else {
-          await interaction.reply(`Command 'help' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `)
+        if (commandName === 'lyra') {
+          if (channelName === TOKEN_CHANNEL) {
+            const lyraDto = await GetCoinGecko()
+            const embed = CoinGeckoDiscord(lyraDto)
+            await interaction.reply({ embeds: embed })
+          } else {
+            await interaction.reply(`Command 'lyra' only available in <#${tokenChannel?.id}>`)
+          }
         }
-      }
-      if (commandName === 'lyra') {
-        if (channelName === TOKEN_CHANNEL) {
-          const lyraDto = await GetCoinGecko()
-          const embed = CoinGeckoDiscord(lyraDto)
+        if (commandName === 'quant') {
+          const embed = QuantDiscord()
           await interaction.reply({ embeds: embed })
-        } else {
-          await interaction.reply(`Command 'lyra' only available in <#${tokenChannel?.id}>`)
         }
       }
-      if (commandName === 'quant') {
-        const embed = QuantDiscord()
-        await interaction.reply({ embeds: embed })
+
+      // both
+      if (commandName === 'stats') {
+        await StatsInteraction(
+          market,
+          channelName,
+          interaction as ChatInputCommandInteraction,
+          statsChannel as GuildBasedChannel,
+        )
       }
+
       if (commandName === 'arbs') {
-        if (channelName === ARBS_CHANNEL) {
-          await interaction.deferReply()
-          const arbs = await GetArbitrageDeals(lyra)
-          const embed = ArbDiscord(arbs)
-          await interaction.editReply({ embeds: embed })
-        } else {
-          await interaction.reply(`Command 'arbs' only available in <#${arbChannel?.id}>`)
-        }
+        await ArbInteraction(
+          market,
+          channelName,
+          interaction as ChatInputCommandInteraction,
+          arbChannel as GuildBasedChannel,
+        )
       }
     })
-
-    await discordClient.login(DISCORD_ACCESS_TOKEN)
-
-    defaultActivity(discordClient)
-    await defaultName(discordClient)
+    await discordClient.login(accessToken)
+    defaultActivity(discordClient, isBtc)
+    await defaultName(discordClient, isBtc)
   }
 }
 
-export async function SetUpDiscordBtc() {
-  if (DISCORD_ENABLED) {
-    discordClientBtc = DiscordClientBtc
-    discordClientBtc.on('ready', async (client) => {
-      console.debug('Discord bot BTC is online!')
-    })
+async function StatsInteraction(
+  market: string,
+  channelName: string,
+  interaction: ChatInputCommandInteraction,
+  channel: GuildBasedChannel,
+) {
+  if (channelName === STATS_CHANNEL) {
+    const statsDto = await GetStats(market, lyra)
+    const stats = StatDiscord(statsDto)
+    await interaction.reply({ embeds: stats })
+  } else {
+    await interaction.reply(`Command 'stats' only available in <#${channel?.id}>`)
+  }
+}
 
-    discordClientBtc.on('interactionCreate', async (interaction) => {
-      if (!interaction.isCommand()) return
-
-      const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
-
-      const channelName = (interaction?.channel as TextChannel).name
-      const { commandName } = interaction
-
-      if (commandName === 'stats') {
-        if (channelName === STATS_CHANNEL) {
-          const statsDto = await GetStats('btc', lyra)
-          const stats = StatDiscord(statsDto)
-          await interaction.reply({ embeds: stats })
-        } else {
-          await interaction.reply(`Command 'stats' only available in <#${statsChannel?.id}>`)
-        }
-      }
-    })
-
-    await discordClientBtc.login(DISCORD_ACCESS_TOKEN_BTC)
-
-    defaultActivity(discordClientBtc, true)
-    await defaultName(discordClientBtc, true)
+async function ArbInteraction(
+  market: string,
+  channelName: string,
+  interaction: ChatInputCommandInteraction,
+  channel: GuildBasedChannel,
+) {
+  if (channelName === ARBS_CHANNEL) {
+    await interaction.deferReply()
+    const arbs = await GetArbitrageDeals(lyra, market)
+    const embed = ArbDiscord(arbs)
+    await interaction.editReply({ embeds: embed })
+  } else {
+    await interaction.reply(`Command 'arbs' only available in <#${channel?.id}>`)
   }
 }
 

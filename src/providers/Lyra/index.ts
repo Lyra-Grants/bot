@@ -59,7 +59,5 @@ export async function getMarket(market: Market) {
 export async function getLyraRates(marketName: string, lyra: Lyra): Promise<OptionsMap[]> {
   const market = await lyra.market(marketName)
   const rates = await getMarket(market)
-
-  
   return rates
 }

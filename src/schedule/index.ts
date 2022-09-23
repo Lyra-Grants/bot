@@ -70,12 +70,17 @@ export function CoinGeckoJob(
 
 export function ArbitrageJob(
   discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
 ): void {
   scheduleJob('0 4 * * 1,3,5', async () => {
-    const arbDto = await GetArbitrageDeals(lyraClient)
+    //ETH
+    const arbDto = await GetArbitrageDeals(lyraClient, 'eth')
     await BroadCast(arbDto, twitterClient, telegramClient, discordClient)
+
+    const arbDtoBtc = await GetArbitrageDeals(lyraClient, 'btc')
+    await BroadCast(arbDtoBtc, twitterClient, telegramClient, discordClientBtc)
   })
 }

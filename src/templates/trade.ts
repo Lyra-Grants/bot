@@ -50,7 +50,7 @@ export function TradeTwitter(trade: TradeDto) {
       }\n`,
     )
   }
-  post.push(`👨‍ ${trade.ens ? trade.ens : trade.trader}\n`)
+  post.push(`${DisplayTrader(trade)}\n`)
   post.push(`${PositionLink(trade)}\n`)
   return post.join('')
 }
@@ -90,7 +90,7 @@ export function TradeTelegram(trade: TradeDto) {
       }\n`,
     )
   }
-  post.push(`👨‍ <a href='${PositionLink(trade)}'>${trade.ens ? trade.ens : shortAddress(trade.trader)}</a>\n`)
+  post.push(`<a href='${PositionLink(trade)}'>${DisplayTrader(trade, true)}</a>\n`)
   post.push(`============================\n`)
   post.push(
     `<a href='${EtherScanTransactionLink(trade.transactionHash)}'>Trxn</a> | <a href='${TradeHistoryLink(
@@ -167,7 +167,7 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
     },
     {
       name: '👨 Trader',
-      value: `> ${trade.ens ? trade.ens : trade.trader}`,
+      value: `> ${DisplayTraderNoEmoji(trade)}`,
       inline: false,
     },
   )
@@ -202,4 +202,29 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
     .setTimestamp()
 
   return tradeEmbed
+}
+
+function DisplayTrader(trade: TradeDto, useShortAddress = false) {
+  if (trade.isNotable) {
+    return trade.notableAddress
+  }
+  if (trade.ens) {
+    return `👨‍ ${trade.ens}`
+  }
+  if (useShortAddress) {
+    return `👨‍ ${shortAddress(trade.trader)}`
+  }
+
+  return `👨‍ ${trade.trader}`
+}
+
+function DisplayTraderNoEmoji(trade: TradeDto) {
+  if (trade.isNotable) {
+    return trade.notableAddress
+  }
+  if (trade.ens) {
+    return `${trade.ens}`
+  }
+
+  return `${trade.trader}`
 }

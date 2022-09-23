@@ -124,4 +124,8 @@ export const NotableAddresses: { [key: string]: string } = {
   '0xde48b1b5853cc63b1d05e507414d3e02831722f8': '🟢 Lyra Staking',
   '0xd4c00fe7657791c2a43025de483f05e49a5f76a6': '🟢 Lyra MultiSig',
   '0x0000000000000000000000000000000000000000': '🌉 Optimism Bridge',
+  '0x2d46292cbb3c601c6e2c74c32df3a4fce99b59c7': '🧮 Polynomial Eth Call Vault',
+  '0xb28df1b71a5b3a638ecedf484e0545465a45d2ec': '🧮 Polynomial Eth Put Vault',
+  '0xb7b4270cfd938f4f1c111ac819e7365e8ce0300a': '🧮 Polynomial Eth Call Vault',
+  '0x965e460bf5cb38bada79fb2293c6304c799d0b1c': '🧮 Polynomial Eth Gamma Vault',
 }

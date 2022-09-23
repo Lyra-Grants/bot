@@ -8,9 +8,10 @@ import { EventType } from '../constants/eventType'
 
 const PROFIT_THRESHOLD = 3
 
-export async function GetArbitrageDeals(lyra: Lyra) {
-  const price = ETH_PRICE
-  const deals = await useDeals('eth', lyra)
+//eth //btc
+export async function GetArbitrageDeals(lyra: Lyra, market: string) {
+  const price = market == 'eth' ? ETH_PRICE : BTC_PRICE
+  const deals = await useDeals(market, lyra)
 
   const data = deals.map((deal) => {
     const momentExp = moment(deal?.expiration)
@@ -28,6 +29,8 @@ export async function GetArbitrageDeals(lyra: Lyra) {
   const event: ArbDto = {
     arbs: data,
     eventType: EventType.Arb,
+    market: market,
+    isBtc: market == 'btc',
   }
 
   return event

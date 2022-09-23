@@ -24,6 +24,7 @@ import { TradeDiscord, TradeTelegram, TradeTwitter } from '../templates/trade'
 import fromBigNumber from '../utils/fromBigNumber'
 import { RandomDegen } from '../constants/degenMessage'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
+import { GetNotableAddress } from '../utils/notableAddresses'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -36,7 +37,7 @@ export async function RunTradeBot(
 
   let blockNumber: number | undefined = undefined
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 10000
+    blockNumber = lyraClient.provider.blockNumber - 20000
   }
 
   lyraClient.onTrade(
@@ -48,7 +49,7 @@ export async function RunTradeBot(
         console.log(e)
       }
     },
-    { startBlockNumber: blockNumber, pollInterval: 30000 },
+    { startBlockNumber: blockNumber, pollInterval: 3000 },
   )
 }
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
@@ -59,6 +60,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const totalPremiumPaid = PremiumsPaid(trades)
   const market = await trade.market()
   const noTrades = trades.length
+  const from = GetNotableAddress(trade.trader)
   const ens = await GetEns(trade.trader)
 
   const tradeDto: TradeDto = {
@@ -99,6 +101,8 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     spot: fromBigNumber(trade.spotPrice),
     degenMessage: RandomDegen(),
     blockNumber: trade.blockNumber,
+    notableAddress: from,
+    isNotable: from != '',
   }
   return tradeDto
 }
@@ -141,12 +145,12 @@ export async function BroadCastTrade(
     await SendTweet(tweet, twitterClient)
   }
 
-  if (trade.premium >= TELEGRAM_THRESHOLD && TELEGRAM_ENABLED) {
+  if ((trade.premium >= TELEGRAM_THRESHOLD || trade.isNotable) && TELEGRAM_ENABLED) {
     const post = TradeTelegram(trade)
     await PostTelegram(post, telegramClient)
   }
 
-  if (trade.premium >= DISCORD_THRESHOLD && DISCORD_ENABLED) {
+  if ((trade.premium >= DISCORD_THRESHOLD || trade.isNotable) && DISCORD_ENABLED) {
     const post = [TradeDiscord(trade)]
     const channelName = TRADE_CHANNEL
 

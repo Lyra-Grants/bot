@@ -23,6 +23,15 @@ const ethOptions = {
     kind: 'option',
   },
 }
+
+const btcOptions = {
+  method: 'public/get_book_summary_by_currency',
+  params: {
+    currency: 'BTC',
+    kind: 'option',
+  },
+}
+
 //     @ response data
 //     ask_price: null,
 //     base_currency: "ETH",
@@ -82,27 +91,30 @@ const parseDeribitOption = (
   }
 }
 
-async function useDeribitData() {
-  let ethData: DeribitItem[] = []
+async function useDeribitData(market: string) {
+  let marketData: DeribitItem[] = []
   const rpc = new RpcWebSocketClient()
   await rpc.connect(`wss://www.deribit.com/ws/api/v2`)
   console.log('Get Deribit Options: Connected!')
+
+  const config = market == 'eth' ? ethOptions : btcOptions
+
   await rpc
-    .call(ethOptions.method, ethOptions.params)
+    .call(config.method, config.params)
     .then((data) => {
-      ethData = data as DeribitItem[]
+      marketData = data as DeribitItem[]
       rpc.ws.close()
     })
     .catch((err) => {
       console.log(err)
     })
 
-  return [ethData]
+  return [marketData]
 }
 
-export async function getDeribitRates() {
-  const [data] = await useDeribitData()
-  const price = ETH_PRICE
+export async function getDeribitRates(market: string) {
+  const [data] = await useDeribitData(market)
+  const price = market == 'eth' ? ETH_PRICE : BTC_PRICE
 
   const optionsMap = data
     .filter(({ mid_price, ask_price, bid_price }) => ask_price && bid_price)

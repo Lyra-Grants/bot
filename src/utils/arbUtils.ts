@@ -70,7 +70,7 @@ type TermStrikesOptions = {
 export async function useRatesData(marketName: string, lyraClient: Lyra, filterSell = false) {
   const providers: ProviderType[] = [ProviderType.LYRA, ProviderType.DERIBIT]
 
-  const [deribit, lyra] = await Promise.all([getDeribitRates(), getLyraRates(marketName, lyraClient)])
+  const [deribit, lyra] = await Promise.all([getDeribitRates(marketName), getLyraRates(marketName, lyraClient)])
 
   const rates = {
     [ProviderType.DERIBIT]: deribit,

@@ -7,7 +7,7 @@ const deribitUrl = 'https://www.deribit.com/?reg=17349.7477'
 
 export function ArbTelegram(dto: ArbDto) {
   const post: string[] = []
-  post.push(`🔷 $ETH Arbs Deribit | Lyra\n\n`)
+  post.push(`${dto.isBtc ? '🔶' : '🔷'} $${dto.market.toUpperCase()} Arbs Deribit | Lyra\n\n`)
   dto.arbs.slice(0, 10).map((arb) => {
     post.push(`✨ $${FN(arb.strike, 0)} ${FormattedDateShort(new Date(arb.expiration))} ${arb.type}\n`)
     post.push(
@@ -28,7 +28,7 @@ export function ArbTelegram(dto: ArbDto) {
 // TWITTER
 export function ArbTwitter(dto: ArbDto) {
   const post: string[] = []
-  post.push(`$ETH Arbs Deribit | Lyra\n\n`)
+  post.push(`$${dto.market.toUpperCase()} Arbs Deribit | Lyra\n\n`)
 
   dto.arbs.slice(0, 3).map((arb) => {
     post.push(`$${FN(arb.strike, 0)} ${FormattedDateShort(new Date(arb.expiration))} ${arb.type}\n`)
@@ -49,10 +49,12 @@ export function ArbTwitter(dto: ArbDto) {
 // DISCORD
 export function ArbDiscord(dto: ArbDto): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
-  const embed = new EmbedBuilder().setColor('#60DDBF').setTitle(`🔷 ETH Arbitrage: DERIBIT | LYRA`)
+  const embed = new EmbedBuilder()
+    .setColor('#60DDBF')
+    .setTitle(`${dto.isBtc ? '🔶' : '🔷'} $${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
 
   dto.arbs.slice(0, 10).map((arb) => {
-    Arb(arb, embed)
+    Arb(arb, dto.market, embed)
   })
   embed
     .setFooter({
@@ -65,22 +67,24 @@ export function ArbDiscord(dto: ArbDto): EmbedBuilder[] {
   return messageEmbeds
 }
 
-function Arb(dto: Arb, embed: EmbedBuilder) {
+function Arb(dto: Arb, market: string, embed: EmbedBuilder) {
   embed.addFields({
     name: `✨ $${FN(dto.strike, 0)} ${FormattedDate(new Date(dto.expiration))} ${dto.type}`,
     value: `> 🔹 **Buy** [$${FN(dto.buy.askPrice as number, 2)} ${dto.buy.provider}](${ProviderUrl(
       dto.buy.provider,
+      market,
     )})\n > 🔸 **Sell** [$${FN(dto.sell.bidPrice as number, 2)} ${dto.sell.provider}](${ProviderUrl(
       dto.sell.provider,
+      market,
     )})\n > **Discount** $${FN(dto.amount, 2)} (${FN(dto.discount, 2)}%)\n > **APY** ${FN(dto.apy, 2)}%`,
     inline: false,
   })
 }
 
-function ProviderUrl(provider: ProviderType) {
+function ProviderUrl(provider: ProviderType, market: string) {
   if (provider === ProviderType.DERIBIT) {
     return deribitUrl //'https://www.deribit.com/options/ETH'
   }
 
-  return 'https://app.lyra.finance/trade/eth'
+  return `https://app.lyra.finance/trade/${market}`
 }
