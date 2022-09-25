@@ -37,6 +37,7 @@ export async function TrackEvents(
       startBlockNumber: blockNumber,
       addresses: CONTRACT_ADDRESSES,
       topics: [TRANSFER_TOPIC, DEPOSIT_QUEUED],
+      pollInterval: 60000,
     },
   )
 }
