@@ -1,14 +1,13 @@
 import { EmbedBuilder } from 'discord.js'
 import { StatDto } from '../types/lyra'
-
-import { FN, FNS, FormattedDateTime, VaultLink } from './common'
+import { FN, FNS, VaultLink } from './common'
 
 export function StatDiscord(stat: StatDto): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
   const tradeEmbed = new EmbedBuilder()
     .setColor('#627EEA')
     .setURL(`${VaultLink(stat.asset)}`)
-    .setTitle(`${stat.asset === 'ETH' ? '🔷' : '🔶'} ${stat.asset} Market Vault`)
+    .setTitle(`${StatSymbol(stat.asset)} ${stat.asset} Market Vault`)
     .addFields(
       { name: 'TVL', value: `$${FN(stat.tvl, 0)}`, inline: true },
       { name: 'Change (30d)', value: `${FNS(stat.tvlChange, 4)}%`, inline: true },
@@ -33,7 +32,7 @@ export function StatDiscord(stat: StatDto): EmbedBuilder[] {
 
 export function StatTwitter(stat: StatDto) {
   const post: string[] = []
-  post.push(`${stat.asset === 'ETH' ? '🔷' : '🔶'} ${stat.asset} Market Vault\n`)
+  post.push(`${StatSymbol(stat.asset)} ${stat.asset} Market Vault\n`)
   post.push(`💵 P&L (30d) ${FNS(stat.pnlChange, 4)}%\n`)
   post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
   post.push(`📊 Volume (30d) $${FN(stat.tradingVolume, 2)}\n`)
@@ -48,7 +47,7 @@ export function StatTwitter(stat: StatDto) {
 
 export function StatTelegram(stat: StatDto) {
   const post: string[] = []
-  post.push(`<a href="${VaultLink(stat.asset)}">${stat.asset === 'ETH' ? '🔷' : '🔶'} ${stat.asset} Market Vault</a>\n`)
+  post.push(`<a href="${VaultLink(stat.asset)}">${StatSymbol(stat.asset)} ${stat.asset} Market Vault</a>\n`)
   post.push(`💵 P&L (30d) ${FNS(stat.pnlChange, 4)}%\n`)
   post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
   post.push(`📊 Volume (30d) $${FN(stat.tradingVolume, 2)}\n`)
@@ -59,4 +58,16 @@ export function StatTelegram(stat: StatDto) {
   post.push(`〽️ Net Std. Vega ${FNS(stat.netStdVega, 3)}\n`)
   post.push(`🔒 Utilization  ${FN(stat.utilisationRate, 2)}%\n`)
   return post.join('')
+}
+
+export function StatSymbol(asset: string) {
+  if (asset.toLowerCase() == 'eth') {
+    return '🔷'
+  }
+  if (asset.toLowerCase() == 'btc') {
+    return '🔶'
+  }
+  if (asset.toLowerCase() == 'sol') {
+    return '🟣'
+  }
 }

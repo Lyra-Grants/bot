@@ -9,3 +9,8 @@ export const DiscordClientBtc = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
   partials: [Partials.User, Partials.Message],
 })
+
+export const DiscordClientSol = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+  partials: [Partials.User, Partials.Message],
+})

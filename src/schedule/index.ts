@@ -12,16 +12,23 @@ import { GetCoinGecko } from '../lyra/coingecko'
 import { GetLeaderBoard, BroadcastLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
 
-export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Client<boolean>): void {
+export function PricingJob(
+  discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
+  discordClientSol: Client<boolean>,
+): void {
   console.log('30 min pricing job running')
   scheduleJob('*/30 * * * *', async () => {
     await GetPrice()
     // ETH
-    defaultActivity(discordClient)
-    await defaultName(discordClient)
+    defaultActivity(discordClient, 'eth')
+    await defaultName(discordClient, 'eth')
     // BTC
-    defaultActivity(discordClientBtc, true)
-    await defaultName(discordClientBtc, true)
+    defaultActivity(discordClientBtc, 'btc')
+    await defaultName(discordClientBtc, 'btc')
+    // SOL
+    defaultActivity(discordClientSol, 'sol')
+    await defaultName(discordClientSol, 'sol')
   })
 }
 
@@ -40,6 +47,7 @@ export function LeaderboardJob(
 export function StatsJob(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
+  discordClientSol: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
@@ -52,6 +60,10 @@ export function StatsJob(
     //BTC
     const statsDtoBtc = await GetStats('btc', lyraClient)
     await BroadCastStats(statsDtoBtc, twitterClient, telegramClient, discordClientBtc)
+
+    //BTC
+    const statsDtoSol = await GetStats('sol', lyraClient)
+    await BroadCastStats(statsDtoSol, twitterClient, telegramClient, discordClientSol)
   })
 }
 

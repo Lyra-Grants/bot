@@ -3,12 +3,13 @@ import { GetLeaderBoard } from './lyra/leaderboard'
 import {
   DISCORD_ACCESS_TOKEN,
   DISCORD_ACCESS_TOKEN_BTC,
+  DISCORD_ACCESS_TOKEN_SOL,
   DISCORD_ENABLED,
   TELEGRAM_ENABLED,
   TESTNET,
   TWITTER_ENABLED,
 } from './secrets'
-import { DiscordClient, DiscordClientBtc } from './clients/discordClient'
+import { DiscordClient, DiscordClientBtc, DiscordClientSol } from './clients/discordClient'
 import { ChatInputCommandInteraction, Client, EmbedBuilder, GuildBasedChannel, TextChannel } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
@@ -45,6 +46,7 @@ import { ArbDiscord } from './templates/arb'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
+let discordClientSol: Client<boolean>
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let telegramClient: Telegraf<Context<Update>>
@@ -65,10 +67,12 @@ export async function initializeLyraBot() {
 
   discordClientBtc = DiscordClientBtc
   discordClient = DiscordClient
+  discordClientSol = DiscordClientSol
 
   await GetPrice()
   await SetUpDiscord(discordClient, 'eth', DISCORD_ACCESS_TOKEN)
   await SetUpDiscord(discordClientBtc, 'btc', DISCORD_ACCESS_TOKEN_BTC)
+  await SetUpDiscord(discordClientSol, 'sol', DISCORD_ACCESS_TOKEN_SOL)
   await SetUpTwitter()
   await SetUpTelegram()
 
@@ -76,18 +80,17 @@ export async function initializeLyraBot() {
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
 
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
-  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient1, lyra)
+  await TrackEvents(discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient1, lyra)
 
-  PricingJob(discordClient, discordClientBtc)
+  PricingJob(discordClient, discordClientBtc, discordClientSol)
   LeaderboardJob(discordClient, twitterClient, telegramClient)
-  StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+  StatsJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
   CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
   ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
 }
 
 async function SetUpDiscord(discordClient: Client<boolean>, market: string, accessToken: string) {
   if (DISCORD_ENABLED) {
-    const isBtc = market == 'btc'
     discordClient.on('ready', async (client) => {
       console.debug(`Discord bot ${market}  is online!`)
     })
@@ -107,7 +110,7 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
       const { commandName } = interaction
 
       // eth only
-      if (!isBtc) {
+      if (market == 'eth') {
         if (commandName === 'leaderboard') {
           if (channelName === TRADE_CHANNEL) {
             if (interaction) global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
@@ -151,7 +154,17 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
         }
       }
 
-      // both
+      if (market == 'eth' || market == 'btc')
+        if (commandName === 'arbs') {
+          await ArbInteraction(
+            market,
+            channelName,
+            interaction as ChatInputCommandInteraction,
+            arbChannel as GuildBasedChannel,
+          )
+        }
+
+      // all
       if (commandName === 'stats') {
         await StatsInteraction(
           market,
@@ -160,19 +173,10 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
           statsChannel as GuildBasedChannel,
         )
       }
-
-      if (commandName === 'arbs') {
-        await ArbInteraction(
-          market,
-          channelName,
-          interaction as ChatInputCommandInteraction,
-          arbChannel as GuildBasedChannel,
-        )
-      }
     })
     await discordClient.login(accessToken)
-    defaultActivity(discordClient, isBtc)
-    await defaultName(discordClient, isBtc)
+    defaultActivity(discordClient, market)
+    await defaultName(discordClient, market)
   }
 }
 

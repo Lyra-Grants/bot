@@ -8,24 +8,26 @@ import { toDate } from '../utils/utils'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { SendTweet } from '../integrations/twitter'
-import Lyra from '@lyrafinance/lyra-js/dist/types/lyra'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
 import { LiquidityPool__factory } from '@lyrafinance/lyra-js'
-import { DepositQueuedEvent } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
+import {
+  DepositProcessedEvent,
+  DepositQueuedEvent,
+} from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { RandomDegen } from '../constants/degenMessage'
-import { ETH_LIQUIDITY_POOL } from '../constants/contractAddresses'
+import { BTC_LIQUIDITY_POOL, ETH_LIQUIDITY_POOL, SOL_LIQUIDITY_POOL } from '../constants/contractAddresses'
 import printObject from '../utils/printObject'
 
 export async function TrackDeposits(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
+  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
-  lyra: Lyra,
   genericEvent: GenericEvent,
 ): Promise<void> {
   const event = parseEvent(genericEvent as DepositQueuedEvent)
@@ -40,9 +42,19 @@ export async function TrackDeposits(
       const to = GetNotableAddress(event.address)
       const fromEns = await GetEns(event.args.depositor)
       const toEns = await GetEns(event.address)
+      let market = ''
+      if (event.address.toLowerCase() == ETH_LIQUIDITY_POOL) {
+        market = 'ETH'
+      }
+      if (event.address.toLowerCase() == BTC_LIQUIDITY_POOL) {
+        market = 'BTC'
+      }
+      if (event.address.toLowerCase() == SOL_LIQUIDITY_POOL) {
+        market = 'SOL'
+      }
 
       const dto: DepositDto = {
-        market: event.address.toLowerCase() === ETH_LIQUIDITY_POOL ? 'Eth' : 'BTC',
+        market: market,
         from: from === '' ? event.args.depositor : from,
         to: to === '' ? event.args.beneficiary : to,
         amount: amount,
@@ -59,7 +71,7 @@ export async function TrackDeposits(
         totalQueued: fromBigNumber(event.args.totalQueuedDeposits),
         degenMessage: RandomDegen(),
       }
-      await BroadCastDeposit(dto, discordClient, discordClientBtc, telegramClient, twitterClient)
+      await BroadCastDeposit(dto, discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -72,16 +84,21 @@ export async function BroadCastDeposit(
   dto: DepositDto,
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
+  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = DepositDiscord(dto)
 
-    if (dto.market === 'Eth') {
+    if (dto.market.toLowerCase() === 'eth') {
       await PostDiscord(post, discordClient, DEPOSITS_CHANNEL)
-    } else {
+    }
+    if (dto.market.toLowerCase() == 'btc') {
       await PostDiscord(post, discordClientBtc, DEPOSITS_CHANNEL)
+    }
+    if (dto.market.toLowerCase() == 'sol') {
+      await PostDiscord(post, discordClientSol, DEPOSITS_CHANNEL)
     }
   }
 
@@ -96,6 +113,15 @@ export function parseEvent(event: DepositQueuedEvent): DepositQueuedEvent {
 
   if ((parsedEvent.args as DepositQueuedEvent['args']).length > 0) {
     event.args = parsedEvent.args as DepositQueuedEvent['args']
+  }
+  return event
+}
+
+export function parseProcessedEvent(event: DepositProcessedEvent): DepositProcessedEvent {
+  const parsedEvent = LiquidityPool__factory.createInterface().parseLog(event)
+
+  if ((parsedEvent.args as DepositProcessedEvent['args']).length > 0) {
+    event.args = parsedEvent.args as DepositProcessedEvent['args']
   }
   return event
 }

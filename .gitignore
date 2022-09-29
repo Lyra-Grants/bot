@@ -6,4 +6,5 @@ yarn-error.log
 launch.json
 deploy-commands.js
 deploy-commands-btc.js
+deploy-commands-sol.js
 dist/

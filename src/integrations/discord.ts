@@ -28,24 +28,32 @@ export function activityString(trade: TradeDto) {
   } $${trade.strike} x ${trade.size} $${trade.premium}`
 }
 
-export function defaultActivity(client: Client<boolean>, isBtc = false) {
+export function defaultActivity(client: Client<boolean>, market: string) {
   try {
-    if (!isBtc) {
+    if (market === 'eth') {
       client.user?.setActivity(`24h: ${FN(global.ETH_24HR, 2)}%`, { type: ActivityType.Watching })
-    } else {
+    }
+    if (market === 'btc') {
       client.user?.setActivity(`24h: ${FN(global.BTC_24HR, 2)}%`, { type: ActivityType.Watching })
+    }
+    if (market === 'sol') {
+      client.user?.setActivity(`24h: ${FN(global.SOL_24HR, 2)}%`, { type: ActivityType.Watching })
     }
   } catch (e: any) {
     console.log(e)
   }
 }
 
-export async function defaultName(client: Client<boolean>, isBtc = false) {
+export async function defaultName(client: Client<boolean>, market: string) {
   try {
-    if (!isBtc) {
+    if (market === 'eth') {
       await client.user?.setUsername(`ETH - $${FN(global.ETH_PRICE, 2)}`)
-    } else {
+    }
+    if (market === 'btc') {
       await client.user?.setUsername(`BTC - $${FN(global.BTC_PRICE, 2)}`)
+    }
+    if (market === 'sol') {
+      await client.user?.setUsername(`SOL - $${FN(global.SOL_PRICE, 2)}`)
     }
   } catch (e: any) {
     console.log(e)

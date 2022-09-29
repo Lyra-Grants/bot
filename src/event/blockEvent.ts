@@ -13,6 +13,7 @@ import { TrackDeposits } from '../lyra/deposits'
 export async function TrackEvents(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
+  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient1: TwitterApi,
   rpcClient: Lyra,
@@ -27,10 +28,10 @@ export async function TrackEvents(
     rpcClient,
     async (event) => {
       if (event.topics[0].toLowerCase() === TRANSFER_TOPIC) {
-        TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event)
+        await TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event)
       }
       if (event.topics[0].toLowerCase() === DEPOSIT_QUEUED) {
-        TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event)
+        await TrackDeposits(discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient1, event)
       }
     },
     {

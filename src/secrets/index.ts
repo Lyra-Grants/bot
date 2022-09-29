@@ -49,3 +49,4 @@ export const TWITTER_ACCESS_SECRET1 = _.defaultTo(process.env.TWITTER_ACCESS_SEC
 
 export const TOKEN_THRESHOLD = _.defaultTo(process.env.TOKEN_THRESHOLD, 1000)
 export const DEPOSIT_THRESHOLD = _.defaultTo(process.env.DEPOSIT_THRESHOLD, 1000)
+export const DISCORD_ACCESS_TOKEN_SOL = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_SOL, '')
