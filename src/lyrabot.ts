@@ -82,11 +82,13 @@ export async function initializeLyraBot() {
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   await TrackEvents(discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient1, lyra)
 
-  PricingJob(discordClient, discordClientBtc, discordClientSol)
-  LeaderboardJob(discordClient, twitterClient, telegramClient)
-  StatsJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
-  CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
-  ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+  if (!TESTNET) {
+    PricingJob(discordClient, discordClientBtc, discordClientSol)
+    LeaderboardJob(discordClient, twitterClient, telegramClient)
+    StatsJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
+    CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
+    ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+  }
 }
 
 async function SetUpDiscord(discordClient: Client<boolean>, market: string, accessToken: string) {

@@ -4,7 +4,7 @@ import { BlockEvent } from '../event'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { TwitterApi } from 'twitter-api-v2'
-import { DEPOSIT_QUEUED, TRANSFER_TOPIC } from '../constants/topics'
+import { DEPOSIT_PROCESSED, DEPOSIT_QUEUED, TRANSFER_TOPIC } from '../constants/topics'
 import { CONTRACT_ADDRESSES } from '../constants/contractAddresses'
 import Lyra from '@lyrafinance/lyra-js'
 import { TrackTransfer } from '../token/tracker'
@@ -20,8 +20,10 @@ export async function TrackEvents(
 ): Promise<void> {
   console.log('### Polling Events ###')
   let blockNumber: number | undefined = undefined
+  let pollInterval = 60000
   if (TESTNET) {
-    blockNumber = rpcClient.provider.blockNumber - 10000
+    blockNumber = rpcClient.provider.blockNumber - 100000
+    pollInterval = 500
   }
 
   BlockEvent.on(
@@ -30,15 +32,24 @@ export async function TrackEvents(
       if (event.topics[0].toLowerCase() === TRANSFER_TOPIC) {
         await TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event)
       }
-      if (event.topics[0].toLowerCase() === DEPOSIT_QUEUED) {
-        await TrackDeposits(discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient1, event)
+      if (event.topics[0].toLowerCase() === DEPOSIT_QUEUED || event.topics[0].toLowerCase() === DEPOSIT_PROCESSED) {
+        await TrackDeposits(
+          discordClient,
+          discordClientBtc,
+          discordClientSol,
+          telegramClient,
+          twitterClient1,
+          rpcClient,
+          event,
+          event.topics[0].toLowerCase() === DEPOSIT_QUEUED,
+        )
       }
     },
     {
       startBlockNumber: blockNumber,
       addresses: CONTRACT_ADDRESSES,
-      topics: [TRANSFER_TOPIC, DEPOSIT_QUEUED],
-      pollInterval: 60000,
+      topics: [TRANSFER_TOPIC, DEPOSIT_QUEUED, DEPOSIT_PROCESSED],
+      pollInterval: pollInterval,
     },
   )
 }

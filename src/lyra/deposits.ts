@@ -11,14 +11,13 @@ import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
-import { LiquidityPool__factory } from '@lyrafinance/lyra-js'
+import Lyra, { LiquidityPool__factory } from '@lyrafinance/lyra-js'
 import {
   DepositProcessedEvent,
   DepositQueuedEvent,
 } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
-import { RandomDegen } from '../constants/degenMessage'
 import { BTC_LIQUIDITY_POOL, ETH_LIQUIDITY_POOL, SOL_LIQUIDITY_POOL } from '../constants/contractAddresses'
 import printObject from '../utils/printObject'
 
@@ -28,48 +27,89 @@ export async function TrackDeposits(
   discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
+  rpcClient: Lyra,
   genericEvent: GenericEvent,
+  isQueued: boolean,
 ): Promise<void> {
-  const event = parseEvent(genericEvent as DepositQueuedEvent)
-  const amount = fromBigNumber(event.args.amountDeposited)
-  const value = amount
+  // check the market
+  let market = ''
+  if (genericEvent.address.toLowerCase() == ETH_LIQUIDITY_POOL) {
+    market = 'ETH'
+  }
+  if (genericEvent.address.toLowerCase() == BTC_LIQUIDITY_POOL) {
+    market = 'BTC'
+  }
+  if (genericEvent.address.toLowerCase() == SOL_LIQUIDITY_POOL) {
+    market = 'SOL'
+  }
 
-  console.log(`Queued Deposit Value: ${value}`)
+  const depositDelay = (await rpcClient.market(market)).depositDelay
+
+  let value = 0
+  let amount = 0
+  let from = ''
+  let to = ''
+  let fromAddress = ''
+  let toAddress = ''
+  let fromEns = ''
+  let totalQueued = 0
+  let transactionHash = ''
+  let timestamp: Date
+  let blockNumber = 0
+
+  if (!isQueued) {
+    console.log('Processed Deposit')
+    console.log(depositDelay)
+    if (depositDelay != 604800) {
+      // there is delay so rather show queued
+      return
+    }
+    console.log('DEPOSIT')
+    const event = parseProcessedEvent(genericEvent as DepositProcessedEvent)
+    amount = fromBigNumber(event.args.amountDeposited)
+    value = amount
+    from = GetNotableAddress(event.args.beneficiary)
+    fromAddress = event.args.beneficiary
+    fromEns = await GetEns(event.args.beneficiary)
+    to = GetNotableAddress(event.address)
+    toAddress = event.address
+    transactionHash = event.transactionHash
+    timestamp = toDate(fromBigNumber(event.args.timestamp))
+    blockNumber = event.blockNumber
+  } else {
+    const event = parseEvent(genericEvent as DepositQueuedEvent)
+    amount = fromBigNumber(event.args.amountDeposited)
+    value = amount
+    from = GetNotableAddress(event.args.depositor)
+    fromAddress = event.args.depositor
+    fromEns = await GetEns(event.args.depositor)
+    totalQueued = fromBigNumber(event.args.totalQueuedDeposits)
+    to = GetNotableAddress(event.address)
+    toAddress = event.address
+    transactionHash = event.transactionHash
+    timestamp = toDate(fromBigNumber(event.args.timestamp))
+    blockNumber = event.blockNumber
+  }
+
+  console.log(`Queued Deposit Value: ${value}, threshold: ${DEPOSIT_THRESHOLD}`)
 
   if (value >= DEPOSIT_THRESHOLD) {
     try {
-      const from = GetNotableAddress(event.args.depositor)
-      const to = GetNotableAddress(event.address)
-      const fromEns = await GetEns(event.args.depositor)
-      const toEns = await GetEns(event.address)
-      let market = ''
-      if (event.address.toLowerCase() == ETH_LIQUIDITY_POOL) {
-        market = 'ETH'
-      }
-      if (event.address.toLowerCase() == BTC_LIQUIDITY_POOL) {
-        market = 'BTC'
-      }
-      if (event.address.toLowerCase() == SOL_LIQUIDITY_POOL) {
-        market = 'SOL'
-      }
-
       const dto: DepositDto = {
         market: market,
-        from: from === '' ? event.args.depositor : from,
-        to: to === '' ? event.args.beneficiary : to,
+        from: from === '' ? fromAddress : from,
+        to: to === '' ? toAddress : to,
         amount: amount,
-        transactionHash: event.transactionHash,
+        transactionHash: transactionHash,
         fromEns: fromEns,
-        toEns: toEns,
-        timestamp: toDate(fromBigNumber(event.args.timestamp)),
-        blockNumber: event.blockNumber,
+        timestamp: timestamp,
+        blockNumber: blockNumber,
         value: value,
         notableTo: to !== '',
         notableFrom: from !== '',
-        fromAddress: event.args.depositor,
-        toAddress: event.address,
-        totalQueued: fromBigNumber(event.args.totalQueuedDeposits),
-        degenMessage: RandomDegen(),
+        fromAddress: fromAddress,
+        toAddress: toAddress,
+        totalQueued: totalQueued,
       }
       await BroadCastDeposit(dto, discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient)
     } catch (ex) {
@@ -103,7 +143,7 @@ export async function BroadCastDeposit(
   }
 
   if (TWITTER_ENABLED) {
-    const post = DepositTwitter(dto, false)
+    const post = DepositTwitter(dto)
     await SendTweet(post, twitterClient)
   }
 }

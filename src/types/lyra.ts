@@ -36,13 +36,11 @@ export type DepositDto = BaseDto & {
   amount: number
   value: number
   fromEns: string
-  toEns: string
   notableTo: boolean
   notableFrom: boolean
   fromAddress: string
   toAddress: string
   totalQueued: number
-  degenMessage: string
   market: string
 }
 
