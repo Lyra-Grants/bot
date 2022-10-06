@@ -1,4 +1,4 @@
-# Lyra Bot \_/
+# Lyra Bot \_/ 🤖
 
 A bot providing real time trade data to twitter, discord and telegram.
 
