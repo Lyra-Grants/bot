@@ -1,35 +1,52 @@
-# Lyra Bot Avalon \_/
+# Lyra Bot \_/
 
 A bot providing real time trade data to twitter, discord and telegram.
 
-## Goal
+Run locally:
 
-Provide real-time trade information via integrations with popular comms dapps.
-
-<img src="lyra-telegram.jpg" width="200">
-
-## Overview
-
-### MVP
-
-- Replicate current Lyra Live Twitter bot functionality.
-- Listen for new trades that meet specific criteria.
-- Posts trades to Discord / Twitter and Telegram.
-
-## Proposed Tech Stack
-
-- Next.js
-- React
-
-## Development
-
-Todo
-
-### Install dependencies
-
-```bash
-yarn install
 ```
+yarn install
+yarn start
+```
+
+### Environment Variables
+
+- `TESTNET` - true/false (if true prints to console, doesn't post)
+- `INFURA_ID` - used to get ENS
+- `INFURA_ID_OPTIMISM` - for everything else
+
+### Integrations
+
+#### Discord
+
+- `DISCORD_ENABLED` - enable/disable posting to discord
+- `DISCORD_ACCESS_TOKEN`
+- `DISCORD_ACCESS_TOKEN_BTC`
+- `DISCORD_ACCESS_TOKEN_SOL`
+
+#### Twitter
+
+- `TWITTER_ENABLED`
+
+Lyra_Live Twitter
+
+- `TWITTER_APP_KEY`
+- `TWITTER_APP_SECRET`
+- `TWITTER_ACCESS_TOKEN`
+- `TWITTER_ACCESS_SECRET`
+
+Lyra_Whales Twitter
+
+- `TWITTER_APP_KEY1`
+- `TWITTER_APP_SECRET1`
+- `TWITTER_ACCESS_TOKEN1`
+- `TWITTER_ACCESS_SECRET1`
+
+#### Telegram
+
+- `TELEGRAM_ENABLED`
+- `TELEGRAM_ACCESS_TOKEN`
+- `TELEGRAM_CHANNEL`
 
 ### Resources
 
