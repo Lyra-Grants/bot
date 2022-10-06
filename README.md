@@ -28,14 +28,14 @@ yarn start
 
 - `TWITTER_ENABLED`
 
-Lyra_Live Twitter
+[@Lyra_Live](https://twitter.com/lyra_live)
 
 - `TWITTER_APP_KEY`
 - `TWITTER_APP_SECRET`
 - `TWITTER_ACCESS_TOKEN`
 - `TWITTER_ACCESS_SECRET`
 
-Lyra_Whales Twitter
+[@Lyra_Whales](https://twitter.com/lyra_whales)
 
 - `TWITTER_APP_KEY1`
 - `TWITTER_APP_SECRET1`
@@ -59,4 +59,4 @@ Lyra grantsDao welcomes contributors. Regardless of the time you have available,
 
 ## Contact
 
-Join the community on the [Lyra Discord server](https://https://discord.gg/lyra)!
+Join the community on the [Lyra Discord server](https://discord.gg/lyra)!
