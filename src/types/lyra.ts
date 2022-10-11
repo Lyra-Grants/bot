@@ -27,7 +27,6 @@ export type Arb = {
 export type ArbDto = BaseEvent & {
   arbs: Arb[]
   market: string
-  isBtc: boolean
 }
 
 export type DepositDto = BaseDto & {

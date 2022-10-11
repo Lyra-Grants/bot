@@ -2,12 +2,13 @@ import { EmbedBuilder } from 'discord.js'
 import { ArbDto, Arb } from '../types/lyra'
 import { ProviderType } from '../types/arbs'
 import { FN, FormattedDate, FormattedDateShort } from './common'
+import { StatSymbol } from './stats'
 
 const deribitUrl = 'https://www.deribit.com/?reg=17349.7477'
 
 export function ArbTelegram(dto: ArbDto) {
   const post: string[] = []
-  post.push(`${dto.isBtc ? '🔶' : '🔷'} $${dto.market.toUpperCase()} Arbs Deribit | Lyra\n\n`)
+  post.push(`${StatSymbol(dto.market)} $${dto.market.toUpperCase()} Arbs Deribit | Lyra\n\n`)
   dto.arbs.slice(0, 10).map((arb) => {
     post.push(`✨ $${FN(arb.strike, 0)} ${FormattedDateShort(new Date(arb.expiration))} ${arb.type}\n`)
     post.push(
@@ -51,7 +52,7 @@ export function ArbDiscord(dto: ArbDto): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder()
     .setColor('#60DDBF')
-    .setTitle(`${dto.isBtc ? '🔶' : '🔷'} $${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
+    .setTitle(`${StatSymbol(dto.market)} $${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
 
   dto.arbs.slice(0, 10).map((arb) => {
     Arb(arb, dto.market, embed)

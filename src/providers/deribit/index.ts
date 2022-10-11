@@ -2,6 +2,7 @@ import moment from 'moment'
 import { pick } from 'lodash'
 import { Instrument, OptionsMap, OptionType, ProviderType } from '../../types/arbs'
 import { RpcWebSocketClient } from 'rpc-websocket-client'
+import { getPriceForMarket } from '../../lyra/arbitrage'
 
 // const authRequest = {
 //   jsonrpc: "2.0",
@@ -28,6 +29,14 @@ const btcOptions = {
   method: 'public/get_book_summary_by_currency',
   params: {
     currency: 'BTC',
+    kind: 'option',
+  },
+}
+
+const solOptions = {
+  method: 'public/get_book_summary_by_currency',
+  params: {
+    currency: 'SOL',
     kind: 'option',
   },
 }
@@ -97,7 +106,15 @@ async function useDeribitData(market: string) {
   await rpc.connect(`wss://www.deribit.com/ws/api/v2`)
   console.log('Get Deribit Options: Connected!')
 
-  const config = market == 'eth' ? ethOptions : btcOptions
+  let config = ethOptions
+
+  if (market === 'btc') {
+    config = btcOptions
+  }
+
+  if (market === 'sol') {
+    config = solOptions
+  }
 
   await rpc
     .call(config.method, config.params)
@@ -114,7 +131,7 @@ async function useDeribitData(market: string) {
 
 export async function getDeribitRates(market: string) {
   const [data] = await useDeribitData(market)
-  const price = market == 'eth' ? ETH_PRICE : BTC_PRICE
+  const price = getPriceForMarket(market)
 
   const optionsMap = data
     .filter(({ mid_price, ask_price, bid_price }) => ask_price && bid_price)

@@ -25,6 +25,7 @@ import fromBigNumber from '../utils/fromBigNumber'
 import { RandomDegen } from '../constants/degenMessage'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
 import { GetNotableAddress } from '../utils/notableAddresses'
+import printObject from '../utils/printObject'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -36,8 +37,10 @@ export async function RunTradeBot(
   console.log('### Polling for Trades ###')
 
   let blockNumber: number | undefined = undefined
+  let pollInterval = 60000
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 20000
+    blockNumber = lyraClient.provider.blockNumber - 2000
+    pollInterval = 600
   }
 
   lyraClient.onTrade(
@@ -49,7 +52,7 @@ export async function RunTradeBot(
         console.log(e)
       }
     },
-    { startBlockNumber: blockNumber, pollInterval: 60000 },
+    { startBlockNumber: blockNumber, pollInterval: pollInterval },
   )
 }
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
@@ -120,17 +123,17 @@ export function AmountWording(amount: number, isLong: boolean, isOpen: boolean, 
 }
 
 export function BaseCollateral(trade: TradeEvent, asset: string) {
-  const setCollateralTo = trade.setCollateralTo ? fromBigNumber(trade.setCollateralTo) : undefined
+  const collateralAmount = trade.setCollateralTo ? fromBigNumber(trade.setCollateralTo) : undefined
 
-  if (setCollateralTo == undefined) {
+  if (collateralAmount == undefined) {
     return ''
   }
 
   if (!trade.isBaseCollateral) {
-    return `$${setCollateralTo?.toFixed(2)}`
+    return `$${collateralAmount?.toFixed(2)}`
   }
 
-  return `${setCollateralTo?.toFixed(2)} ${asset}`
+  return `${collateralAmount?.toFixed(2)} ${asset}`
 }
 
 export async function BroadCastTrade(

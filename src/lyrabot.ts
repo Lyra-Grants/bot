@@ -87,7 +87,7 @@ export async function initializeLyraBot() {
     LeaderboardJob(discordClient, twitterClient, telegramClient)
     StatsJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
-    ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+    ArbitrageJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
   }
 }
 
@@ -156,17 +156,15 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
         }
       }
 
-      if (market == 'eth' || market == 'btc')
-        if (commandName === 'arbs') {
-          await ArbInteraction(
-            market,
-            channelName,
-            interaction as ChatInputCommandInteraction,
-            arbChannel as GuildBasedChannel,
-          )
-        }
+      if (commandName === 'arbs') {
+        await ArbInteraction(
+          market,
+          channelName,
+          interaction as ChatInputCommandInteraction,
+          arbChannel as GuildBasedChannel,
+        )
+      }
 
-      // all
       if (commandName === 'stats') {
         await StatsInteraction(
           market,

@@ -98,6 +98,19 @@ export function MapLeaderBoard(leaderboard: Trader[], traderAddress: string): Tr
   return leaderboard[index]
 }
 
+// export async function Leaderboard2(lyra: Lyra, take: number) {
+//   const leaderboard = (
+//     await lyra.leaderboard({
+//       minOpenTimestamp: 1662595200,
+//       sortBy: PositionLeaderboardSortBy.RealizedPnl,
+//       secondarySortBy: PositionLeaderboardSortBy.UnrealizedPnl,
+//       minTotalPremiums: ONE_BN.mul(100),
+//     })
+//   ).slice(take)
+
+//   console.log(leaderboard)
+// }
+
 export async function BroadcastLeaderBoard(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,

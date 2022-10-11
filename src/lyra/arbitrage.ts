@@ -6,11 +6,23 @@ import moment from 'moment'
 import { Arb, ArbDto } from '../types/lyra'
 import { EventType } from '../constants/eventType'
 
-const PROFIT_THRESHOLD = 3
+export function getPriceForMarket(market: string) {
+  let price = ETH_PRICE
+
+  if (market === 'btc') {
+    price = BTC_PRICE
+  }
+
+  if (market === 'sol') {
+    price = SOL_PRICE
+  }
+
+  return price
+}
 
 //eth //btc
 export async function GetArbitrageDeals(lyra: Lyra, market: string) {
-  const price = market == 'eth' ? ETH_PRICE : BTC_PRICE
+  const price = getPriceForMarket(market)
   const deals = await useDeals(market, lyra)
 
   const data = deals.map((deal) => {
@@ -30,7 +42,6 @@ export async function GetArbitrageDeals(lyra: Lyra, market: string) {
     arbs: data,
     eventType: EventType.Arb,
     market: market,
-    isBtc: market == 'btc',
   }
 
   return event
@@ -40,6 +51,7 @@ export async function useDeals(marketName: string, lyra: Lyra) {
   const { allRates } = await useRatesData(marketName, lyra)
   const res: Deal[] = []
   const providers = [ProviderType.LYRA, ProviderType.DERIBIT]
+  const profit_threshold = marketName == 'sol' ? 0 : 3
 
   Object.values(allRates).forEach((strike) =>
     Object.values(strike).forEach((interception) => {
@@ -60,7 +72,7 @@ export async function useDeals(marketName: string, lyra: Lyra) {
       const putDeal =
         maxPut?.bidPrice && minPut?.askPrice && maxPut.provider !== minPut.provider && maxPut.bidPrice - minPut.askPrice
 
-      if (callDeal && callDeal > PROFIT_THRESHOLD) {
+      if (callDeal && callDeal > profit_threshold) {
         res.push({
           type: OptionType.CALL,
           term: maxCall.term,
@@ -71,7 +83,7 @@ export async function useDeals(marketName: string, lyra: Lyra) {
           sell: maxCall,
         })
       }
-      if (putDeal && putDeal > PROFIT_THRESHOLD) {
+      if (putDeal && putDeal > profit_threshold) {
         res.push({
           type: OptionType.PUT,
           term: maxPut.term,

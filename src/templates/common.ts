@@ -37,7 +37,7 @@ export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: b
 }
 
 export function PositionLink(trade: TradeDto): string {
-  return `${LyraDappUrl()}/position/${trade.asset}/${trade.positionId}?see=${trade.trader}`
+  return `${LyraDappUrl()}/position?market=${trade.asset}&id=${trade.positionId}&see=${trade.trader}`
 }
 
 export function PortfolioLink(address: string) {
