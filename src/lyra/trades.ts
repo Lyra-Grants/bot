@@ -143,6 +143,8 @@ export async function BroadCastTrade(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
 ): Promise<void> {
+  console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
+  console.log('Trade Premium: ' + trade.premium)
   if (trade.premium >= TWITTER_THRESHOLD && TWITTER_ENABLED) {
     const tweet = TradeTwitter(trade)
     await SendTweet(tweet, twitterClient)
