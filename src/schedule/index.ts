@@ -20,13 +20,13 @@ export function PricingJob(
   console.log('30 min pricing job running')
   scheduleJob('*/30 * * * *', async () => {
     await GetPrice()
-    // ETH
+
     defaultActivity(discordClient, 'eth')
     await defaultName(discordClient, 'eth')
-    // BTC
+
     defaultActivity(discordClientBtc, 'btc')
     await defaultName(discordClientBtc, 'btc')
-    // SOL
+
     defaultActivity(discordClientSol, 'sol')
     await defaultName(discordClientSol, 'sol')
   })
@@ -54,14 +54,12 @@ export function StatsJob(
 ): void {
   console.log('Mon Wed Fri Stats job')
   scheduleJob('0 1 * * 1,3,5', async () => {
-    //ETH
     const statsDto = await GetStats('eth', lyraClient)
     await BroadCastStats(statsDto, twitterClient, telegramClient, discordClient)
-    //BTC
+
     const statsDtoBtc = await GetStats('btc', lyraClient)
     await BroadCastStats(statsDtoBtc, twitterClient, telegramClient, discordClientBtc)
 
-    //BTC
     const statsDtoSol = await GetStats('sol', lyraClient)
     await BroadCastStats(statsDtoSol, twitterClient, telegramClient, discordClientSol)
   })
@@ -89,7 +87,6 @@ export function ArbitrageJob(
   lyraClient: Lyra,
 ): void {
   scheduleJob('0 4 * * 1,3,5', async () => {
-    //ETH
     const arbDto = await GetArbitrageDeals(lyraClient, 'eth')
     await BroadCast(arbDto, twitterClient, telegramClient, discordClient)
 

@@ -25,7 +25,6 @@ import fromBigNumber from '../utils/fromBigNumber'
 import { RandomDegen } from '../constants/degenMessage'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import printObject from '../utils/printObject'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -39,7 +38,7 @@ export async function RunTradeBot(
   let blockNumber: number | undefined = undefined
   let pollInterval = 60000
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 2000
+    blockNumber = lyraClient.provider.blockNumber - 50000
     pollInterval = 600
   }
 
@@ -55,10 +54,15 @@ export async function RunTradeBot(
     { startBlockNumber: blockNumber, pollInterval: pollInterval },
   )
 }
+
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const position = await trade.position()
-  const pnl = fromBigNumber(await trade.realizedPnl())
-  const pnlPercent = fromBigNumber(await trade.realizedPnlPercent(), 16)
+  const positionPnl = position.pnl()
+  const unrealizedPnl = fromBigNumber(positionPnl.unrealizedPnl)
+  const unrealizedPnlPercent = fromBigNumber(positionPnl.unrealizedPnlPercentage)
+  const pnl = fromBigNumber(positionPnl.realizedPnl)
+  const pnlPercent = fromBigNumber(positionPnl.realizedPnlPercentage)
+
   const trades = position.trades()
   const totalPremiumPaid = PremiumsPaid(trades)
   const market = await trade.market()
@@ -90,7 +94,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     pnlFormatted: dollar(pnl),
     pnlPercentFormatted: `(${signed(pnlPercent)}%)`,
     isLiquidation: trade.isLiquidation,
-    setCollateralTo: trade.setCollateralTo ? fromBigNumber(trade.setCollateralTo) : undefined,
+    setCollateralTo: trade.collateralValue ? fromBigNumber(trade.collateralValue) : undefined,
     pricePerOption: fromBigNumber(trade.pricePerOption),
     lpFees: trade.liquidation ? fromBigNumber(trade.liquidation.lpFee) : undefined,
     premiumFormatted: dollar(
@@ -106,6 +110,10 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     blockNumber: trade.blockNumber,
     notableAddress: from,
     isNotable: from != '',
+    unrealizedPnl: unrealizedPnl,
+    unrealizedPnlPercent: unrealizedPnlPercent,
+    unrealizedPnlFormatted: dollar(unrealizedPnl),
+    unrealizedPnlPercentFormatted: `(${signed(pnlPercent)}%)`,
   }
   return tradeDto
 }
@@ -123,7 +131,7 @@ export function AmountWording(amount: number, isLong: boolean, isOpen: boolean, 
 }
 
 export function BaseCollateral(trade: TradeEvent, asset: string) {
-  const collateralAmount = trade.setCollateralTo ? fromBigNumber(trade.setCollateralTo) : undefined
+  const collateralAmount = trade.collateralValue ? fromBigNumber(trade.collateralValue) : undefined
 
   if (collateralAmount == undefined) {
     return ''
@@ -145,7 +153,7 @@ export async function BroadCastTrade(
 ): Promise<void> {
   console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
   console.log('Trade Premium: ' + trade.premium)
-  if (trade.premium >= TWITTER_THRESHOLD && TWITTER_ENABLED) {
+  if ((trade.premium >= TWITTER_THRESHOLD || trade.isNotable) && TWITTER_ENABLED) {
     const tweet = TradeTwitter(trade)
     await SendTweet(tweet, twitterClient)
   }
