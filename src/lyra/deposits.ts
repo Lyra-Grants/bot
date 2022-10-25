@@ -58,13 +58,6 @@ export async function TrackDeposits(
   let blockNumber = 0
 
   if (!isQueued) {
-    console.log('Processed Deposit')
-    console.log(depositDelay)
-    if (depositDelay != 604800) {
-      // there is delay so rather show queued
-      return
-    }
-    console.log('DEPOSIT')
     const event = parseProcessedEvent(genericEvent as DepositProcessedEvent)
     amount = fromBigNumber(event.args.amountDeposited)
     value = amount
@@ -91,7 +84,7 @@ export async function TrackDeposits(
     blockNumber = event.blockNumber
   }
 
-  console.log(`Queued Deposit Value: ${value}, threshold: ${DEPOSIT_THRESHOLD}`)
+  console.log(`Deposit Value: ${value}, threshold: ${DEPOSIT_THRESHOLD}`)
 
   if (value >= DEPOSIT_THRESHOLD) {
     try {
@@ -116,7 +109,7 @@ export async function TrackDeposits(
       console.log(ex)
     }
   } else {
-    console.log(`Queued Deposit less than $${DEPOSIT_THRESHOLD} threshold value`)
+    console.log(`Deposit less than $${DEPOSIT_THRESHOLD} threshold value`)
   }
 }
 

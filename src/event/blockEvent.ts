@@ -32,7 +32,7 @@ export async function TrackEvents(
       if (event.topics[0].toLowerCase() === TRANSFER_TOPIC) {
         await TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event)
       }
-      if (event.topics[0].toLowerCase() === DEPOSIT_QUEUED || event.topics[0].toLowerCase() === DEPOSIT_PROCESSED) {
+      if (event.topics[0].toLowerCase() === DEPOSIT_PROCESSED) {
         await TrackDeposits(
           discordClient,
           discordClientBtc,
@@ -41,14 +41,14 @@ export async function TrackEvents(
           twitterClient1,
           rpcClient,
           event,
-          event.topics[0].toLowerCase() === DEPOSIT_QUEUED,
+          false, //event.topics[0].toLowerCase() === DEPOSIT_QUEUED,
         )
       }
     },
     {
       startBlockNumber: blockNumber,
       addresses: CONTRACT_ADDRESSES,
-      topics: [TRANSFER_TOPIC, DEPOSIT_QUEUED, DEPOSIT_PROCESSED],
+      topics: [TRANSFER_TOPIC, DEPOSIT_PROCESSED],
       pollInterval: pollInterval,
     },
   )
