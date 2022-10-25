@@ -207,8 +207,9 @@ async function ArbInteraction(
     if (arbs.arbs.length > 0) {
       const embed = ArbDiscord(arbs)
       await interaction.editReply({ embeds: embed })
+    } else {
+      await interaction.editReply(`No ${market} arbs found.`)
     }
-    await interaction.editReply(`No ${market} arbs found.`)
   } else {
     await interaction.reply(`Command 'arbs' only available in <#${channel?.id}>`)
   }
