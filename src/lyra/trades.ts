@@ -25,7 +25,6 @@ import fromBigNumber from '../utils/fromBigNumber'
 import { RandomDegen } from '../constants/degenMessage'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import printObject from '../utils/printObject'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -55,6 +54,7 @@ export async function RunTradeBot(
     { startBlockNumber: blockNumber, pollInterval: pollInterval },
   )
 }
+
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const position = await trade.position()
   const positionPnl = position.pnl()
@@ -153,7 +153,7 @@ export async function BroadCastTrade(
 ): Promise<void> {
   console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
   console.log('Trade Premium: ' + trade.premium)
-  if (trade.premium >= TWITTER_THRESHOLD && TWITTER_ENABLED) {
+  if ((trade.premium >= TWITTER_THRESHOLD || trade.isNotable) && TWITTER_ENABLED) {
     const tweet = TradeTwitter(trade)
     await SendTweet(tweet, twitterClient)
   }
