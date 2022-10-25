@@ -21,7 +21,10 @@ export async function BroadCast<T extends BaseEvent>(
   if (TWITTER_ENABLED) {
     let post = ''
     if (dto.eventType == EventType.Arb) {
-      post = ArbTwitter(dto as unknown as ArbDto)
+      const arbDto = dto as unknown as ArbDto
+      if (arbDto.arbs.length > 0) {
+        post = ArbTwitter(dto as unknown as ArbDto)
+      }
     }
     if (dto.eventType == EventType.CoinGecko) {
       post = CoinGeckoTwitter(dto as unknown as LyraDto)
@@ -34,7 +37,10 @@ export async function BroadCast<T extends BaseEvent>(
   if (TELEGRAM_ENABLED) {
     let post = ''
     if (dto.eventType == EventType.Arb) {
-      post = ArbTelegram(dto as unknown as ArbDto)
+      const arbDto = dto as unknown as ArbDto
+      if (arbDto.arbs.length > 0) {
+        post = ArbTelegram(dto as unknown as ArbDto)
+      }
     }
 
     if (TESTNET) {
@@ -52,7 +58,10 @@ export async function BroadCast<T extends BaseEvent>(
     let channel = ''
 
     if (dto.eventType == EventType.Arb) {
-      embed = ArbDiscord(dto as unknown as ArbDto)
+      const arbDto = dto as unknown as ArbDto
+      if (arbDto.arbs.length > 0) {
+        embed = ArbDiscord(dto as unknown as ArbDto)
+      }
       channel = ARBS_CHANNEL
     }
     if (dto.eventType == EventType.CoinGecko) {
