@@ -56,7 +56,6 @@ export async function initializeLyraBot() {
   lyra = new Lyra({
     provider: optimismInfuraProvider,
     subgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/mainnet',
-    blockSubgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/optimism-mainnet-blocks',
   })
 
   if (TESTNET) {
@@ -80,7 +79,7 @@ export async function initializeLyraBot() {
   global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
 
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
-  await TrackEvents(discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient1, lyra)
+  // await TrackEvents(discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient1, lyra)
 
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc, discordClientSol)

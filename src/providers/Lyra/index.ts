@@ -2,7 +2,6 @@ import Lyra, { Market } from '@lyrafinance/lyra-js'
 import { UNIT } from '../../constants/bn'
 import { OptionsMap, OptionType, ProviderType } from '../../types/arbs'
 import fromBigNumber from '../../utils/fromBigNumber'
-import printObject from '../../utils/printObject'
 import { getExpirationTerm } from '../../utils/arbUtils'
 
 export async function getMarket(market: Market) {

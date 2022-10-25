@@ -58,12 +58,16 @@ export type TradeDto = BaseDto & {
   leaderBoard: Trader
   pnl: number
   pnlPercent: number
+  unrealizedPnl: number
+  unrealizedPnlPercent: number
   totalPremiumPaid: number
   isProfitable: boolean
   positionId: number
   positionTradeCount: number
   pnlFormatted: string
   pnlPercentFormatted: string
+  unrealizedPnlFormatted: string
+  unrealizedPnlPercentFormatted: string
   isLiquidation: boolean
   lpFees: number | undefined
   setCollateralTo: number | undefined
