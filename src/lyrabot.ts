@@ -76,10 +76,22 @@ export async function initializeLyraBot() {
   await SetUpTelegram()
 
   global.LYRA_ENS = {}
-  global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
+  global.LYRA_LEADERBOARD = []
+
+  if (!TESTNET) {
+    await GetLeaderBoard(30)
+  }
 
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
-  // await TrackEvents(discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient1, lyra)
+  await TrackEvents(
+    discordClient,
+    discordClientBtc,
+    discordClientSol,
+    telegramClient,
+    twitterClient,
+    twitterClient1,
+    lyra,
+  )
 
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc, discordClientSol)
@@ -174,8 +186,10 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
       }
     })
     await discordClient.login(accessToken)
-    defaultActivity(discordClient, market)
-    await defaultName(discordClient, market)
+    if (!TESTNET) {
+      defaultActivity(discordClient, market)
+      await defaultName(discordClient, market)
+    }
   }
 }
 

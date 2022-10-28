@@ -18,8 +18,8 @@ import {
 } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
-import { BTC_LIQUIDITY_POOL, ETH_LIQUIDITY_POOL, SOL_LIQUIDITY_POOL } from '../constants/contractAddresses'
 import printObject from '../utils/printObject'
+import { GetMarket } from '../templates/common'
 
 export async function TrackDeposits(
   discordClient: Client<boolean>,
@@ -31,20 +31,7 @@ export async function TrackDeposits(
   genericEvent: GenericEvent,
   isQueued: boolean,
 ): Promise<void> {
-  // check the market
-  let market = ''
-  if (genericEvent.address.toLowerCase() == ETH_LIQUIDITY_POOL) {
-    market = 'ETH'
-  }
-  if (genericEvent.address.toLowerCase() == BTC_LIQUIDITY_POOL) {
-    market = 'BTC'
-  }
-  if (genericEvent.address.toLowerCase() == SOL_LIQUIDITY_POOL) {
-    market = 'SOL'
-  }
-
-  const depositDelay = (await rpcClient.market(market)).depositDelay
-
+  const market = GetMarket(genericEvent.address)
   let value = 0
   let amount = 0
   let from = ''
@@ -95,7 +82,6 @@ export async function TrackDeposits(
         amount: amount,
         transactionHash: transactionHash,
         fromEns: fromEns,
-        timestamp: timestamp,
         blockNumber: blockNumber,
         value: value,
         notableTo: to !== '',

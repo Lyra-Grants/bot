@@ -8,7 +8,6 @@ export type BaseEvent = {
 
 export type BaseDto = {
   transactionHash: string
-  timestamp: Date
   blockNumber: number
 }
 
@@ -137,4 +136,17 @@ export type TransferDto = BaseDto & {
   notableFrom: boolean
   fromAddress: string
   toAddress: string
+}
+
+export type StrikeDto = {
+  strikeId: number
+  strikePrice: number
+  skew: number
+}
+
+export type BoardDto = BaseDto & {
+  expiry: Date
+  strikes: StrikeDto[]
+  market: string
+  expiryString: string
 }

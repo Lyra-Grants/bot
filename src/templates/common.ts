@@ -1,5 +1,13 @@
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
+import {
+  ETH_LIQUIDITY_POOL,
+  BTC_LIQUIDITY_POOL,
+  SOL_LIQUIDITY_POOL,
+  ETH_OPTION_MARKET,
+  BTC_OPTION_MARKET,
+  SOL_OPTION_MARKET,
+} from '../constants/contractAddresses'
 import { TradeDto } from '../types/lyra'
 
 export const zapperUrl = 'https://zapper.fi/account/'
@@ -46,6 +54,10 @@ export function PortfolioLink(address: string) {
 
 export function VaultLink(asset: string) {
   return `${LyraDappUrl()}/vaults/${asset.toLowerCase()}`
+}
+
+export function ExpiryLink(asset: string, date: string) {
+  return `${LyraDappUrl()}/trade/${asset.toLowerCase()}?expiry=${date}`
 }
 
 export function TradeHistoryLink(trade: TradeDto) {
@@ -98,4 +110,18 @@ export function FNS(value: number, decimals: number) {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   })}`
+}
+
+export function GetMarket(address: string) {
+  let market = ''
+  if (address.toLowerCase() == ETH_LIQUIDITY_POOL || address.toLowerCase() == ETH_OPTION_MARKET) {
+    market = 'ETH'
+  }
+  if (address.toLowerCase() == BTC_LIQUIDITY_POOL || address.toLowerCase() == BTC_OPTION_MARKET) {
+    market = 'BTC'
+  }
+  if (address.toLowerCase() == SOL_LIQUIDITY_POOL || address.toLowerCase() == SOL_OPTION_MARKET) {
+    market = 'SOL'
+  }
+  return market
 }

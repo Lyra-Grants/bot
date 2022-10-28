@@ -31,3 +31,9 @@ export function signed(value: number): string {
 export function firstAddress(value: string): string {
   return `${value.slice(0, 5)}`
 }
+
+export const groupBy = <T, K extends keyof any>(arr: T[], key: (i: T) => K) =>
+  arr.reduce((groups, item) => {
+    ;(groups[key(item)] ||= []).push(item)
+    return groups
+  }, {} as Record<K, T[]>)

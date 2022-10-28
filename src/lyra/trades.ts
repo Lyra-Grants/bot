@@ -88,7 +88,6 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     pnlPercent: pnlPercent,
     totalPremiumPaid: totalPremiumPaid,
     isProfitable: pnl > 0,
-    timestamp: toDate(trade.timestamp),
     positionId: trade.positionId,
     positionTradeCount: noTrades,
     pnlFormatted: dollar(pnl),

@@ -6,7 +6,6 @@ import {
   EtherScanTransactionLink,
   FN,
   FormattedDate,
-  FormattedDateTime,
   Medal,
   PortfolioLink,
   PositionLink,
@@ -100,7 +99,6 @@ export function TradeTelegram(trade: TradeDto) {
     )}'>Position</a>\n`,
   )
   post.push(`============================\n`)
-  post.push(`⏱️ ${FormattedDateTime(trade.timestamp)}\n`)
   // post.push(`<img src='${img}' />`)
   return post.join('')
 }

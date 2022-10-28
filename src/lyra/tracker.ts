@@ -1,4 +1,4 @@
-import { DISCORD_ENABLED, TOKEN_THRESHOLD, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../secrets'
+import { DISCORD_ENABLED, TOKEN_THRESHOLD, TWITTER_ENABLED } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
 import { TransferDto } from '../types/lyra'
@@ -6,7 +6,6 @@ import { PostDiscord } from '../integrations/discord'
 import { TransferDiscord, TransferTwitter } from '../templates/transfer'
 import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import { toDate } from '../utils/utils'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { SendTweet } from '../integrations/twitter'
@@ -32,12 +31,6 @@ export async function TrackTransfer(
 
   if (value >= TOKEN_THRESHOLD) {
     try {
-      let timestamp = 0
-      try {
-        timestamp = (await lyra.provider.getBlock(event.blockNumber)).timestamp
-      } catch (ex) {
-        console.log(ex)
-      }
       const from = GetNotableAddress(event.args.from)
       const to = GetNotableAddress(event.args.to)
       const fromEns = await GetEns(event.args.from)
@@ -50,7 +43,6 @@ export async function TrackTransfer(
         transactionHash: event.transactionHash,
         fromEns: fromEns,
         toEns: toEns,
-        timestamp: timestamp === 0 ? toDate(Date.now()) : toDate(timestamp),
         blockNumber: event.blockNumber,
         value: value,
         notableTo: to !== '',
