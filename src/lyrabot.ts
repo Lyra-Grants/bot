@@ -82,6 +82,13 @@ export async function initializeLyraBot() {
   if (!TESTNET) {
     await GetLeaderBoard(lyra)
   }
+
+  // const traders = await Promise.all(
+  //   global.LYRA_LEADERBOARD.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
+  // )
+
+  // console.log(traders)
+
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   await TrackEvents(
     discordClient,

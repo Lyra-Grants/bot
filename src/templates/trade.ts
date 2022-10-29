@@ -188,7 +188,7 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
     })
   }
 
-  if (trade.fren) {
+  if (trade.fren && trade.fren.name) {
     tradeEmbed.addFields({
       name: `🐦 ${trade.fren.name} (${trade.fren.handle})`,
       value: `[view profile](${TwitterLink(trade.fren.handle)})`,
