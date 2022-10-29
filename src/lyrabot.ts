@@ -82,8 +82,6 @@ export async function initializeLyraBot() {
   if (!TESTNET) {
     await GetLeaderBoard(lyra)
   }
-
-  await GetLeaderBoard(lyra)
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   await TrackEvents(
     discordClient,
@@ -94,7 +92,6 @@ export async function initializeLyraBot() {
     twitterClient1,
     lyra,
   )
-  await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient, lyra)
 
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc, discordClientSol)
