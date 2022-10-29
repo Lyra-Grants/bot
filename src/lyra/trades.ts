@@ -26,6 +26,7 @@ import { RandomDegen } from '../constants/degenMessage'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
 import { GetNotableAddress } from '../utils/notableAddresses'
 import { GetFren } from '../integrations/fren'
+import { FN } from '../templates/common'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -133,17 +134,18 @@ export function AmountWording(amount: number, isLong: boolean, isOpen: boolean, 
 }
 
 export function BaseCollateral(trade: TradeEvent, asset: string) {
-  const collateralAmount = trade.collateralValue ? fromBigNumber(trade.collateralValue) : undefined
+  const collateralValue = trade.collateralValue ? fromBigNumber(trade.collateralValue) : undefined
+  const collateralAmount = trade.collateralAmount ? fromBigNumber(trade.collateralAmount) : undefined
 
   if (collateralAmount == undefined) {
     return ''
   }
 
   if (!trade.isBaseCollateral) {
-    return `$${collateralAmount?.toFixed(2)}`
+    return `$${FN(collateralValue, 2)}`
   }
 
-  return `${collateralAmount?.toFixed(2)} ${asset}`
+  return `${FN(collateralAmount, 4)} ${asset}`
 }
 
 export async function BroadCastTrade(
