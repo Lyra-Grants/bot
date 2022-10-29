@@ -1,3 +1,5 @@
+import { FN } from '../templates/common'
+
 export function Timestamp(): number {
   return Math.floor(Date.now() / 1000)
 }
@@ -21,9 +23,9 @@ export function shortAddress(value: string): string {
 export function dollar(value: number): string {
   const nonNeg = value > 0 ? value : value * -1
   if (nonNeg == 0) {
-    return `$${nonNeg.toFixed(2)}`
+    return `$${FN(nonNeg, 2)}`
   }
-  return `${value > 0 ? '+' : '-'}$${nonNeg.toFixed(2)}`
+  return `${value > 0 ? '+' : '-'}$${FN(nonNeg, 2)}`
 }
 
 export function signed(value: number): string {
