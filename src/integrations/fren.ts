@@ -13,8 +13,8 @@ export const GetFren = async (search: string) => {
   const searchUrl = `${urls.etherleaderboardApiUrl}?q=${search.toLowerCase()}`
   console.log(searchUrl)
   const frenData = (await axios.get(`${urls.etherleaderboardApiUrl}?q=${search}`)).data as FrenData
-
-  if (frenData.count >= 1) {
+  console.log(frenData)
+  if (frenData.frens.length >= 1) {
     global.FREN[search.toLowerCase()] = frenData.frens[0]
     console.log(frenData.frens[0])
 
