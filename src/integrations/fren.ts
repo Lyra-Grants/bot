@@ -3,6 +3,22 @@ import { urls } from '../constants/urls'
 import { FrenData } from '../types/fren'
 
 export const GetFren = async (search: string) => {
+  const EMPTY = {
+    id: '',
+    name: '',
+    ens: '',
+    handle: '',
+    followers: -1,
+    verified: false,
+    updated: new Date(),
+    pfp: '',
+    ranking: -1,
+  }
+
+  if (search == '') {
+    return EMPTY
+  }
+
   const found = global.FREN[search.toLowerCase()]
 
   if (found || found === '') {
@@ -20,17 +36,6 @@ export const GetFren = async (search: string) => {
 
     return frenData.frens[0]
   } else {
-    const EMPTY = {
-      id: '',
-      name: '',
-      ens: '',
-      handle: '',
-      followers: -1,
-      verified: false,
-      updated: new Date(),
-      pfp: '',
-      ranking: -1,
-    }
     global.FREN[search.toLowerCase()] = EMPTY
     return EMPTY
   }
