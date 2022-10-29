@@ -1,8 +1,10 @@
 import { TradeDto } from '../types/lyra'
 import { EmbedBuilder } from 'discord.js'
-import { shortAddress } from '../utils/utils'
+import { dollar } from '../utils/utils'
 import {
   AmountWording,
+  DisplayTrader,
+  DisplayTraderNoEmoji,
   EtherScanTransactionLink,
   FN,
   FormattedDate,
@@ -12,6 +14,7 @@ import {
   ShowProfitAndLoss,
   TradeHistoryLink,
   TradeShareImage,
+  TwitterLink,
 } from './common'
 
 export function TradeTwitter(trade: TradeDto) {
@@ -42,11 +45,11 @@ export function TradeTwitter(trade: TradeDto) {
       }\n`,
     )
   }
-  if (trade.leaderBoard.owner !== '') {
+  if (trade.leaderBoard.account !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} ${trade.leaderBoard.position}. Trader ${
-        trade.leaderBoard.netPremiumsFormatted
-      }\n`,
+      `${Medal(trade.leaderBoard.position)} ${trade.leaderBoard.position}. Trader ${dollar(
+        trade.leaderBoard.realizedPnl,
+      )}\n`,
     )
   }
   post.push(`${DisplayTrader(trade)}\n`)
@@ -82,11 +85,11 @@ export function TradeTelegram(trade: TradeDto) {
       }\n`,
     )
   }
-  if (trade.leaderBoard.owner !== '') {
+  if (trade.leaderBoard.account !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader ${
-        trade.leaderBoard.netPremiumsFormatted
-      }\n`,
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader ${dollar(
+        trade.leaderBoard.realizedPnl,
+      )}\n`,
     )
   }
   post.push(`<a href='${PositionLink(trade)}'>${DisplayTrader(trade, true)}</a>\n`)
@@ -177,12 +180,23 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
       inline: false,
     })
   }
-  if (trade.leaderBoard.owner !== '') {
+  if (trade.leaderBoard.account !== '') {
     tradeEmbed.addFields({
       name: `${Medal(trade.leaderBoard.position)} Leaderboard`,
-      value: `> #${trade.leaderBoard.position} ${trade.leaderBoard.netPremiumsFormatted}`,
+      value: `> #${trade.leaderBoard.position} ${dollar(trade.leaderBoard.realizedPnl)}`,
       inline: false,
     })
+  }
+
+  if (trade.fren) {
+    tradeEmbed.addFields({
+      name: `🐦 ${trade.fren.name} (${trade.fren.handle})`,
+      value: `[view profile](${TwitterLink(trade.fren.handle)})`,
+      inline: false,
+    })
+    if (trade.fren.pfp) {
+      tradeEmbed.setThumbnail(`${trade.fren.pfp}`)
+    }
   }
 
   tradeEmbed.addFields({
@@ -200,29 +214,4 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
     .setTimestamp()
 
   return tradeEmbed
-}
-
-function DisplayTrader(trade: TradeDto, useShortAddress = false) {
-  if (trade.isNotable) {
-    return trade.notableAddress
-  }
-  if (trade.ens) {
-    return `👨‍ ${trade.ens}`
-  }
-  if (useShortAddress) {
-    return `👨‍ ${shortAddress(trade.trader)}`
-  }
-
-  return `👨‍ ${trade.trader}`
-}
-
-function DisplayTraderNoEmoji(trade: TradeDto) {
-  if (trade.isNotable) {
-    return trade.notableAddress
-  }
-  if (trade.ens) {
-    return `${trade.ens}`
-  }
-
-  return `${trade.trader}`
 }

@@ -12,7 +12,7 @@ import {
 } from '../secrets'
 import { dollar, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
-import { MapLeaderBoard } from './leaderboard'
+import { FindOnLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
 import { PostDiscord } from '../integrations/discord'
@@ -25,6 +25,7 @@ import fromBigNumber from '../utils/fromBigNumber'
 import { RandomDegen } from '../constants/degenMessage'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
 import { GetNotableAddress } from '../utils/notableAddresses'
+import { GetFren } from '../integrations/fren'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -71,6 +72,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const ens = await GetEns(trade.trader)
 
   const tradeDto: TradeDto = {
+    account: trade.trader,
     asset: market.name,
     isLong: trade.isLong,
     isCall: trade.isCall,
@@ -83,7 +85,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     transactionHash: trade.transactionHash,
     isOpen: trade.isOpen,
     ens: ens,
-    leaderBoard: MapLeaderBoard(global.LYRA_LEADERBOARD, trade.trader),
+    leaderBoard: await FindOnLeaderBoard(trade.trader),
     pnl: pnl,
     pnlPercent: pnlPercent,
     totalPremiumPaid: totalPremiumPaid,
@@ -113,6 +115,7 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     unrealizedPnlPercent: unrealizedPnlPercent,
     unrealizedPnlFormatted: dollar(unrealizedPnl),
     unrealizedPnlPercentFormatted: `(${signed(pnlPercent)}%)`,
+    fren: await GetFren(ens),
   }
   return tradeDto
 }

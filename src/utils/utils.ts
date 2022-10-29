@@ -20,6 +20,9 @@ export function shortAddress(value: string): string {
 
 export function dollar(value: number): string {
   const nonNeg = value > 0 ? value : value * -1
+  if (nonNeg == 0) {
+    return `$${nonNeg.toFixed(2)}`
+  }
   return `${value > 0 ? '+' : '-'}$${nonNeg.toFixed(2)}`
 }
 

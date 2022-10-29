@@ -1,6 +1,7 @@
 import { OptionType } from 'dayjs'
 import { EventType } from '../constants/eventType'
 import { Instrument } from './arbs'
+import { Fren } from './fren'
 
 export type BaseEvent = {
   eventType: EventType
@@ -42,46 +43,52 @@ export type DepositDto = BaseDto & {
   market: string
 }
 
-export type TradeDto = BaseDto & {
-  asset: string
-  isOpen: boolean
-  isLong: boolean
-  isCall: boolean
-  isBuy: boolean
-  strike: number
-  expiry: Date
-  size: number
-  premium: number
-  trader: string
+export type TraderAddress = {
   ens: string
-  leaderBoard: Trader
-  pnl: number
-  pnlPercent: number
-  unrealizedPnl: number
-  unrealizedPnlPercent: number
-  totalPremiumPaid: number
-  isProfitable: boolean
-  positionId: number
-  positionTradeCount: number
-  pnlFormatted: string
-  pnlPercentFormatted: string
-  unrealizedPnlFormatted: string
-  unrealizedPnlPercentFormatted: string
-  isLiquidation: boolean
-  lpFees: number | undefined
-  setCollateralTo: number | undefined
-  pricePerOption: number
-  premiumFormatted: string
-  isBaseCollateral: boolean | undefined
-  baseCollateralFormatted: string
-  iv: number
-  fee: number
-  optionPrice: number
-  spot: number
-  degenMessage: string
   notableAddress: string
   isNotable: boolean
+  account: string
 }
+
+export type TradeDto = BaseDto &
+  TraderAddress & {
+    asset: string
+    isOpen: boolean
+    isLong: boolean
+    isCall: boolean
+    isBuy: boolean
+    strike: number
+    expiry: Date
+    size: number
+    premium: number
+    trader: string
+    leaderBoard: Trader
+    pnl: number
+    pnlPercent: number
+    unrealizedPnl: number
+    unrealizedPnlPercent: number
+    totalPremiumPaid: number
+    isProfitable: boolean
+    positionId: number
+    positionTradeCount: number
+    pnlFormatted: string
+    pnlPercentFormatted: string
+    unrealizedPnlFormatted: string
+    unrealizedPnlPercentFormatted: string
+    isLiquidation: boolean
+    lpFees: number | undefined
+    setCollateralTo: number | undefined
+    pricePerOption: number
+    premiumFormatted: string
+    isBaseCollateral: boolean | undefined
+    baseCollateralFormatted: string
+    iv: number
+    fee: number
+    optionPrice: number
+    spot: number
+    degenMessage: string
+    fren: Fren | undefined
+  }
 
 export type LyraDto = BaseEvent & {
   price: number
@@ -113,16 +120,18 @@ export type StatDto = {
   utilisationRate: number
 }
 
-export type Trader = {
-  owner: string
-  balance: number
-  netPremiums: number
-  openOptionsValue: number
+export type Trader = TraderAddress & {
+  realizedPnl: number
+  unrealizedPnl: number
+  realizedLongPnl: number
+  realizedLongPnlPercentage: number
+  unrealizedLongPnl: number
+  unrealizedLongPnlPercentage: number
+  totalPremiums: number
+  totalLongPremiums: number
+  totalNotionalVolume: number
   isProfitable: boolean
-  ens: string
   position: number
-  netPremiumsFormatted: string
-  openOptionsFormatted: string
 }
 
 export type TransferDto = BaseDto & {

@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js'
 import { Trader } from '../types/lyra'
-import { shortAddress } from '../utils/utils'
-import { Medal, PortfolioLink } from './common'
+import { dollar } from '../utils/utils'
+import { DisplayTrader, LyraDappUrl, Medal, PortfolioLink } from './common'
 
 export function LeaderboardDiscord(leaderBoard: Trader[]): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
@@ -9,7 +9,7 @@ export function LeaderboardDiscord(leaderBoard: Trader[]): EmbedBuilder[] {
   const tradeEmbed = new EmbedBuilder()
     .setColor('#0099ff')
     .setTitle(`Top ${leaderBoard.length} Lyra Profitable Traders`)
-    .setDescription(`Last 1000 positions (unrealised profit).`)
+    .setDescription(`Last 1000 positions`)
     .addFields(
       { name: 'Trader', value: '-----------', inline: true },
       { name: '💵 Profit', value: '-----------', inline: true },
@@ -46,12 +46,12 @@ export function leaderBoardRow(tradeEmbed: EmbedBuilder, trader: Trader): EmbedB
   return tradeEmbed.addFields(
     {
       name: `${Medal(trader.position)} ${trader.position}.`,
-      value: `${trader.ens ? trader.ens : shortAddress(trader.owner)}`,
+      value: `${DisplayTrader(trader, true)}`,
       inline: true,
     },
     {
-      name: `${trader.netPremiumsFormatted}`,
-      value: `${trader.openOptionsFormatted == '' ? '(0)' : trader.openOptionsFormatted}`,
+      name: `${dollar(trader.realizedPnl)}`,
+      value: `[view account](${PortfolioLink(trader.account)})`,
       inline: true,
     },
     {
@@ -67,13 +67,13 @@ export function LeaderboardTwitter(leaderBoard: Trader[]) {
   post.push(`✅ Top 5 Lyra Profitable Traders 💵 💰 🤑\n`)
   leaderBoard.slice(0, 5).map((trader) => {
     post.push(
-      `${Medal(trader.position)} ${trader.position}.  ${trader.ens ? trader.ens : shortAddress(trader.owner)}  💵 ${
-        trader.netPremiumsFormatted
-      }\n`,
+      `${Medal(trader.position)} ${trader.position}.  ${DisplayTrader(trader, false)}  💵 ${dollar(
+        trader.realizedPnl,
+      )}\n`,
     )
   })
   post.push(`\nOptions for everyone, start trading 👇\n`)
-  post.push(`https://app.lyra.finance`)
+  post.push(`${LyraDappUrl()}`)
   return post.join('')
 }
 
@@ -84,9 +84,10 @@ export function LeaderboardTelegram(leaderBoard: Trader[]) {
   post.push(`============================\n`)
   leaderBoard.slice(0, 10).map((trader) => {
     post.push(
-      `${Medal(trader.position)} ${trader.position}. <a href='${PortfolioLink(trader.owner)}'>${
-        trader.ens ? trader.ens : shortAddress(trader.owner)
-      }</a> ${trader.netPremiumsFormatted}\n`,
+      `${Medal(trader.position)} ${trader.position}. <a href='${PortfolioLink(trader.account)}'>${DisplayTrader(
+        trader,
+        false,
+      )}</a> ${dollar(trader.realizedPnl)}\n`,
     )
   })
   post.push(`============================\n`)

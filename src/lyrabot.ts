@@ -1,5 +1,5 @@
 import { RunTradeBot } from './lyra/trades'
-import { GetLeaderBoard } from './lyra/leaderboard'
+import { BroadcastLeaderBoard, GetLeaderBoard, ParsePositionLeaderboard } from './lyra/leaderboard'
 import {
   DISCORD_ACCESS_TOKEN,
   DISCORD_ACCESS_TOKEN_BTC,
@@ -39,7 +39,7 @@ import { optimismInfuraProvider } from './clients/ethersClient'
 import { TrackEvents } from './event/blockEvent'
 import { CoinGeckoDiscord } from './templates/coingecko'
 import { GetCoinGecko } from './lyra/coingecko'
-import { ArbitrageJob, CoinGeckoJob, LeaderboardJob, PricingJob, StatsJob } from './schedule'
+import { ArbitrageJob, CoinGeckoJob, LeaderBoardFillJob, LeaderboardSendJob, PricingJob, StatsJob } from './schedule'
 import printObject from './utils/printObject'
 import { GetArbitrageDeals } from './lyra/arbitrage'
 import { ArbDiscord } from './templates/arb'
@@ -77,11 +77,13 @@ export async function initializeLyraBot() {
 
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = []
+  global.FREN = {}
 
   if (!TESTNET) {
-    await GetLeaderBoard(30)
+    await GetLeaderBoard(lyra)
   }
 
+  await GetLeaderBoard(lyra)
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   await TrackEvents(
     discordClient,
@@ -92,10 +94,12 @@ export async function initializeLyraBot() {
     twitterClient1,
     lyra,
   )
+  await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient, lyra)
 
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc, discordClientSol)
-    LeaderboardJob(discordClient, twitterClient, telegramClient)
+    LeaderBoardFillJob(lyra)
+    LeaderboardSendJob(discordClient, twitterClient, telegramClient, lyra)
     StatsJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
     ArbitrageJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
@@ -126,8 +130,11 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
       if (market == 'eth') {
         if (commandName === 'leaderboard') {
           if (channelName === TRADE_CHANNEL) {
-            if (interaction) global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-            const post = LeaderboardDiscord(global.LYRA_LEADERBOARD.slice(0, 10))
+            const traders = await Promise.all(
+              global.LYRA_LEADERBOARD.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index)),
+            )
+
+            const post = LeaderboardDiscord(traders)
             await interaction.reply({ embeds: post })
           } else {
             await interaction.reply(`Command 'leaderboard' only available in <#${tradeChannel?.id}>`)
@@ -135,8 +142,10 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
         }
         if (commandName === 'top30') {
           if (channelName === TRADE_CHANNEL) {
-            global.LYRA_LEADERBOARD = await GetLeaderBoard(30)
-            const post = LeaderboardDiscord(global.LYRA_LEADERBOARD)
+            const traders = await Promise.all(
+              global.LYRA_LEADERBOARD.slice(0, 30).map(async (x, index) => await ParsePositionLeaderboard(x, index)),
+            )
+            const post = LeaderboardDiscord(traders)
             await interaction.reply({ embeds: post })
           } else {
             await interaction.reply(`Command 'top30' only available in <#${tradeChannel?.id}>`)

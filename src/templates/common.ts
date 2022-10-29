@@ -8,7 +8,8 @@ import {
   BTC_OPTION_MARKET,
   SOL_OPTION_MARKET,
 } from '../constants/contractAddresses'
-import { TradeDto } from '../types/lyra'
+import { TradeDto, TraderAddress } from '../types/lyra'
+import { shortAddress } from '../utils/utils'
 
 export const zapperUrl = 'https://zapper.fi/account/'
 export const debankUrl = 'https://debank.com/profile/'
@@ -44,24 +45,28 @@ export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: b
   return isLong ? received : paid
 }
 
+export function VaultLink(asset: string) {
+  return `${LyraDappUrl()}/vaults/${asset.toLowerCase()}`
+}
+
 export function PositionLink(trade: TradeDto): string {
   return `${LyraDappUrl()}/position?market=${trade.asset}&id=${trade.positionId}&see=${trade.trader}`
 }
 
-export function PortfolioLink(address: string) {
-  return `${LyraDappUrl()}/portfolio?see=${address}`
+export function PortfolioLink(account: string) {
+  return `${LyraDappUrl()}/portfolio?see=${account}`
 }
 
-export function VaultLink(asset: string) {
-  return `${LyraDappUrl()}/vaults/${asset.toLowerCase()}`
+export function TwitterLink(handle: string) {
+  return `https://twitter.com/${handle}`
 }
 
 export function ExpiryLink(asset: string, date: string) {
   return `${LyraDappUrl()}/trade/${asset.toLowerCase()}?expiry=${date}`
 }
 
-export function TradeHistoryLink(trade: TradeDto) {
-  return `${LyraDappUrl()}/portfolio/history?see=${trade.trader}`
+export function TradeHistoryLink(trade: TraderAddress) {
+  return `${LyraDappUrl()}/portfolio/history?see=${trade.account}`
 }
 
 export function EtherScanTransactionLink(transactionHash: string) {
@@ -124,4 +129,29 @@ export function GetMarket(address: string) {
     market = 'SOL'
   }
   return market
+}
+
+export function DisplayTrader(trade: TraderAddress, useShortAddress = false) {
+  if (trade.isNotable) {
+    return trade.notableAddress
+  }
+  if (trade.ens) {
+    return `👨‍ ${trade.ens}`
+  }
+  if (useShortAddress) {
+    return `👨‍ ${shortAddress(trade.account)}`
+  }
+
+  return `👨‍ ${trade.account}`
+}
+
+export function DisplayTraderNoEmoji(trade: TraderAddress) {
+  if (trade.isNotable) {
+    return trade.notableAddress
+  }
+  if (trade.ens) {
+    return `${trade.ens}`
+  }
+
+  return `${trade.account}`
 }
