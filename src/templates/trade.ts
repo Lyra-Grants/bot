@@ -209,7 +209,7 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
   }
 
   if (trade.url) {
-    tradeEmbed.addFields({ name: '👉 Go to Vault', value: `>[deposit into vault] (${trade.url})`, inline: false })
+    tradeEmbed.addFields({ name: '🏦 Vault', value: `> [deposit into vault](${trade.url})`, inline: false })
   }
 
   tradeEmbed.addFields({

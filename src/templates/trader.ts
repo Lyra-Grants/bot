@@ -58,7 +58,7 @@ export function TraderDiscord(trader: Trader): EmbedBuilder[] {
     }
   }
   if (trader.url) {
-    embed.addFields({ name: '👉 Go to Vault', value: `>[deposit into vault] (${trader.url})`, inline: false })
+    embed.addFields({ name: '🏦 Vault', value: `> [deposit into vault](${trader.url})`, inline: false })
   }
   messageEmbeds.push(embed)
   return messageEmbeds
