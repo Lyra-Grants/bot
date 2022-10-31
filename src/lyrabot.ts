@@ -43,6 +43,8 @@ import { ArbitrageJob, CoinGeckoJob, LeaderBoardFillJob, LeaderboardSendJob, Pri
 import printObject from './utils/printObject'
 import { GetArbitrageDeals } from './lyra/arbitrage'
 import { ArbDiscord } from './templates/arb'
+import { GetTrader } from './lyra/trader'
+import { TraderDiscord } from './templates/trader'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
@@ -126,7 +128,7 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
       const tokenChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TOKEN_CHANNEL)
       const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)
       // const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
-      //const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
+      const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
 
@@ -181,6 +183,13 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
         if (commandName === 'quant') {
           const embed = QuantDiscord()
           await interaction.reply({ embeds: embed })
+        }
+        if (commandName === 'trader') {
+          await TraderInteraction(
+            channelName,
+            interaction as ChatInputCommandInteraction,
+            arbChannel as GuildBasedChannel,
+          )
         }
       }
 
@@ -245,6 +254,26 @@ async function ArbInteraction(
   }
 }
 
+async function TraderInteraction(
+  channelName: string,
+  interaction: ChatInputCommandInteraction,
+  channel: GuildBasedChannel,
+) {
+  if (channelName === TRADER_CHANNEL) {
+    const account = interaction.options.getString('account') as string
+    await interaction.deferReply()
+
+    const trader = await GetTrader(account, lyra)
+    if (trader.account != '') {
+      const embed = TraderDiscord(trader)
+      await interaction.editReply({ embeds: embed })
+    } else {
+      await interaction.editReply(`No trader '${account}' found.`)
+    }
+  } else {
+    await interaction.reply(`Command 'trader' only available in <#${channel?.id}>`)
+  }
+}
 export async function SetUpTwitter() {
   if (TWITTER_ENABLED) {
     twitterClient = TwitterClient

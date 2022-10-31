@@ -44,7 +44,6 @@ export async function TrackEvents(
           twitterClient1,
           rpcClient,
           event[0],
-          false,
         )
       }
       if (event[0].topics[0].toLowerCase() === STRIKE_ADDED) {

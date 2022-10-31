@@ -14,6 +14,8 @@ import Lyra, { PositionLeaderboard, PositionLeaderboardSortBy } from '@lyrafinan
 import { ONE_BN } from '../constants/bn'
 import { GetNotableAddress } from '../utils/notableAddresses'
 import fromBigNumber from '../utils/fromBigNumber'
+import { GetUrl } from '../utils/utils'
+import { GetFren } from '../integrations/fren'
 
 // async function GetLeaderBoardTrades(): Promise<Trade[]> {
 //   const trades = (
@@ -91,6 +93,8 @@ export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> 
     position: 0,
     isNotable: false,
     notableAddress: '',
+    url: '',
+    fren: undefined,
   }
 
   const index = LYRA_LEADERBOARD.findIndex(
@@ -108,6 +112,8 @@ export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> 
 
 export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLeaderboard, position: number) {
   const notableAddress = GetNotableAddress(positionLeaderBoard.account)
+  const isNotable = notableAddress != ''
+  const ens = await GetEns(positionLeaderBoard.account)
 
   const result: Trader = {
     account: positionLeaderBoard.account,
@@ -124,7 +130,9 @@ export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLead
     ens: await GetEns(positionLeaderBoard.account),
     position: position,
     notableAddress: notableAddress,
-    isNotable: notableAddress != '',
+    isNotable: isNotable,
+    url: GetUrl(positionLeaderBoard.account, isNotable),
+    fren: await GetFren(ens),
   }
 
   return result

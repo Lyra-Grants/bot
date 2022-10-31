@@ -59,6 +59,7 @@ export async function RunTradeBot(
 
 export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const position = await trade.position()
+  //const tradePnl = fromBigNumber(trade.pnl(position))
   const positionPnl = position.pnl()
   const unrealizedPnl = fromBigNumber(positionPnl.unrealizedPnl)
   const unrealizedPnlPercent = fromBigNumber(positionPnl.unrealizedPnlPercentage)

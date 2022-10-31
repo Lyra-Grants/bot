@@ -131,6 +131,7 @@ export type Trader = TraderAddress & {
   totalNotionalVolume: number
   isProfitable: boolean
   position: number
+  fren: Fren | undefined
 }
 
 export type TransferDto = BaseDto & {
