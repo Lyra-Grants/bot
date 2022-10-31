@@ -22,3 +22,20 @@ export async function GetEns(account: string | undefined): Promise<string> {
 
   return ens ? ens : ''
 }
+
+export async function ResolveEns(ens: string | undefined): Promise<string> {
+  if (ens == undefined || ens == '') {
+    return ''
+  }
+
+  console.debug(`Getting account for ${ens}`)
+
+  const account = await mainNetInfuraProvider.resolveName(ens.toLowerCase())
+
+  if (account) {
+    console.log(`Address found for ENS ${ens}: ${account}`)
+    return account
+  }
+
+  return ''
+}
