@@ -111,7 +111,7 @@ export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> 
 }
 
 export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLeaderboard, position: number) {
-  const notableAddress = GetNotableAddress(positionLeaderBoard.account)
+  const notableAddress = GetNotableAddress(positionLeaderBoard.account.toLowerCase())
   const isNotable = notableAddress != ''
   const ens = await GetEns(positionLeaderBoard.account)
 

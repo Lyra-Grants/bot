@@ -11,7 +11,7 @@ export async function GetTrader(account: string, lyra: Lyra): Promise<Trader> {
 
     const ensAcc = await ResolveEns(account)
     if (ensAcc != '') {
-      trader = await FindOnLeaderBoard(ensAcc)
+      trader = await FindOnLeaderBoard(ensAcc.toLowerCase())
     }
   }
 
