@@ -128,7 +128,7 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
       const tokenChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TOKEN_CHANNEL)
       const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)
       // const depositsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === DEPOSITS_CHANNEL)
-      const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
+      // const traderChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADER_CHANNEL)
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
 
@@ -188,7 +188,7 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
           await TraderInteraction(
             channelName,
             interaction as ChatInputCommandInteraction,
-            arbChannel as GuildBasedChannel,
+            tradeChannel as GuildBasedChannel,
           )
         }
       }
@@ -259,7 +259,7 @@ async function TraderInteraction(
   interaction: ChatInputCommandInteraction,
   channel: GuildBasedChannel,
 ) {
-  if (channelName === TRADER_CHANNEL) {
+  if (channelName === TRADE_CHANNEL) {
     const account = interaction.options.getString('account') as string
     await interaction.deferReply()
 
