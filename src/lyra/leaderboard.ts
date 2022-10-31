@@ -116,7 +116,7 @@ export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLead
   const ens = await GetEns(positionLeaderBoard.account)
 
   const result: Trader = {
-    account: positionLeaderBoard.account,
+    account: positionLeaderBoard.account.toLowerCase(),
     realizedPnl: fromBigNumber(positionLeaderBoard.realizedPnl),
     unrealizedPnl: fromBigNumber(positionLeaderBoard.unrealizedPnl),
     realizedLongPnl: fromBigNumber(positionLeaderBoard.realizedLongPnl),
@@ -131,7 +131,7 @@ export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLead
     position: position,
     notableAddress: notableAddress,
     isNotable: isNotable,
-    url: GetUrl(positionLeaderBoard.account, isNotable),
+    url: GetUrl(positionLeaderBoard.account.toLowerCase(), isNotable),
     fren: await GetFren(ens),
   }
 

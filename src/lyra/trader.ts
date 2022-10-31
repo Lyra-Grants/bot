@@ -4,7 +4,7 @@ import { Trader } from '../types/lyra'
 import { FindOnLeaderBoard } from './leaderboard'
 
 export async function GetTrader(account: string, lyra: Lyra): Promise<Trader> {
-  let trader = await FindOnLeaderBoard(account)
+  let trader = await FindOnLeaderBoard(account.toLowerCase())
 
   if (trader.account == '') {
     // try with ens
