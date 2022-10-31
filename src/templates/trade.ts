@@ -54,6 +54,9 @@ export function TradeTwitter(trade: TradeDto) {
   }
   post.push(`${DisplayTrader(trade)}\n`)
   post.push(`${PositionLink(trade)}\n`)
+  if (trade.url) {
+    post.push(`${trade.url}\n`)
+  }
   return post.join('')
 }
 
@@ -92,12 +95,18 @@ export function TradeTelegram(trade: TradeDto) {
       )}\n`,
     )
   }
+  if (trade.fren && trade.fren.name) {
+    post.push(`🐦 <a href='${TwitterLink(trade.fren.handle)}'>${trade.fren.name}</a>\n`)
+  }
+  if (trade.url) {
+    post.push(`<a href="${trade.url}">Go to Vault</a>\n`)
+  }
   post.push(`<a href='${PositionLink(trade)}'>${DisplayTrader(trade, true)}</a>\n`)
   post.push(`============================\n`)
   post.push(
     `<a href='${EtherScanTransactionLink(trade.transactionHash)}'>Trxn</a> | <a href='${TradeHistoryLink(
       trade,
-    )}'>History</a> | <a href='${PortfolioLink(trade.trader)}'>Portfolio</a> | <a href='${PositionLink(
+    )}'>History</a> | <a href='${PortfolioLink(trade.account)}'>Portfolio</a> | <a href='${PositionLink(
       trade,
     )}'>Position</a>\n`,
   )
@@ -190,13 +199,17 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
 
   if (trade.fren && trade.fren.name) {
     tradeEmbed.addFields({
-      name: `🐦 ${trade.fren.name} (${trade.fren.handle})`,
-      value: `[view profile](${TwitterLink(trade.fren.handle)})`,
+      name: `🐦 ${trade.fren.name}`,
+      value: `> [view twitter profile](${TwitterLink(trade.fren.handle)})`,
       inline: false,
     })
     if (trade.fren.pfp) {
       tradeEmbed.setThumbnail(`${trade.fren.pfp}`)
     }
+  }
+
+  if (trade.url) {
+    tradeEmbed.addFields({ name: '👉 Go to Vault', value: `>[deposit into vault] (${trade.url})`, inline: false })
   }
 
   tradeEmbed.addFields({

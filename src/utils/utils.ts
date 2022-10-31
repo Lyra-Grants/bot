@@ -1,4 +1,7 @@
+import { vaultIntegrations } from '../constants/addresses'
+import { urls } from '../constants/urls'
 import { FN } from '../templates/common'
+import { TraderAddress } from '../types/lyra'
 
 export function Timestamp(): number {
   return Math.floor(Date.now() / 1000)
@@ -42,3 +45,24 @@ export const groupBy = <T, K extends keyof any>(arr: T[], key: (i: T) => K) =>
     ;(groups[key(item)] ||= []).push(item)
     return groups
   }, {} as Record<K, T[]>)
+
+export function GetUrl(account: string, isNotable: boolean) {
+  if (isNotable) {
+    switch (account) {
+      case vaultIntegrations.POLY_ETH_CALL:
+        return `${urls.polynomialDappUrl}/products/eth-call-selling`
+      case vaultIntegrations.POLY_ETH_PUT:
+        return `${urls.polynomialDappUrl}/products/eth-put-selling`
+      case vaultIntegrations.POLY_ETH_QUOTE:
+        return `${urls.polynomialDappUrl}/products/eth-call-selling-quote`
+      case vaultIntegrations.BRAHMA_MOONSHOTS:
+        return `${urls.brahmaDappUrl}/vault/pmusdc`
+      case vaultIntegrations.BRAHMA_ETHMAXI:
+        return `${urls.brahmaDappUrl}/vault/ethmaxi`
+      case vaultIntegrations.TOROS_ETHCALL:
+      case vaultIntegrations.TOROS_ETHLONGVOL:
+        return `${urls.dHedgeDappUrl}/pool/${account}`
+    }
+  }
+  return ''
+}

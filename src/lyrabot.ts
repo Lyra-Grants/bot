@@ -135,7 +135,9 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
         if (commandName === 'leaderboard') {
           if (channelName === TRADE_CHANNEL) {
             const traders = await Promise.all(
-              global.LYRA_LEADERBOARD.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index)),
+              global.LYRA_LEADERBOARD.slice(0, 10).map(
+                async (x, index) => await ParsePositionLeaderboard(x, index + 1),
+              ),
             )
 
             const post = LeaderboardDiscord(traders)

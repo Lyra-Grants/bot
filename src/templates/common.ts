@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
+import { vaultIntegrations } from '../constants/addresses'
 import {
   ETH_LIQUIDITY_POOL,
   BTC_LIQUIDITY_POOL,
@@ -8,6 +9,7 @@ import {
   BTC_OPTION_MARKET,
   SOL_OPTION_MARKET,
 } from '../constants/contractAddresses'
+import { urls } from '../constants/urls'
 import { TradeDto, TraderAddress } from '../types/lyra'
 import { shortAddress } from '../utils/utils'
 
@@ -50,7 +52,7 @@ export function VaultLink(asset: string) {
 }
 
 export function PositionLink(trade: TradeDto): string {
-  return `${LyraDappUrl()}/position?market=${trade.asset}&id=${trade.positionId}&see=${trade.trader}`
+  return `${LyraDappUrl()}/position?market=${trade.asset}&id=${trade.positionId}&see=${trade.account}`
 }
 
 export function PortfolioLink(account: string) {

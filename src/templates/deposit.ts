@@ -1,13 +1,13 @@
 import { EmbedBuilder } from 'discord.js'
 import { DepositDto } from '../types/lyra'
-import { EtherScanTransactionLink, FN, LyraDappUrl } from './common'
+import { DisplayTrader, DisplayTraderNoEmoji, EtherScanTransactionLink, FN, LyraDappUrl } from './common'
 import { StatSymbol } from './stats'
 
 // TWITTER
 export function DepositTwitter(dto: DepositDto) {
   const post: string[] = []
   post.push(`💵 $${FN(dto.amount, 2)} sUSD Deposit\n\n`)
-  post.push(`from ${dto.fromEns ? dto.fromEns : dto.notableFrom ? dto.from : '🧑 ' + dto.fromAddress}\n`)
+  post.push(`from ${DisplayTrader(dto)}\n`)
   post.push(`to ${StatSymbol(dto.market)} ${dto.market} Market Vault\n\n`)
   if (dto.totalQueued > 0) {
     post.push(`🏦 Total queued: $${FN(dto.totalQueued, 0)}\n`)
@@ -17,9 +17,6 @@ export function DepositTwitter(dto: DepositDto) {
   post.push(`${LyraDappUrl()}`)
   return post.join('')
 }
-
-// TELEGRAM
-// todo
 
 // DISCORD
 export function DepositDiscord(dto: DepositDto): EmbedBuilder[] {
@@ -35,8 +32,8 @@ export function DepositDiscord(dto: DepositDto): EmbedBuilder[] {
         inline: false,
       },
       {
-        name: `By:`,
-        value: `> ${dto.fromEns ? dto.fromEns : dto.from}`,
+        name: `from:`,
+        value: `> ${DisplayTraderNoEmoji(dto)}`,
         inline: false,
       },
     )

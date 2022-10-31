@@ -4,7 +4,6 @@ import { Client } from 'discord.js'
 import { PostDiscord } from '../integrations/discord'
 import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import { toDate } from '../utils/utils'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { SendTweet } from '../integrations/twitter'
@@ -18,8 +17,8 @@ import {
 } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
-import printObject from '../utils/printObject'
 import { GetMarket } from '../templates/common'
+import { GetUrl } from '../utils/utils'
 
 export async function TrackDeposits(
   discordClient: Client<boolean>,
@@ -29,66 +28,38 @@ export async function TrackDeposits(
   twitterClient: TwitterApi,
   rpcClient: Lyra,
   genericEvent: GenericEvent,
-  isQueued: boolean,
 ): Promise<void> {
   const market = GetMarket(genericEvent.address)
-  let value = 0
-  let amount = 0
-  let from = ''
-  let to = ''
-  let fromAddress = ''
-  let toAddress = ''
-  let fromEns = ''
-  let totalQueued = 0
-  let transactionHash = ''
-  let timestamp: Date
-  let blockNumber = 0
-
-  if (!isQueued) {
-    const event = parseProcessedEvent(genericEvent as DepositProcessedEvent)
-    amount = fromBigNumber(event.args.amountDeposited)
-    value = amount
-    from = GetNotableAddress(event.args.beneficiary)
-    fromAddress = event.args.beneficiary
-    fromEns = await GetEns(event.args.beneficiary)
-    to = GetNotableAddress(event.address)
-    toAddress = event.address
-    transactionHash = event.transactionHash
-    timestamp = toDate(fromBigNumber(event.args.timestamp))
-    blockNumber = event.blockNumber
-  } else {
-    const event = parseEvent(genericEvent as DepositQueuedEvent)
-    amount = fromBigNumber(event.args.amountDeposited)
-    value = amount
-    from = GetNotableAddress(event.args.depositor)
-    fromAddress = event.args.depositor
-    fromEns = await GetEns(event.args.depositor)
-    totalQueued = fromBigNumber(event.args.totalQueuedDeposits)
-    to = GetNotableAddress(event.address)
-    toAddress = event.address
-    transactionHash = event.transactionHash
-    timestamp = toDate(fromBigNumber(event.args.timestamp))
-    blockNumber = event.blockNumber
-  }
+  const event = parseProcessedEvent(genericEvent as DepositProcessedEvent)
+  const amount = fromBigNumber(event.args.amountDeposited)
+  const value = amount
+  const from = GetNotableAddress(event.args.beneficiary.toLowerCase())
+  const fromAddress = event.args.beneficiary
+  const fromEns = await GetEns(event.args.beneficiary.toLowerCase())
+  const to = GetNotableAddress(event.address.toLowerCase())
+  const toAddress = event.address.toLowerCase()
+  const isNotable = from !== ''
 
   console.log(`Deposit Value: ${value}, threshold: ${DEPOSIT_THRESHOLD}`)
 
   if (value >= DEPOSIT_THRESHOLD) {
     try {
       const dto: DepositDto = {
+        account: fromAddress,
+        ens: fromEns,
         market: market,
-        from: from === '' ? fromAddress : from,
+        notableAddress: from,
         to: to === '' ? toAddress : to,
         amount: amount,
-        transactionHash: transactionHash,
-        fromEns: fromEns,
-        blockNumber: blockNumber,
+        transactionHash: event.transactionHash,
+        blockNumber: event.blockNumber,
         value: value,
         notableTo: to !== '',
-        notableFrom: from !== '',
+        isNotable: isNotable,
         fromAddress: fromAddress,
         toAddress: toAddress,
-        totalQueued: totalQueued,
+        totalQueued: 0,
+        url: GetUrl(event.args.beneficiary.toLowerCase(), isNotable),
       }
       await BroadCastDeposit(dto, discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient)
     } catch (ex) {

@@ -10,7 +10,7 @@ import {
   DISCORD_THRESHOLD,
   TESTNET,
 } from '../secrets'
-import { dollar, signed, toDate } from '../utils/utils'
+import { dollar, GetUrl, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { FindOnLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
@@ -66,14 +66,15 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
   const pnlPercent = fromBigNumber(positionPnl.realizedPnlPercentage)
 
   const trades = position.trades()
-  const totalPremiumPaid = PremiumsPaid(trades)
+  const totalPremiumPaid = fromBigNumber(trade.premium)
   const market = await trade.market()
   const noTrades = trades.length
   const from = GetNotableAddress(trade.trader)
   const ens = await GetEns(trade.trader)
+  const isNotable = from != ''
 
   const tradeDto: TradeDto = {
-    account: trade.trader,
+    account: trade.trader.toLowerCase(),
     asset: market.name,
     isLong: trade.isLong,
     isCall: trade.isCall,
@@ -82,7 +83,6 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     expiry: toDate(trade.expiryTimestamp),
     size: fromBigNumber(trade.size),
     premium: fromBigNumber(trade.premium),
-    trader: trade.trader,
     transactionHash: trade.transactionHash,
     isOpen: trade.isOpen,
     ens: ens,
@@ -111,12 +111,13 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     degenMessage: RandomDegen(),
     blockNumber: trade.blockNumber,
     notableAddress: from,
-    isNotable: from != '',
+    isNotable: isNotable,
     unrealizedPnl: unrealizedPnl,
     unrealizedPnlPercent: unrealizedPnlPercent,
     unrealizedPnlFormatted: dollar(unrealizedPnl),
     unrealizedPnlPercentFormatted: `(${signed(pnlPercent)}%)`,
     fren: await GetFren(ens),
+    url: GetUrl(trade.trader.toLowerCase(), isNotable),
   }
   return tradeDto
 }
@@ -141,7 +142,7 @@ export function BaseCollateral(trade: TradeEvent, asset: string) {
     return ''
   }
 
-  if (!trade.isBaseCollateral) {
+  if (!trade.isBaseCollateral && collateralValue) {
     return `$${FN(collateralValue, 2)}`
   }
 
@@ -177,11 +178,4 @@ export async function BroadCastTrade(
       await PostDiscord(post, discordClientBtc, channelName)
     }
   }
-}
-
-export function PremiumsPaid(trades: TradeEvent[]) {
-  return trades.reduce((sum, trade) => {
-    const premium = trade.isBuy ? fromBigNumber(trade.premium) : 0
-    return sum + premium
-  }, 0)
 }

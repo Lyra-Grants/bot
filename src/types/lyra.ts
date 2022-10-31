@@ -29,25 +29,24 @@ export type ArbDto = BaseEvent & {
   market: string
 }
 
-export type DepositDto = BaseDto & {
-  from: string
-  to: string
-  amount: number
-  value: number
-  fromEns: string
-  notableTo: boolean
-  notableFrom: boolean
-  fromAddress: string
-  toAddress: string
-  totalQueued: number
-  market: string
-}
+export type DepositDto = BaseDto &
+  TraderAddress & {
+    to: string
+    amount: number
+    value: number
+    notableTo: boolean
+    fromAddress: string
+    toAddress: string
+    totalQueued: number
+    market: string
+  }
 
 export type TraderAddress = {
   ens: string
   notableAddress: string
   isNotable: boolean
   account: string
+  url: string
 }
 
 export type TradeDto = BaseDto &
@@ -61,7 +60,6 @@ export type TradeDto = BaseDto &
     expiry: Date
     size: number
     premium: number
-    trader: string
     leaderBoard: Trader
     pnl: number
     pnlPercent: number
@@ -88,6 +86,7 @@ export type TradeDto = BaseDto &
     spot: number
     degenMessage: string
     fren: Fren | undefined
+    url: string
   }
 
 export type LyraDto = BaseEvent & {
