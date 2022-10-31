@@ -224,13 +224,13 @@ export const NotableAddresses: { [key: string]: string } = {
   '0xebe1e96e67a516c2f8549edbd48e6fdc7b50c9ae': '❔ Thales',
   '0x965e460bf5cb38bada79fb2293c6304c799d0b1c': '🧮 Polynomial Eth Gamma Vault',
   '0xf334f6104a179207ddacfb41fa3567feea8595c2': '🦄 Uniswap WETH/LYRA 1%', //new
-  POLY_ETH_CALL: '🧮 Polynomial Eth Call Vault',
-  POLY_ETH_PUT: '🧮 Polynomial Eth Put Vault',
-  POLY_ETH_QUOTE: '🧮 Polynomial Eth Call Vault',
-  BRAHMA_MOONSHOTS: '⚛️ Brahma Protected Moonshots Vault',
-  BRAHMA_ETHMAXI: '⚛️ Brahma Eth Maxi Vault',
-  TOROS_ETHCALL: '🐂 Toros Eth Call Vault (dHedge)',
-  TOROS_ETHLONGVOL: '🐂 Toros Eth Long Vol Vault (dHedge)',
+  '0x2d46292cbb3c601c6e2c74c32df3a4fce99b59c7': '🧮 Polynomial Eth Call Vault',
+  '0xb28df1b71a5b3a638ecedf484e0545465a45d2ec': '🧮 Polynomial Eth Put Vault',
+  '0xb7b4270cfd938f4f1c111ac819e7365e8ce0300a': '🧮 Polynomial Eth Call Vault',
+  '0xdf47d2784b67693a283c7ef9bae51d8593908a42': '⚛️ Brahma Protected Moonshots Vault',
+  '0x0a9a47f9c19b486237a398c27bafc60cac2cb15c': '⚛️ Brahma Eth Maxi Vault',
+  '0xe6da92fca08d540aa624e9949f9e7768fee80e6c': '🐂 Toros Eth Call Vault (dHedge)',
+  '0x44ca2d499e6254dfdc17fdef8c23e7283e7c24e4': '🐂 Toros Eth Long Vol Vault (dHedge)',
 }
 
 export const vaultIntegrations = {
