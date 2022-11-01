@@ -260,8 +260,8 @@ async function TraderInteraction(
   channel: GuildBasedChannel,
 ) {
   if (channelName === TRADE_CHANNEL) {
-    const account = interaction.options.getString('account') as string
     await interaction.deferReply()
+    const account = interaction.options.getString('account') as string
 
     const trader = await GetTrader(account, lyra)
     if (trader.account != '') {
