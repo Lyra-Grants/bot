@@ -124,28 +124,29 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
       // eth only
       if (market == 'eth') {
         if (commandName === 'leaderboard') {
+          await interaction.deferReply()
           if (channelName === TRADE_CHANNEL) {
             const traders = await Promise.all(
               global.LYRA_LEADERBOARD.slice(0, 10).map(
                 async (x, index) => await ParsePositionLeaderboard(x, index + 1),
               ),
             )
-
             const post = LeaderboardDiscord(traders)
-            await interaction.reply({ embeds: post })
+            await interaction.editReply({ embeds: post })
           } else {
             await interaction.reply(`Command 'leaderboard' only available in <#${tradeChannel?.id}>`)
           }
         }
         if (commandName === 'top30') {
           if (channelName === TRADE_CHANNEL) {
+            await interaction.deferReply()
             const traders = await Promise.all(
               global.LYRA_LEADERBOARD.slice(0, 30).map(
                 async (x, index) => await ParsePositionLeaderboard(x, index + 1),
               ),
             )
             const post = LeaderboardDiscord(traders)
-            await interaction.reply({ embeds: post })
+            await interaction.editReply({ embeds: post })
           } else {
             await interaction.reply(`Command 'top30' only available in <#${tradeChannel?.id}>`)
           }
@@ -162,9 +163,10 @@ async function SetUpDiscord(discordClient: Client<boolean>, market: string, acce
         }
         if (commandName === 'lyra') {
           if (channelName === TOKEN_CHANNEL) {
+            await interaction.deferReply()
             const lyraDto = await GetCoinGecko()
             const embed = CoinGeckoDiscord(lyraDto)
-            await interaction.reply({ embeds: embed })
+            await interaction.editReply({ embeds: embed })
           } else {
             await interaction.reply(`Command 'lyra' only available in <#${tokenChannel?.id}>`)
           }
