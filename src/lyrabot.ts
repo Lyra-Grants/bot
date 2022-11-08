@@ -215,9 +215,10 @@ async function StatsInteraction(
   channel: GuildBasedChannel,
 ) {
   if (channelName === STATS_CHANNEL) {
+    await interaction.deferReply()
     const statsDto = await GetStats(market, lyra)
     const stats = StatDiscord(statsDto)
-    await interaction.reply({ embeds: stats })
+    await interaction.editReply({ embeds: stats })
   } else {
     await interaction.reply(`Command 'stats' only available in <#${channel?.id}>`)
   }
