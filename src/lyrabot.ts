@@ -66,11 +66,15 @@ export async function initializeLyraBot() {
   global.LYRA_LEADERBOARD = []
   global.FREN = {}
 
+  discordClient = DiscordClient
+  discordClientBtc = DiscordClientBtc
+  discordClientSol = DiscordClientSol
+
   await Promise.all([
     GetPrice(),
-    SetUpDiscord(DiscordClient, 'eth', DISCORD_ACCESS_TOKEN),
-    SetUpDiscord(DiscordClientBtc, 'btc', DISCORD_ACCESS_TOKEN_BTC),
-    SetUpDiscord(DiscordClientSol, 'sol', DISCORD_ACCESS_TOKEN_SOL),
+    SetUpDiscord(discordClient, 'eth', DISCORD_ACCESS_TOKEN),
+    SetUpDiscord(discordClientBtc, 'btc', DISCORD_ACCESS_TOKEN_BTC),
+    SetUpDiscord(discordClientSol, 'sol', DISCORD_ACCESS_TOKEN_SOL),
     SetUpTwitter(),
     SetUpTelegram(),
     GetLeaderBoard(lyra),
