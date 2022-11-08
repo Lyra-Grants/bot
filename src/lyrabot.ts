@@ -1,5 +1,5 @@
 import { RunTradeBot } from './lyra/trades'
-import { BroadcastLeaderBoard, GetLeaderBoard, ParsePositionLeaderboard } from './lyra/leaderboard'
+import { GetLeaderBoard, ParsePositionLeaderboard } from './lyra/leaderboard'
 import {
   DISCORD_ACCESS_TOKEN,
   DISCORD_ACCESS_TOKEN_BTC,
@@ -18,10 +18,6 @@ import { defaultActivity, defaultName } from './integrations/discord'
 import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import Lyra from '@lyrafinance/lyra-js'
-import { maketrade } from './actions/maketrade'
-import { ethers } from 'ethers'
-import { TestWallet } from './wallets/wallet'
-import faucet from './actions/faucet'
 import { GetPrice } from './integrations/coingecko'
 import { LeaderboardDiscord } from './templates/leaderboard'
 import { GetStats } from './lyra/stats'
@@ -66,30 +62,19 @@ export async function initializeLyraBot() {
     //maketrade(lyraClient, signer)
   }
 
-  discordClientBtc = DiscordClientBtc
-  discordClient = DiscordClient
-  discordClientSol = DiscordClientSol
-
-  await GetPrice()
-  await SetUpDiscord(discordClient, 'eth', DISCORD_ACCESS_TOKEN)
-  await SetUpDiscord(discordClientBtc, 'btc', DISCORD_ACCESS_TOKEN_BTC)
-  await SetUpDiscord(discordClientSol, 'sol', DISCORD_ACCESS_TOKEN_SOL)
-  await SetUpTwitter()
-  await SetUpTelegram()
-
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = []
   global.FREN = {}
 
-  if (!TESTNET) {
-    await GetLeaderBoard(lyra)
-  }
-
-  // const traders = await Promise.all(
-  //   global.LYRA_LEADERBOARD.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
-  // )
-
-  // console.log(traders)
+  await Promise.all([
+    GetPrice(),
+    SetUpDiscord(DiscordClient, 'eth', DISCORD_ACCESS_TOKEN),
+    SetUpDiscord(DiscordClientBtc, 'btc', DISCORD_ACCESS_TOKEN_BTC),
+    SetUpDiscord(DiscordClientSol, 'sol', DISCORD_ACCESS_TOKEN_SOL),
+    SetUpTwitter(),
+    SetUpTelegram(),
+    GetLeaderBoard(lyra),
+  ])
 
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   await TrackEvents(

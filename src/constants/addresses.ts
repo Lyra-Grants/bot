@@ -231,6 +231,7 @@ export const NotableAddresses: { [key: string]: string } = {
   '0x0a9a47f9c19b486237a398c27bafc60cac2cb15c': '⚛️ Brahma Eth Maxi Vault',
   '0xe6da92fca08d540aa624e9949f9e7768fee80e6c': '🐂 Toros Eth Call Vault (dHedge)',
   '0x44ca2d499e6254dfdc17fdef8c23e7283e7c24e4': '🐂 Toros Eth Long Vol Vault (dHedge)',
+  '0xc56f04ec20dad27c0f4701b14977c2dbe85142ba': '⌛ Arrakis Finance',
 }
 
 export const vaultIntegrations = {
