@@ -159,7 +159,12 @@ export async function BroadCastTrade(
 ): Promise<void> {
   console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
   console.log('Trade Premium: ' + trade.premium)
-  if ((trade.premium >= TWITTER_THRESHOLD || trade.isNotable) && TWITTER_ENABLED) {
+  if (
+    (trade.premium >= TWITTER_THRESHOLD ||
+      trade.isNotable ||
+      (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
+    TWITTER_ENABLED
+  ) {
     const tweet = TradeTwitter(trade)
     await SendTweet(tweet, twitterClient)
   }
@@ -169,7 +174,12 @@ export async function BroadCastTrade(
     await PostTelegram(post, telegramClient)
   }
 
-  if ((trade.premium >= DISCORD_THRESHOLD || trade.isNotable) && DISCORD_ENABLED) {
+  if (
+    (trade.premium >= DISCORD_THRESHOLD ||
+      trade.isNotable ||
+      (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
+    DISCORD_ENABLED
+  ) {
     const post = [TradeDiscord(trade)]
     const channelName = TRADE_CHANNEL
 
