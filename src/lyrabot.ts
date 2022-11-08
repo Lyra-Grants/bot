@@ -31,7 +31,7 @@ import {
   TRADE_CHANNEL,
 } from './constants/discordChannels'
 import { HelpDiscord, QuantDiscord } from './templates/help'
-import { optimismInfuraProvider } from './clients/ethersClient'
+import { alchemyProvider, optimismInfuraProvider } from './clients/ethersClient'
 import { TrackEvents } from './event/blockEvent'
 import { CoinGeckoDiscord } from './templates/coingecko'
 import { GetCoinGecko } from './lyra/coingecko'
@@ -52,7 +52,7 @@ let lyra: Lyra
 
 export async function initializeLyraBot() {
   lyra = new Lyra({
-    provider: optimismInfuraProvider,
+    provider: alchemyProvider,
     subgraphUri: 'https://subgraph.satsuma-prod.com/lyra/optimism-mainnet/api',
   })
 
