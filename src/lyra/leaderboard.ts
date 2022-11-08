@@ -16,6 +16,7 @@ import { GetNotableAddress } from '../utils/notableAddresses'
 import fromBigNumber from '../utils/fromBigNumber'
 import { GetUrl } from '../utils/utils'
 import { GetFren } from '../integrations/fren'
+import moment from 'moment'
 
 // async function GetLeaderBoardTrades(): Promise<Trade[]> {
 //   const trades = (
@@ -139,8 +140,9 @@ export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLead
 }
 
 export async function GetLeaderBoard(lyra: Lyra) {
+  const monthAgo = moment().subtract(1, 'months').unix()
   LYRA_LEADERBOARD = await lyra.leaderboard({
-    minOpenTimestamp: 1662595200,
+    minOpenTimestamp: monthAgo,
     sortBy: PositionLeaderboardSortBy.RealizedPnl,
     secondarySortBy: PositionLeaderboardSortBy.UnrealizedPnl,
     minTotalPremiums: ONE_BN.mul(100),
@@ -151,7 +153,6 @@ export async function BroadcastLeaderBoard(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
-  lyra: Lyra,
 ) {
   console.log('### Broadcast Leaderboard ###')
 

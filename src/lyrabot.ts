@@ -53,7 +53,7 @@ let lyra: Lyra
 export async function initializeLyraBot() {
   lyra = new Lyra({
     provider: optimismInfuraProvider,
-    subgraphUri: 'https://api.thegraph.com/subgraphs/name/lyra-finance/mainnet',
+    subgraphUri: 'https://subgraph.satsuma-prod.com/lyra/optimism-mainnet/api',
   })
 
   if (TESTNET) {

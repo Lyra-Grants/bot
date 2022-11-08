@@ -6,6 +6,7 @@ dotenv.config({ path: '.env' })
 
 export const INFURA_ID = _.defaultTo(process.env.INFURA_ID, '')
 export const INFURA_ID_OPTIMISM = _.defaultTo(process.env.INFURA_ID_OPTIMISM, '')
+export const ALCHEMY_ID = _.defaultTo(process.env.ALCHEMY_ID, '')
 
 export const TWITTER_APP_KEY = _.defaultTo(process.env.TWITTER_APP_KEY, '')
 export const TWITTER_APP_SECRET = _.defaultTo(process.env.TWITTER_APP_SECRET, '')

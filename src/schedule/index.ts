@@ -47,7 +47,7 @@ export function LeaderboardSendJob(
 ): void {
   console.log('Mon Wed Fri leaderboard job')
   scheduleJob('0 0 * * 1,3,5', async () => {
-    await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient, lyra)
+    await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
   })
 }
 
