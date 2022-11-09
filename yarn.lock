@@ -1850,10 +1850,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@lyrafinance/lyra-js@^0.0.20":
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/@lyrafinance/lyra-js/-/lyra-js-0.0.20.tgz#0d2ba12b9fd774ac50d1ce3d5cc08a83d794423f"
-  integrity sha512-QyM8EiBxpKGFZEjS1EB3flyqvcgCVAOL7KSFwZdk4ccEJkjxTVti5pYkTvjh/WewSYji43XI6fd0A42yKwYOvQ==
+"@lyrafinance/lyra-js@^0.0.22":
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/@lyrafinance/lyra-js/-/lyra-js-0.0.22.tgz#03d9f1e047253a5b24762130da0dae1298a3c0ab"
+  integrity sha512-5wQViTxloHGwAmQZ42BTXpJ+5JebleTbdWT+rcIvCHR1wqTdRJC7lnWdUB42eUAZygSaPMLjeKCeuQumXpcItg==
   dependencies:
     "@ethersproject/address" "^5.6.0"
     "@ethersproject/bignumber" "^5.6.0"

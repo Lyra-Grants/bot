@@ -31,6 +31,7 @@ import { FN } from '../templates/common'
 export async function RunTradeBot(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
+  discordClientSol: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
@@ -40,15 +41,26 @@ export async function RunTradeBot(
   let blockNumber: number | undefined = undefined
   let pollInterval = 60000
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 50000
-    pollInterval = 600
+    blockNumber = lyraClient.provider.blockNumber - 5000
+    pollInterval = 6000
   }
 
   lyraClient.onTrade(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)
-        await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient, discordClientBtc)
+
+        switch (tradeDto.asset) {
+          case 'BTC':
+            await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClientBtc)
+            break
+          case 'SOL':
+            await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClientSol)
+            break
+          case 'ETH':
+            await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
+            break
+        }
       } catch (e: any) {
         console.log(e)
       }
@@ -155,7 +167,6 @@ export async function BroadCastTrade(
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
 ): Promise<void> {
   console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
   console.log('Trade Premium: ' + trade.premium)
@@ -165,13 +176,16 @@ export async function BroadCastTrade(
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     TWITTER_ENABLED
   ) {
-    const tweet = TradeTwitter(trade)
-    await SendTweet(tweet, twitterClient)
+    await SendTweet(TradeTwitter(trade), twitterClient)
   }
 
-  if ((trade.premium >= TELEGRAM_THRESHOLD || trade.isNotable) && TELEGRAM_ENABLED) {
-    const post = TradeTelegram(trade)
-    await PostTelegram(post, telegramClient)
+  if (
+    (trade.premium >= TELEGRAM_THRESHOLD ||
+      trade.isNotable ||
+      (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
+    TELEGRAM_ENABLED
+  ) {
+    await PostTelegram(TradeTelegram(trade), telegramClient)
   }
 
   if (
@@ -180,13 +194,6 @@ export async function BroadCastTrade(
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     DISCORD_ENABLED
   ) {
-    const post = [TradeDiscord(trade)]
-    const channelName = TRADE_CHANNEL
-
-    if (trade.asset === 'ETH') {
-      await PostDiscord(post, discordClient, channelName)
-    } else {
-      await PostDiscord(post, discordClientBtc, channelName)
-    }
+    await PostDiscord([TradeDiscord(trade)], discordClient, TRADE_CHANNEL)
   }
 }
