@@ -38,6 +38,7 @@ export async function initializeLyraBot() {
   global.LYRA_ENS = {}
   global.LYRA_LEADERBOARD = []
   global.FREN = {}
+  await GetPrice()
 
   await Promise.all([
     SetUpDiscord((discordClient = DiscordClient()), 'eth', DISCORD_ACCESS_TOKEN, lyra),
@@ -46,7 +47,6 @@ export async function initializeLyraBot() {
     SetUpTwitter(),
     SetUpTelegram(),
     GetLeaderBoard(lyra),
-    GetPrice(),
   ])
 
   await RunTradeBot(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
