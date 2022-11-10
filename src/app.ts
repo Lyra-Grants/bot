@@ -1,7 +1,27 @@
-import { initializeLyraBot } from './lyrabot'
-import { Generate } from './wallets/wallet'
+import { Telegraf } from 'telegraf'
+import { initializeLyraBot } from './bot'
+import { PostTelegram } from './integrations/telegram'
+import { LOG_CHANNEL, LOG_TOKEN } from './secrets'
 
-// const TestWallet = Generate()
-// console.log(TestWallet)
+async function Initialize(): Promise<void> {
+  try {
+    RegisterShutdownEvents()
+    await Notifier(false)
+    await initializeLyraBot()
+  } catch (error) {
+    console.error(error)
+  }
+}
 
-initializeLyraBot().then(() => console.log('Lyrabot is launched'))
+async function Notifier(isDown = true) {
+  await PostTelegram(`⚡ Lyra Bot ${isDown ? 'Down' : 'Up'}\n`, new Telegraf(LOG_TOKEN), LOG_CHANNEL)
+}
+
+function RegisterShutdownEvents(): void {
+  process.on('beforeExit', async (code) => {
+    await Notifier()
+    process.exit(code)
+  })
+}
+
+Initialize()

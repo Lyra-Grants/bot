@@ -48,6 +48,13 @@ yarn start
 - `TELEGRAM_ACCESS_TOKEN`
 - `TELEGRAM_CHANNEL`
 
+#### Telegram Logging
+
+Log when the bot is launched or goes down.
+
+- `LOG_TOKEN`
+- `LOG_CHANNEL`
+
 ### Resources
 
 - [Lyra Finance Repositories](https://github.com/lyra-finance)
