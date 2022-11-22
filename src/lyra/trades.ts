@@ -31,7 +31,6 @@ import { FN } from '../templates/common'
 export async function RunTradeBot(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
@@ -49,13 +48,9 @@ export async function RunTradeBot(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)
-
         switch (tradeDto.asset) {
           case 'BTC':
             await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClientBtc)
-            break
-          case 'SOL':
-            await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClientSol)
             break
           case 'ETH':
             await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)

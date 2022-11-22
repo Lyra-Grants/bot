@@ -12,11 +12,7 @@ import { GetCoinGecko } from '../lyra/coingecko'
 import { BroadcastLeaderBoard, GetLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
 
-export function PricingJob(
-  discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
-): void {
+export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Client<boolean>): void {
   console.log('30 min pricing job running')
   scheduleJob('*/30 * * * *', async () => {
     await GetPrice()
@@ -26,9 +22,6 @@ export function PricingJob(
 
     defaultActivity(discordClientBtc, 'btc')
     await defaultName(discordClientBtc, 'btc')
-
-    defaultActivity(discordClientSol, 'sol')
-    await defaultName(discordClientSol, 'sol')
   })
 }
 
@@ -54,7 +47,6 @@ export function LeaderboardSendJob(
 export function StatsJob(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
@@ -66,9 +58,6 @@ export function StatsJob(
 
     const statsDtoBtc = await GetStats('btc', lyraClient)
     await BroadCastStats(statsDtoBtc, twitterClient, telegramClient, discordClientBtc)
-
-    const statsDtoSol = await GetStats('sol', lyraClient)
-    await BroadCastStats(statsDtoSol, twitterClient, telegramClient, discordClientSol)
   })
 }
 
@@ -88,7 +77,6 @@ export function CoinGeckoJob(
 export function ArbitrageJob(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
   lyraClient: Lyra,
@@ -99,8 +87,5 @@ export function ArbitrageJob(
 
     const arbDtoBtc = await GetArbitrageDeals(lyraClient, 'btc')
     await BroadCast(arbDtoBtc, twitterClient, telegramClient, discordClientBtc)
-
-    const arbDtoSol = await GetArbitrageDeals(lyraClient, 'sol')
-    await BroadCast(arbDtoSol, twitterClient, telegramClient, discordClientSol)
   })
 }

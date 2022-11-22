@@ -15,8 +15,7 @@
     "lint:ts:fix": "yarn lint:ts --fix",
     "format": "prettier --write \"**/*.+(js|ts|json)\"",
     "deploycmds": "tsc && node ./deploy-commands.js",
-    "deploycmdsbtc": "tsc && node ./deploy-commands-btc.js",
-    "deploycmdssol": "tsc && node ./deploy-commands-sol.js"
+    "deploycmdsbtc": "tsc && node ./deploy-commands-btc.js"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",

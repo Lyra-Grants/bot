@@ -23,7 +23,6 @@ import { GetUrl } from '../utils/utils'
 export async function TrackDeposits(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
   rpcClient: Lyra,
@@ -61,7 +60,7 @@ export async function TrackDeposits(
         totalQueued: 0,
         url: GetUrl(event.args.beneficiary.toLowerCase(), isNotable),
       }
-      await BroadCastDeposit(dto, discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient)
+      await BroadCastDeposit(dto, discordClient, discordClientBtc, telegramClient, twitterClient)
     } catch (ex) {
       console.log(ex)
     }
@@ -74,7 +73,6 @@ export async function BroadCastDeposit(
   dto: DepositDto,
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
 ): Promise<void> {
@@ -86,9 +84,6 @@ export async function BroadCastDeposit(
     }
     if (dto.market.toLowerCase() == 'btc') {
       await PostDiscord(post, discordClientBtc, DEPOSITS_CHANNEL)
-    }
-    if (dto.market.toLowerCase() == 'sol') {
-      await PostDiscord(post, discordClientSol, DEPOSITS_CHANNEL)
     }
   }
 

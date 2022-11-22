@@ -33,14 +33,6 @@ const btcOptions = {
   },
 }
 
-const solOptions = {
-  method: 'public/get_book_summary_by_currency',
-  params: {
-    currency: 'SOL',
-    kind: 'option',
-  },
-}
-
 //     @ response data
 //     ask_price: null,
 //     base_currency: "ETH",
@@ -110,10 +102,6 @@ async function useDeribitData(market: string) {
 
   if (market === 'btc') {
     config = btcOptions
-  }
-
-  if (market === 'sol') {
-    config = solOptions
   }
 
   await rpc

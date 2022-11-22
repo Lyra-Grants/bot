@@ -15,7 +15,6 @@ import { TrackStrikeAdded } from '../lyra/expiries'
 export async function TrackEvents(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
   twitterClient1: TwitterApi,
@@ -36,26 +35,10 @@ export async function TrackEvents(
         await TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event[0])
       }
       if (event[0].topics[0].toLowerCase() === DEPOSIT_PROCESSED) {
-        await TrackDeposits(
-          discordClient,
-          discordClientBtc,
-          discordClientSol,
-          telegramClient,
-          twitterClient1,
-          rpcClient,
-          event[0],
-        )
+        await TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event[0])
       }
       if (event[0].topics[0].toLowerCase() === STRIKE_ADDED) {
-        await TrackStrikeAdded(
-          discordClient,
-          discordClientBtc,
-          discordClientSol,
-          telegramClient,
-          twitterClient,
-          rpcClient,
-          event,
-        )
+        await TrackStrikeAdded(discordClient, discordClientBtc, telegramClient, twitterClient, rpcClient, event)
       }
     },
     {

@@ -1,13 +1,6 @@
 import { RunTradeBot } from './lyra/trades'
 import { GetLeaderBoard } from './lyra/leaderboard'
-import {
-  DISCORD_ACCESS_TOKEN,
-  DISCORD_ACCESS_TOKEN_BTC,
-  DISCORD_ACCESS_TOKEN_SOL,
-  TELEGRAM_ENABLED,
-  TESTNET,
-  TWITTER_ENABLED,
-} from './secrets'
+import { DISCORD_ACCESS_TOKEN, DISCORD_ACCESS_TOKEN_BTC, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
 import { DiscordClient } from './clients/discordClient'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
@@ -24,7 +17,6 @@ import { SetUpDiscord } from './discord'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
-let discordClientSol: Client<boolean>
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let telegramClient: Telegraf<Context<Update>>
@@ -43,30 +35,21 @@ export async function initializeLyraBot() {
   await Promise.all([
     SetUpDiscord((discordClient = DiscordClient()), 'eth', DISCORD_ACCESS_TOKEN, lyra),
     SetUpDiscord((discordClientBtc = DiscordClient()), 'btc', DISCORD_ACCESS_TOKEN_BTC, lyra),
-    SetUpDiscord((discordClientSol = DiscordClient()), 'sol', DISCORD_ACCESS_TOKEN_SOL, lyra),
     SetUpTwitter(),
     SetUpTelegram(),
     GetLeaderBoard(lyra),
   ])
 
-  await RunTradeBot(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
-  await TrackEvents(
-    discordClient,
-    discordClientBtc,
-    discordClientSol,
-    telegramClient,
-    twitterClient,
-    twitterClient1,
-    lyra,
-  )
+  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
 
   if (!TESTNET) {
-    PricingJob(discordClient, discordClientBtc, discordClientSol)
+    PricingJob(discordClient, discordClientBtc)
     LeaderBoardFillJob(lyra)
     LeaderboardSendJob(discordClient, twitterClient, telegramClient, lyra)
-    StatsJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
+    StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
-    ArbitrageJob(discordClient, discordClientBtc, discordClientSol, twitterClient, telegramClient, lyra)
+    ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   }
 }
 

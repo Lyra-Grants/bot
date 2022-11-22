@@ -67,7 +67,4 @@ export function StatSymbol(asset: string) {
   if (asset.toLowerCase() == 'btc') {
     return '🔶'
   }
-  if (asset.toLowerCase() == 'sol') {
-    return '🟣'
-  }
 }

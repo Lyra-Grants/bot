@@ -12,11 +12,6 @@ export function getPriceForMarket(market: string) {
   if (market === 'btc') {
     price = BTC_PRICE
   }
-
-  if (market === 'sol') {
-    price = SOL_PRICE
-  }
-
   return price
 }
 
@@ -51,7 +46,7 @@ export async function useDeals(marketName: string, lyra: Lyra) {
   const { allRates } = await useRatesData(marketName, lyra)
   const res: Deal[] = []
   const providers = [ProviderType.LYRA, ProviderType.DERIBIT]
-  const profit_threshold = marketName == 'sol' ? 0 : 3
+  const profit_threshold = 3
 
   Object.values(allRates).forEach((strike) =>
     Object.values(strike).forEach((interception) => {

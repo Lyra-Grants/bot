@@ -15,8 +15,6 @@ declare global {
   var ETH_24HR: number
   var BTC_PRICE: number
   var BTC_24HR: number
-  var SOL_PRICE: number
-  var SOL_24HR: number
 }
 
 declare module '*.json' {

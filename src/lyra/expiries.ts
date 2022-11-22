@@ -20,7 +20,6 @@ import { PostTelegram } from '../integrations/telegram'
 export async function TrackStrikeAdded(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
   lyra: Lyra,
@@ -31,21 +30,12 @@ export async function TrackStrikeAdded(
 
   Object.keys(boardEvents).map(
     async (x) =>
-      await processBoardStrikes(
-        discordClient,
-        discordClientBtc,
-        discordClientSol,
-        telegramClient,
-        twitterClient,
-        boardEvents[x],
-        lyra,
-      ),
+      await processBoardStrikes(discordClient, discordClientBtc, telegramClient, twitterClient, boardEvents[x], lyra),
   )
 }
 export async function processBoardStrikes(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
   events: StrikeAddedEvent[],
@@ -71,7 +61,7 @@ export async function processBoardStrikes(
   }
 
   try {
-    BroadCastStrike(boardDto, discordClient, discordClientBtc, discordClientSol, telegramClient, twitterClient)
+    BroadCastStrike(boardDto, discordClient, discordClientBtc, telegramClient, twitterClient)
   } catch (ex) {
     console.log(ex)
   }
@@ -81,7 +71,6 @@ export async function BroadCastStrike(
   dto: BoardDto,
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  discordClientSol: Client<boolean>,
   telegramClient: Telegraf<Context<Update>>,
   twitterClient: TwitterApi,
 ): Promise<void> {
@@ -92,9 +81,6 @@ export async function BroadCastStrike(
     }
     if (dto.market.toLowerCase() == 'btc') {
       await PostDiscord(post, discordClientBtc, EXPIRY_CHANNEL)
-    }
-    if (dto.market.toLowerCase() == 'sol') {
-      await PostDiscord(post, discordClientSol, EXPIRY_CHANNEL)
     }
   }
 
