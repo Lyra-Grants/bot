@@ -116,7 +116,6 @@ export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
     fee: fromBigNumber(trade.fee),
     optionPrice: fromBigNumber(trade.pricePerOption),
     spot: fromBigNumber(trade.spotPrice),
-    degenMessage: RandomDegen(),
     blockNumber: trade.blockNumber,
     notableAddress: from,
     isNotable: isNotable,

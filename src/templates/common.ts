@@ -44,15 +44,15 @@ export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: b
 }
 
 export function VaultLink(asset: string) {
-  return `${LyraDappUrl()}/vaults/${asset.toLowerCase()}`
+  return `${LyraDappUrl()}/#/vaults/s${asset.toLowerCase()}-susd`
 }
 
 export function PositionLink(trade: TradeDto): string {
-  return `${LyraDappUrl()}/position?market=${trade.asset}&id=${trade.positionId}&see=${trade.account}`
+  return `${LyraDappUrl()}/#/position/s${trade.asset}-susd/${trade.positionId}?see=${trade.account}`
 }
 
 export function PortfolioLink(account: string) {
-  return `${LyraDappUrl()}/portfolio?see=${account}`
+  return `${LyraDappUrl()}/#/portfolio?see=${account}`
 }
 
 export function TwitterLink(handle: string) {
@@ -60,11 +60,11 @@ export function TwitterLink(handle: string) {
 }
 
 export function ExpiryLink(asset: string, date: string) {
-  return `${LyraDappUrl()}/trade/${asset.toLowerCase()}?expiry=${date}`
+  return `${LyraDappUrl()}/#/trade/s${asset.toLowerCase()}-susd?expiry=${date}`
 }
 
 export function TradeHistoryLink(trade: TraderAddress) {
-  return `${LyraDappUrl()}/portfolio/history?see=${trade.account}`
+  return `${LyraDappUrl()}/#/portfolio/history?see=${trade.account}`
 }
 
 export function EtherScanTransactionLink(transactionHash: string) {

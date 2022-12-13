@@ -212,12 +212,6 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
     tradeEmbed.addFields({ name: '🏦 Vault', value: `> [deposit into vault](${trade.url})`, inline: false })
   }
 
-  tradeEmbed.addFields({
-    name: `-----`,
-    value: `> ${trade.degenMessage}`,
-    inline: false,
-  })
-
   tradeEmbed
     .setFooter({
       iconURL:

@@ -84,7 +84,6 @@ export type TradeDto = BaseDto &
     fee: number
     optionPrice: number
     spot: number
-    degenMessage: string
     fren: Fren | undefined
     url: string
   }

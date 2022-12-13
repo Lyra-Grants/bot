@@ -140,13 +140,14 @@ export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLead
 }
 
 export async function GetLeaderBoard(lyra: Lyra) {
-  const monthAgo = moment().subtract(1, 'months').unix()
+  const monthAgo = moment().subtract(14, 'days').unix()
   LYRA_LEADERBOARD = await lyra.leaderboard({
     minOpenTimestamp: monthAgo,
     sortBy: PositionLeaderboardSortBy.RealizedPnl,
     secondarySortBy: PositionLeaderboardSortBy.UnrealizedPnl,
     minTotalPremiums: ONE_BN.mul(100),
   })
+  console.log(LYRA_LEADERBOARD)
 }
 
 export async function BroadcastLeaderBoard(
