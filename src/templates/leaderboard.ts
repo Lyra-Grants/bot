@@ -9,7 +9,7 @@ export function LeaderboardDiscord(leaderBoard: Trader[]): EmbedBuilder[] {
   const tradeEmbed = new EmbedBuilder()
     .setColor('#0099ff')
     .setTitle(`Top ${leaderBoard.length} Lyra Profitable Traders`)
-    .setDescription(`Last 1000 positions`)
+    .setDescription(`Last 7 days`)
     .addFields(
       { name: 'Trader', value: '-----------', inline: true },
       { name: '💵 Profit', value: '-----------', inline: true },
@@ -80,7 +80,7 @@ export function LeaderboardTwitter(leaderBoard: Trader[]) {
 export function LeaderboardTelegram(leaderBoard: Trader[]) {
   const post: string[] = []
   post.push(`✅ Top 10 Lyra Traders 💵 💰 🤑\n`)
-  post.push(`Profits from last 1000 positions.\n`)
+  post.push(`Profits from last 7 days.\n`)
   post.push(`============================\n`)
   leaderBoard.slice(0, 10).map((trader) => {
     post.push(
