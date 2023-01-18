@@ -17,6 +17,8 @@ import fromBigNumber from '../utils/fromBigNumber'
 import { GetUrl } from '../utils/utils'
 import { GetFren } from '../integrations/fren'
 import moment from 'moment'
+import { GetLeaderboardAPI } from '../integrations/leaderboard'
+import { LeaderboardElement } from '../types/leaderboardAPI'
 
 // async function GetLeaderBoardTrades(): Promise<Trade[]> {
 //   const trades = (
@@ -80,15 +82,14 @@ import moment from 'moment'
 export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> {
   const EMPTY: Trader = {
     account: '',
+    longPnl: 0,
+    shortPnl: 0,
+    longPnlPercentage: 0,
+    shortPnlPercentage: 0,
     realizedPnl: 0,
     unrealizedPnl: 0,
-    realizedLongPnl: 0,
-    realizedLongPnlPercentage: 0,
-    unrealizedLongPnl: 0,
-    unrealizedLongPnlPercentage: 0,
-    totalPremiums: 0,
-    totalLongPremiums: 0,
-    totalNotionalVolume: 0,
+    unrealizedPnlPercentage: 0,
+    initialCostOfOpen: 0,
     isProfitable: false,
     ens: '',
     position: 0,
@@ -98,8 +99,8 @@ export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> 
     fren: undefined,
   }
 
-  const index = LYRA_LEADERBOARD.findIndex(
-    (leaderboard) => leaderboard.account.toLowerCase() === traderAddress.toLowerCase(),
+  const index = LEADERBOARD_DATA.findIndex(
+    (leaderboard) => leaderboard.owner.toLowerCase() === traderAddress.toLowerCase(),
   )
 
   if (index === -1) {
@@ -107,47 +108,47 @@ export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> 
     return EMPTY
   }
 
-  const trader = await ParsePositionLeaderboard(LYRA_LEADERBOARD[index], index + 1)
+  const trader = await ParsePositionLeaderboard(LEADERBOARD_DATA[index], index + 1)
   return trader
 }
 
-export async function ParsePositionLeaderboard(positionLeaderBoard: PositionLeaderboard, position: number) {
-  const notableAddress = GetNotableAddress(positionLeaderBoard.account.toLowerCase())
+export async function ParsePositionLeaderboard(positionLeaderBoard: LeaderboardElement, position: number) {
+  const notableAddress = GetNotableAddress(positionLeaderBoard.owner.toLowerCase())
   const isNotable = notableAddress != ''
-  const ens = await GetEns(positionLeaderBoard.account)
+  const ens = await GetEns(positionLeaderBoard.owner)
 
   const result: Trader = {
-    account: positionLeaderBoard.account.toLowerCase(),
-    realizedPnl: fromBigNumber(positionLeaderBoard.realizedPnl),
-    unrealizedPnl: fromBigNumber(positionLeaderBoard.unrealizedPnl),
-    realizedLongPnl: fromBigNumber(positionLeaderBoard.realizedLongPnl),
-    realizedLongPnlPercentage: fromBigNumber(positionLeaderBoard.realizedLongPnlPercentage),
-    unrealizedLongPnl: fromBigNumber(positionLeaderBoard.unrealizedLongPnl),
-    unrealizedLongPnlPercentage: fromBigNumber(positionLeaderBoard.unrealizedLongPnlPercentage),
-    totalPremiums: fromBigNumber(positionLeaderBoard.totalPremiums),
-    totalLongPremiums: fromBigNumber(positionLeaderBoard.totalLongPremiums),
-    totalNotionalVolume: fromBigNumber(positionLeaderBoard.totalNotionalVolume),
-    isProfitable: fromBigNumber(positionLeaderBoard.realizedPnl) > 0,
-    ens: await GetEns(positionLeaderBoard.account),
+    account: positionLeaderBoard.owner.toLowerCase(),
+    longPnl: positionLeaderBoard.long_pnl,
+    shortPnl: positionLeaderBoard.short_pnl,
+    longPnlPercentage: positionLeaderBoard.long_pnl_percent,
+    shortPnlPercentage: positionLeaderBoard.short_pnl_percent,
+    realizedPnl: positionLeaderBoard.realized_pnl,
+    unrealizedPnl: positionLeaderBoard.unrealized_pnl,
+    unrealizedPnlPercentage: positionLeaderBoard.unrealized_pnl_percent,
+    initialCostOfOpen: positionLeaderBoard.initial_cost_of_open,
+    isProfitable: positionLeaderBoard.realized_pnl > 0,
+    ens: await GetEns(positionLeaderBoard.owner),
     position: position,
     notableAddress: notableAddress,
     isNotable: isNotable,
-    url: GetUrl(positionLeaderBoard.account.toLowerCase(), isNotable),
+    url: GetUrl(positionLeaderBoard.owner.toLowerCase(), isNotable),
     fren: await GetFren(ens),
   }
 
   return result
 }
 
-export async function GetLeaderBoard(lyra: Lyra) {
-  const monthAgo = moment().subtract(7, 'days').unix()
-  LYRA_LEADERBOARD = await lyra.leaderboard({
-    minOpenTimestamp: monthAgo,
-    sortBy: PositionLeaderboardSortBy.RealizedPnl,
-    secondarySortBy: PositionLeaderboardSortBy.UnrealizedPnl,
-    minTotalPremiums: ONE_BN.mul(100),
-  })
-  console.log(LYRA_LEADERBOARD)
+export async function GetLeaderBoard() {
+  // const monthAgo = moment().subtract(7, 'days').unix()
+  // LYRA_LEADERBOARD = await lyra.leaderboard({
+  //   minOpenTimestamp: monthAgo,
+  //   sortBy: PositionLeaderboardSortBy.RealizedPnl,
+  //   secondarySortBy: PositionLeaderboardSortBy.UnrealizedPnl,
+  //   minTotalPremiums: ONE_BN.mul(100),
+  // })
+  await GetLeaderboardAPI()
+  console.log('### Leaderboard Retrieved ###')
 }
 
 export async function BroadcastLeaderBoard(
@@ -158,7 +159,7 @@ export async function BroadcastLeaderBoard(
   console.log('### Broadcast Leaderboard ###')
 
   const traders = await Promise.all(
-    global.LYRA_LEADERBOARD.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
+    global.LEADERBOARD_DATA.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
   )
 
   if (DISCORD_ENABLED) {

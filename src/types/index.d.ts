@@ -2,9 +2,11 @@
 
 import { PositionLeaderboard } from '@lyrafinance/lyra-js'
 import { Fren } from './fren'
+import { LeaderboardElement } from './leaderboardAPI'
 
 declare global {
   var LYRA_LEADERBOARD: PositionLeaderboard[] = []
+  var LEADERBOARD_DATA: LeaderboardElement[] = []
 
   var LYRA_ENS: { [key: string]: string } = {}
   var FREN: { [key: string]: Fren } = {}

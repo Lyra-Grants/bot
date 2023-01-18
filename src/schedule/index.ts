@@ -25,10 +25,10 @@ export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Cli
   })
 }
 
-export function LeaderBoardFillJob(lyra: Lyra): void {
+export function LeaderBoardFillJob(): void {
   console.log('On the hour job running')
   scheduleJob('* 0 * * *', async () => {
-    await GetLeaderBoard(lyra)
+    await GetLeaderBoard()
   })
 }
 
@@ -36,7 +36,6 @@ export function LeaderboardSendJob(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf<Context<Update>>,
-  lyra: Lyra,
 ): void {
   console.log('Mon Wed Fri leaderboard job')
   scheduleJob('0 0 * * 1,3,5', async () => {

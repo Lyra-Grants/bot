@@ -48,11 +48,12 @@ export async function RunTradeBot(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)
+        console.log(tradeDto)
         switch (tradeDto.asset) {
-          case 'BTC':
+          case 'sBtc-sUSD':
             await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClientBtc)
             break
-          case 'ETH':
+          case 'sETH-sUSD':
             await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
             break
         }

@@ -10,11 +10,12 @@ import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
-import Lyra, { LiquidityPool__factory } from '@lyrafinance/lyra-js'
+import Lyra from '@lyrafinance/lyra-js'
+import { LiquidityPool__factory } from '@lyrafinance/lyra-js/dist/types/contracts/avalon/typechain'
 import {
   DepositProcessedEvent,
   DepositQueuedEvent,
-} from '@lyrafinance/lyra-js/dist/types/contracts/typechain/LiquidityPool'
+} from '@lyrafinance/lyra-js/dist/types/contracts/avalon/typechain/LiquidityPool'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { GetMarket } from '../templates/common'

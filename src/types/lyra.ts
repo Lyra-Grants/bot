@@ -119,15 +119,14 @@ export type StatDto = {
 }
 
 export type Trader = TraderAddress & {
+  longPnl: number
+  shortPnl: number
+  longPnlPercentage: number
+  shortPnlPercentage: number
   realizedPnl: number
   unrealizedPnl: number
-  realizedLongPnl: number
-  realizedLongPnlPercentage: number
-  unrealizedLongPnl: number
-  unrealizedLongPnlPercentage: number
-  totalPremiums: number
-  totalLongPremiums: number
-  totalNotionalVolume: number
+  unrealizedPnlPercentage: number
+  initialCostOfOpen: number
   isProfitable: boolean
   position: number
   fren: Fren | undefined

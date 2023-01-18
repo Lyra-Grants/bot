@@ -13,8 +13,8 @@ import Lyra from '@lyrafinance/lyra-js/dist/types/lyra'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { TOKEN_CHANNEL } from '../constants/discordChannels'
-import { ERC20__factory } from '@lyrafinance/lyra-js'
-import { TransferEvent } from '@lyrafinance/lyra-js/dist/types/contracts/typechain/ERC20'
+import { ERC20__factory } from '@lyrafinance/lyra-js/dist/types/contracts/common/typechain'
+import { TransferEvent } from '@lyrafinance/lyra-js/dist/types/contracts/common/typechain/ERC20'
 
 export async function TrackTransfer(
   discordClient: Client<boolean>,

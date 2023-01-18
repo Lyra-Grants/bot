@@ -5,4 +5,5 @@ export const urls = {
   polynomialDappUrl: 'https://earn.polynomial.fi',
   brahmaDappUrl: 'https://app.brahma.fi',
   dHedgeDappUrl: 'https://app.dhedge.org',
+  leaderboardApiUrl: 'https://api.lyra.finance/leaderboard',
 }

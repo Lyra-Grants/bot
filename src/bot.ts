@@ -14,6 +14,7 @@ import { alchemyProvider } from './clients/ethersClient'
 import { TrackEvents } from './event/blockEvent'
 import { ArbitrageJob, CoinGeckoJob, LeaderBoardFillJob, LeaderboardSendJob, PricingJob, StatsJob } from './schedule'
 import { SetUpDiscord } from './discord'
+import printObject from './utils/printObject'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
@@ -25,10 +26,11 @@ let lyra: Lyra
 export async function initializeLyraBot() {
   lyra = new Lyra({
     provider: alchemyProvider,
+    subgraphUri: 'https://subgraph.satsuma-prod.com/lyra/optimism-mainnet/api',
   })
 
   global.LYRA_ENS = {}
-  global.LYRA_LEADERBOARD = []
+  global.LEADERBOARD_DATA = []
   global.FREN = {}
   await GetPrice()
 
@@ -37,7 +39,7 @@ export async function initializeLyraBot() {
     SetUpDiscord((discordClientBtc = DiscordClient()), 'btc', DISCORD_ACCESS_TOKEN_BTC, lyra),
     SetUpTwitter(),
     SetUpTelegram(),
-    GetLeaderBoard(lyra),
+    GetLeaderBoard(),
   ])
 
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
@@ -45,8 +47,8 @@ export async function initializeLyraBot() {
 
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc)
-    LeaderBoardFillJob(lyra)
-    LeaderboardSendJob(discordClient, twitterClient, telegramClient, lyra)
+    LeaderBoardFillJob()
+    LeaderboardSendJob(discordClient, twitterClient, telegramClient)
     StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
     ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)

@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js'
 import { Trader } from '../types/lyra'
 import { dollar } from '../utils/utils'
-import { DisplayTrader, DisplayTraderNoEmoji, FN, FNS, LyraDappUrl, Medal, PortfolioLink, TwitterLink } from './common'
+import { DisplayTraderNoEmoji, FN, FNS, LyraDappUrl, Medal, PortfolioLink, TwitterLink } from './common'
 
 export function TraderDiscord(trader: Trader): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
@@ -18,31 +18,25 @@ export function TraderDiscord(trader: Trader): EmbedBuilder[] {
         value: `> ${DisplayTraderNoEmoji(trader)}`,
         inline: false,
       },
-      { name: 'Realized Pnl', value: `> ${dollar(trader.realizedPnl)}`, inline: false },
-      { name: 'Unrealized Pnl', value: `> ${dollar(trader.unrealizedPnl)}`, inline: false },
+      { name: 'Long Pnl', value: `> ${dollar(trader.longPnl)} (${FNS(trader.longPnlPercentage, 2)}%)`, inline: false },
       {
-        name: 'Realized Long Pnl',
-        value: `> ${dollar(trader.realizedLongPnl)} (${FNS(trader.realizedLongPnlPercentage, 2)}%)`,
+        name: 'Short Pnl',
+        value: `> ${dollar(trader.shortPnl)} (${FNS(trader.shortPnlPercentage, 2)}%)`,
+        inline: false,
+      },
+      {
+        name: 'Realized Pnl',
+        value: `> ${dollar(trader.realizedPnl)}`,
         inline: false,
       },
       {
         name: 'Unrealized Pnl',
-        value: `> ${dollar(trader.unrealizedPnl)}  (${FNS(trader.unrealizedLongPnlPercentage, 2)}%)`,
+        value: `> ${dollar(trader.unrealizedPnl)}  (${FNS(trader.unrealizedPnlPercentage, 2)}%)`,
         inline: false,
       },
       {
-        name: 'Total Premiums',
-        value: `> ${dollar(trader.totalPremiums)}`,
-        inline: false,
-      },
-      {
-        name: 'Total Long Premiums',
-        value: `> ${dollar(trader.totalLongPremiums)}`,
-        inline: false,
-      },
-      {
-        name: 'Total Notional Volume',
-        value: `> ${dollar(trader.totalNotionalVolume)}`,
+        name: 'Initial Cost Of Open',
+        value: `> ${dollar(trader.initialCostOfOpen)}`,
         inline: false,
       },
     )
