@@ -4,8 +4,7 @@ import { DISCORD_ACCESS_TOKEN, DISCORD_ACCESS_TOKEN_BTC, TELEGRAM_ENABLED, TESTN
 import { DiscordClient } from './clients/discordClient'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
-import { Context, Telegraf } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
+import { Telegraf } from 'telegraf'
 import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import Lyra from '@lyrafinance/lyra-js'
@@ -20,7 +19,7 @@ let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
-let telegramClient: Telegraf<Context<Update>>
+let telegramClient: Telegraf
 let lyra: Lyra
 
 export async function initializeLyraBot() {

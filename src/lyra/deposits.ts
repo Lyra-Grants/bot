@@ -4,18 +4,16 @@ import { Client } from 'discord.js'
 import { PostDiscord } from '../integrations/discord'
 import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import { Context, Telegraf } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
+import { Telegraf } from 'telegraf'
 import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
-import Lyra from '@lyrafinance/lyra-js'
-import { LiquidityPool__factory } from '@lyrafinance/lyra-js/dist/types/contracts/avalon/typechain'
-import {
-  DepositProcessedEvent,
-  DepositQueuedEvent,
-} from '@lyrafinance/lyra-js/dist/types/contracts/avalon/typechain/LiquidityPool'
+import Lyra, {
+  AvalonLiquidityPool__factory,
+  AvalonDepositProcessedEvent as DepositProcessedEvent,
+  AvalonDepositQueuedEvent as DepositQueuedEvent,
+} from '@lyrafinance/lyra-js'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { GetMarket } from '../templates/common'
@@ -24,7 +22,7 @@ import { GetUrl } from '../utils/utils'
 export async function TrackDeposits(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   twitterClient: TwitterApi,
   rpcClient: Lyra,
   genericEvent: GenericEvent,
@@ -74,7 +72,7 @@ export async function BroadCastDeposit(
   dto: DepositDto,
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   twitterClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
@@ -95,7 +93,7 @@ export async function BroadCastDeposit(
 }
 
 export function parseEvent(event: DepositQueuedEvent): DepositQueuedEvent {
-  const parsedEvent = LiquidityPool__factory.createInterface().parseLog(event)
+  const parsedEvent = AvalonLiquidityPool__factory.createInterface().parseLog(event)
 
   if ((parsedEvent.args as DepositQueuedEvent['args']).length > 0) {
     event.args = parsedEvent.args as DepositQueuedEvent['args']
@@ -104,7 +102,7 @@ export function parseEvent(event: DepositQueuedEvent): DepositQueuedEvent {
 }
 
 export function parseProcessedEvent(event: DepositProcessedEvent): DepositProcessedEvent {
-  const parsedEvent = LiquidityPool__factory.createInterface().parseLog(event)
+  const parsedEvent = AvalonLiquidityPool__factory.createInterface().parseLog(event)
 
   if ((parsedEvent.args as DepositProcessedEvent['args']).length > 0) {
     event.args = parsedEvent.args as DepositProcessedEvent['args']

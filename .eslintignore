@@ -1,6 +1,7 @@
 # folders
 dist/
 node_modules/
+dependencies/@lyrafinance/
 src/index.ts
 src/graphql.ts
 src/types/global.d.ts

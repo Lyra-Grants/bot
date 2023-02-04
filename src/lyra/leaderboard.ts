@@ -1,6 +1,5 @@
 import { Client } from 'discord.js'
 import { Context, Telegraf } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
 import { TwitterApi } from 'twitter-api-v2'
 import { PostDiscord } from '../integrations/discord'
 import { SendTweet } from '../integrations/twitter'
@@ -154,7 +153,7 @@ export async function GetLeaderBoard() {
 export async function BroadcastLeaderBoard(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
 ) {
   console.log('### Broadcast Leaderboard ###')
 

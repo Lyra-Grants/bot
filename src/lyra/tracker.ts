@@ -7,18 +7,16 @@ import { TransferDiscord, TransferTwitter } from '../templates/transfer'
 import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
 import { Context, Telegraf } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
 import { SendTweet } from '../integrations/twitter'
-import Lyra from '@lyrafinance/lyra-js/dist/types/lyra'
+import Lyra from '@lyrafinance/lyra-js'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { TOKEN_CHANNEL } from '../constants/discordChannels'
-import { ERC20__factory } from '@lyrafinance/lyra-js/dist/types/contracts/common/typechain'
-import { TransferEvent } from '@lyrafinance/lyra-js/dist/types/contracts/common/typechain/ERC20'
+import { TransferEvent, ERC20__factory } from '@lyrafinance/lyra-js'
 
 export async function TrackTransfer(
   discordClient: Client<boolean>,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   twitterClient: TwitterApi,
   lyra: Lyra,
   genericEvent: GenericEvent,
@@ -62,7 +60,7 @@ export async function TrackTransfer(
 export async function BroadCastTransfer(
   transferDto: TransferDto,
   discordClient: Client<boolean>,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   twitterClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {

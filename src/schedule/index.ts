@@ -1,8 +1,7 @@
 import Lyra from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
 import { scheduleJob } from 'node-schedule'
-import { Telegraf, Context } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
+import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { BroadCast } from '../event/broadcast'
 import { GetPrice } from '../integrations/coingecko'
@@ -35,7 +34,7 @@ export function LeaderBoardFillJob(): void {
 export function LeaderboardSendJob(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
 ): void {
   console.log('Mon Wed Fri leaderboard job')
   scheduleJob('0 0 * * 1,3,5', async () => {
@@ -47,7 +46,7 @@ export function StatsJob(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   lyraClient: Lyra,
 ): void {
   console.log('Mon Wed Fri Stats job')
@@ -63,7 +62,7 @@ export function StatsJob(
 export function CoinGeckoJob(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   lyraClient: Lyra,
 ): void {
   console.log('Mon Wed Fri Stats job')
@@ -77,7 +76,7 @@ export function ArbitrageJob(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   lyraClient: Lyra,
 ): void {
   scheduleJob('0 4 * * 1,3,5', async () => {

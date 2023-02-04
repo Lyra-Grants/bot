@@ -4,14 +4,11 @@ import { Client } from 'discord.js'
 import { BoardDto, StrikeDto } from '../types/lyra'
 import { groupBy, toDate } from '../utils/utils'
 import { Context, Telegraf } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
 import { SendTweet } from '../integrations/twitter'
-import Lyra from '@lyrafinance/lyra-js/dist/types/lyra'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { EXPIRY_CHANNEL } from '../constants/discordChannels'
-import { OptionMarket__factory } from '@lyrafinance/lyra-js/dist/types/contracts/avalon/typechain/'
-import { StrikeAddedEvent } from '@lyrafinance/lyra-js/dist/types/contracts/avalon/typechain/OptionMarket'
+import Lyra, { OptionMarket__factory, StrikeAddedEvent } from '@lyrafinance/lyra-js'
 import printObject from '../utils/printObject'
 import { BoardDiscord, BoardTelegram, BoardTwitter } from '../templates/strike'
 import { PostDiscord } from '../integrations/discord'
@@ -20,7 +17,7 @@ import { PostTelegram } from '../integrations/telegram'
 export async function TrackStrikeAdded(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   twitterClient: TwitterApi,
   lyra: Lyra,
   genericEvents: GenericEvent[],
@@ -36,7 +33,7 @@ export async function TrackStrikeAdded(
 export async function processBoardStrikes(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   twitterClient: TwitterApi,
   events: StrikeAddedEvent[],
   lyra: Lyra,
@@ -71,7 +68,7 @@ export async function BroadCastStrike(
   dto: BoardDto,
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   twitterClient: TwitterApi,
 ): Promise<void> {
   if (DISCORD_ENABLED) {

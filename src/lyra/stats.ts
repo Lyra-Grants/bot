@@ -1,7 +1,6 @@
 import Lyra, { Market } from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
 import { Telegraf, Context } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
 import { TwitterApi } from 'twitter-api-v2'
 import { ZERO_BN } from '../constants/bn'
 import { STATS_CHANNEL } from '../constants/discordChannels'
@@ -70,7 +69,7 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
 export async function BroadCastStats(
   dto: StatDto,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   discordClient: Client<boolean>,
 ): Promise<void> {
   if (TWITTER_ENABLED) {

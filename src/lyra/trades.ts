@@ -19,7 +19,6 @@ import { PostDiscord } from '../integrations/discord'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Context, Telegraf } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
 import { TradeDiscord, TradeTelegram, TradeTwitter } from '../templates/trade'
 import fromBigNumber from '../utils/fromBigNumber'
 import { RandomDegen } from '../constants/degenMessage'
@@ -32,7 +31,7 @@ export async function RunTradeBot(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   lyraClient: Lyra,
 ) {
   console.log('### Polling for Trades ###')
@@ -160,7 +159,7 @@ export function BaseCollateral(trade: TradeEvent, asset: string) {
 export async function BroadCastTrade(
   trade: TradeDto,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
+  telegramClient: Telegraf,
   discordClient: Client<boolean>,
 ): Promise<void> {
   console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
