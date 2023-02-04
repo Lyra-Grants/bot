@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "yarn workspace @lyra-grants/app start",
-    "build": "yarn workspace @lyra-grants/app build",
     "sdk:watch": "yarn workspace @lyrafinance/lyra-js watch",
     "sdk:build": "yarn workspace @lyrafinance/lyra-js build"
   },
