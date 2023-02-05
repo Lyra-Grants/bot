@@ -12,7 +12,7 @@ export function DepositTwitter(dto: DepositDto) {
   if (dto.totalQueued > 0) {
     post.push(`🏦 Total queued: $${FN(dto.totalQueued, 0)}\n`)
   }
-  post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n`)
+  // post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n`)
   post.push(`\nOptions for everyone, start trading 👇\n`)
   post.push(`${LyraDappUrl()}`)
   return post.join('')
@@ -23,7 +23,7 @@ export function DepositDiscord(dto: DepositDto): EmbedBuilder[] {
   const embeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder()
     .setColor('#00ff7f')
-    .setURL(`${`https://optimistic.etherscan.io/tx/${dto.transactionHash}`}`)
+    // .setURL(`${`https://optimistic.etherscan.io/tx/${dto.transactionHash}`}`)
     .setTitle(`Deposit: ${StatSymbol(dto.market)} ${dto.market} Market Vault`)
     .addFields(
       {

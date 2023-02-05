@@ -8,7 +8,7 @@ import { DEPOSIT_PROCESSED, STRIKE_ADDED, TRANSFER_TOPIC } from '../constants/to
 import { CONTRACT_ADDRESSES } from '../constants/contractAddresses'
 import Lyra from '@lyrafinance/lyra-js'
 import { TrackTransfer } from '../lyra/tracker'
-import { TrackDeposits } from '../lyra/deposits'
+// import { TrackDeposits } from '../lyra/deposits'
 import printObject from '../utils/printObject'
 import { TrackStrikeAdded } from '../lyra/expiries'
 
@@ -34,9 +34,9 @@ export async function TrackEvents(
       if (event[0].topics[0].toLowerCase() === TRANSFER_TOPIC) {
         await TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event[0])
       }
-      if (event[0].topics[0].toLowerCase() === DEPOSIT_PROCESSED) {
-        await TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event[0])
-      }
+      // if (event[0].topics[0].toLowerCase() === DEPOSIT_PROCESSED) {
+      //   await TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event[0])
+      // }
       if (event[0].topics[0].toLowerCase() === STRIKE_ADDED) {
         await TrackStrikeAdded(discordClient, discordClientBtc, telegramClient, twitterClient, rpcClient, event)
       }
