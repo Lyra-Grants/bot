@@ -10,7 +10,7 @@
       "@/app/*": ["src/*"]
     },
     "outDir": "build",
-    "incremental": true,
+    "incremental": false,
     "sourceMap": false,
     "noEmit": false
   },
