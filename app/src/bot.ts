@@ -38,17 +38,17 @@ export async function initializeLyraBot() {
     SetUpDiscord((discordClientBtc = DiscordClient()), 'btc', DISCORD_ACCESS_TOKEN_BTC, lyra),
     SetUpTwitter(),
     SetUpTelegram(),
-    GetLeaderBoard(),
+    // GetLeaderBoard(),
   ])
 
-  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+  // await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
 
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc)
-    LeaderBoardFillJob()
-    LeaderboardSendJob(discordClient, twitterClient, telegramClient)
-    StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
+    //   LeaderBoardFillJob()
+    //  LeaderboardSendJob(discordClient, twitterClient, telegramClient)
+    //StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient, lyra)
     ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
   }
