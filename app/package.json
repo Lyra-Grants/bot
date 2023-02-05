@@ -10,7 +10,7 @@
   "scripts": {
     "start:lyrabot": "ts-node-dev --files --respawn src/app.ts",
     "clear": "rimraf ./build",
-    "build": "yarn clear && npx tsc",
+    "build": "npx tsc",
     "start": "yarn build && node build/app/src/app.js",
     "gen": "graphql-codegen --config codegen.yml",
     "lint:ts": "eslint --ext .js,.ts .",
