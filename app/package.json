@@ -9,8 +9,8 @@
   },
   "scripts": {
     "start:lyrabot": "ts-node-dev --files --respawn src/app.ts",
-    "prebuild": "rimraf ./build",
-    "build": "yarn prebuild && npx tsc",
+    "clear": "rimraf ./build",
+    "build": "yarn clear && npx tsc",
     "start": "yarn build && node build/app/src/app.js",
     "gen": "graphql-codegen --config codegen.yml",
     "lint:ts": "eslint --ext .js,.ts .",
