@@ -4,26 +4,25 @@ import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { ZERO_BN } from '../constants/bn'
 import { STATS_CHANNEL } from '../constants/discordChannels'
-import { SECONDS_IN_MONTH } from '../constants/timeAgo'
+import { SECONDS_IN_MONTH, SECONDS_IN_YEAR } from '../constants/timeAgo'
 import { PostDiscord } from '../integrations/discord'
 import { PostTelegram } from '../integrations/telegram'
 import { SendTweet } from '../integrations/twitter'
-import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED, TESTNET } from '../secrets'
+import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED } from '../secrets'
 import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
-import { StatDto } from '../types/lyra'
+import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
 import getLyra from '../utils/getLyra'
 
-export async function GetStats(marketName: string, chain: Chain): Promise<StatDto> {
+export async function GetStats(marketName: string, chain: Chain): Promise<VaultStats> {
   // get timestamp from month ago
-  const lyra = getLyra(chain)
-  const startTimestamp = Math.floor(Date.now() / 1000 - SECONDS_IN_MONTH)
-  const market = await Market.get(lyra, marketName)
+  const market = await getLyra(chain).market(marketName)
+  const startTimestamp = Math.floor(Date.now() / 1000 - SECONDS_IN_MONTH) // 1 Month
 
   const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
-    market.tradingVolumeHistory({ startTimestamp }),
-    market.liquidityHistory({ startTimestamp }),
-    market.netGreeksHistory({ startTimestamp }),
+    market.tradingVolumeHistory({ startTimestamp: startTimestamp }),
+    market.liquidityHistory({ startTimestamp: startTimestamp }),
+    market.netGreeksHistory({ startTimestamp: startTimestamp }),
   ])
 
   const liquidity = liquidityHistory[liquidityHistory.length - 1]
@@ -37,49 +36,56 @@ export async function GetStats(marketName: string, chain: Chain): Promise<StatDt
   const tokenPrice = fromBigNumber(liquidity.tokenPrice)
   const tokenPriceOld = fromBigNumber(liquidityHistory[0].tokenPrice)
   const tokenPriceChange = tokenPriceOld > 0 ? (tokenPrice - tokenPriceOld) / tokenPriceOld : 0
+  const tokenPriceChangeAnnualized = tokenPriceChange / (startTimestamp / SECONDS_IN_YEAR)
+
   const totalNotionalVolumeNew = fromBigNumber(tradingVolume.totalNotionalVolume)
   const totalNotionalVolumeOld = fromBigNumber(tradingVolumeHistory[0].totalNotionalVolume)
   const totalNotionalVolume = totalNotionalVolumeNew - totalNotionalVolumeOld
+  const totalNotionalVolumeChange =
+    totalNotionalVolumeOld > 0 ? (totalNotionalVolumeNew - totalNotionalVolumeOld) / totalNotionalVolumeOld : 0
 
   const totalFees = fromBigNumber(tradingVolumeHistory.reduce((sum, { vaultFees }) => sum.add(vaultFees), ZERO_BN))
   const openInterest = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
 
-  const stat: StatDto = {
-    asset: market.name,
-    tvl: tvl,
-    tvlChange: tvlChange,
-    tokenPrice: tokenPrice,
-    pnlChange: tokenPriceChange,
-    openInterestUsd: openInterest,
-    openInterestBase: fromBigNumber(market.openInterest),
-    netDelta: fromBigNumber(netGreeks.netDelta),
-    netStdVega: fromBigNumber(netGreeks.netStdVega),
-    timestamp: new Date(),
-    tradingFees: totalFees,
-    tradingVolume: totalNotionalVolume,
-    utilisationRate: liquidity.utilization * 100,
+  return {
+    market,
+    liquidity,
+    netGreeks,
+    tradingVolume,
+    liquidityHistory,
+    netGreeksHistory,
+    tradingVolumeHistory,
+    tvl,
+    tvlChange,
+    tokenPrice,
+    tokenPriceChange,
+    tokenPriceChangeAnnualized,
+    totalNotionalVolume,
+    totalNotionalVolumeChange,
+    totalFees,
+    openInterest,
   }
-  return stat
 }
 
 export async function BroadCastStats(
-  dto: StatDto,
+  dto: VaultStats,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
   discordClient: Client<boolean>,
+  chain: Chain,
 ): Promise<void> {
   if (TWITTER_ENABLED) {
-    const post = StatTwitter(dto)
+    const post = StatTwitter(dto, chain)
     await SendTweet(post, twitterClient)
   }
 
   if (TELEGRAM_ENABLED) {
-    const post = StatTelegram(dto)
+    const post = StatTelegram(dto, chain)
     await PostTelegram(post, telegramClient)
   }
 
   if (DISCORD_ENABLED) {
-    const post = StatDiscord(dto)
+    const post = StatDiscord(dto, chain)
     await PostDiscord(post, discordClient, STATS_CHANNEL)
   }
 }

@@ -1,3 +1,9 @@
+import {
+  Market,
+  MarketLiquiditySnapshot,
+  MarketNetGreeksSnapshot,
+  MarketTradingVolumeSnapshot,
+} from '@lyrafinance/lyra-js'
 import { OptionType } from 'dayjs'
 import { EventType } from '../constants/eventType'
 import { Instrument } from './arbs'
@@ -101,20 +107,23 @@ export type LyraDto = BaseEvent & {
   maxSupply: number
 }
 
-export type StatDto = {
-  asset: string
+export type VaultStats = {
+  market: Market
+  liquidity: MarketLiquiditySnapshot
+  netGreeks: MarketNetGreeksSnapshot
+  tradingVolume: MarketTradingVolumeSnapshot
+  liquidityHistory: MarketLiquiditySnapshot[]
+  netGreeksHistory: MarketNetGreeksSnapshot[]
+  tradingVolumeHistory: MarketTradingVolumeSnapshot[]
   tvl: number
   tvlChange: number
   tokenPrice: number
-  pnlChange: number
-  openInterestUsd: number
-  openInterestBase: number
-  netDelta: number
-  netStdVega: number
-  tradingVolume: number
-  tradingFees: number
-  timestamp: Date
-  utilisationRate: number
+  tokenPriceChange: number
+  tokenPriceChangeAnnualized: number
+  totalNotionalVolume: number
+  totalNotionalVolumeChange: number
+  totalFees: number
+  openInterest: number
 }
 
 export type Trader = TraderAddress & {

@@ -137,7 +137,7 @@ async function StatsInteraction(
     await interaction.deferReply()
     const chain = interaction.options.getString('chain') as Chain
     const statsDto = await GetStats(market, chain)
-    const stats = StatDiscord(statsDto)
+    const stats = StatDiscord(statsDto, chain)
     await interaction.editReply({ embeds: stats })
   } else {
     await interaction.reply(`Command 'stats' only available in <#${channel?.id}>`)

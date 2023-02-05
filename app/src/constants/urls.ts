@@ -7,3 +7,8 @@ export const urls = {
   dHedgeDappUrl: 'https://app.dhedge.org',
   leaderboardApiUrl: 'https://api.lyra.finance/leaderboard',
 }
+
+export const iconUrls = {
+  optimism: 'https://raw.githubusercontent.com/ethboi/assets/main/optimisum.png',
+  arbitrum: 'https://raw.githubusercontent.com/ethboi/assets/main/arbitrum.png',
+}

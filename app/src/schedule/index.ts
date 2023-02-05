@@ -57,7 +57,7 @@ export function StatsJob(
       markets.map(async (market) => {
         const statsDto = await GetStats(market, chain)
         const discord = market == 'eth' ? discordClient : discordClientBtc
-        await BroadCastStats(statsDto, twitterClient, telegramClient, discord)
+        await BroadCastStats(statsDto, twitterClient, telegramClient, discord, chain)
       })
     })
   })
