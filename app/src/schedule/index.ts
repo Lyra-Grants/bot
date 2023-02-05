@@ -1,4 +1,4 @@
-import Lyra from '@lyrafinance/lyra-js'
+import Lyra, { Chain } from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
 import { scheduleJob } from 'node-schedule'
 import { Telegraf } from 'telegraf'
@@ -10,6 +10,8 @@ import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { GetCoinGecko } from '../lyra/coingecko'
 import { BroadcastLeaderBoard, GetLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
+
+const markets = ['eth', 'btc']
 
 export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Client<boolean>): void {
   console.log('30 min pricing job running')
@@ -47,15 +49,17 @@ export function StatsJob(
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
-  lyraClient: Lyra,
+  chains: Chain[],
 ): void {
   console.log('Mon Wed Fri Stats job')
   scheduleJob('0 1 * * 1,3,5', async () => {
-    const statsDto = await GetStats('eth', lyraClient)
-    await BroadCastStats(statsDto, twitterClient, telegramClient, discordClient)
-
-    const statsDtoBtc = await GetStats('btc', lyraClient)
-    await BroadCastStats(statsDtoBtc, twitterClient, telegramClient, discordClientBtc)
+    chains.map(async (chain) => {
+      markets.map(async (market) => {
+        const statsDto = await GetStats(market, chain)
+        const discord = market == 'eth' ? discordClient : discordClientBtc
+        await BroadCastStats(statsDto, twitterClient, telegramClient, discord)
+      })
+    })
   })
 }
 
@@ -63,7 +67,6 @@ export function CoinGeckoJob(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
-  lyraClient: Lyra,
 ): void {
   console.log('Mon Wed Fri Stats job')
   scheduleJob('0 2 * * 1,3,5', async () => {
@@ -77,13 +80,15 @@ export function ArbitrageJob(
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
-  lyraClient: Lyra,
+  chains: Chain[],
 ): void {
   scheduleJob('0 4 * * 1,3,5', async () => {
-    const arbDto = await GetArbitrageDeals(lyraClient, 'eth')
-    await BroadCast(arbDto, twitterClient, telegramClient, discordClient)
-
-    const arbDtoBtc = await GetArbitrageDeals(lyraClient, 'btc')
-    await BroadCast(arbDtoBtc, twitterClient, telegramClient, discordClientBtc)
+    chains.map(async (chain) => {
+      markets.map(async (market) => {
+        const arbDto = await GetArbitrageDeals(market, chain)
+        const discord = market == 'eth' ? discordClient : discordClientBtc
+        await BroadCast(arbDto, twitterClient, telegramClient, discord)
+      })
+    })
   })
 }

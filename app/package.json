@@ -11,11 +11,10 @@
     "node-options": "--optimize_for_size --max_old_space_size=2560 --gc_interval=100"
   },
   "scripts": {
-    "start:lyrabot": "ts-node-dev --files --respawn src/app.ts",
+    "dev": "ts-node-dev --files --respawn src/app.ts",
     "clean": "rimraf ./build",
     "build": "yarn clean && npx tsc",
     "start": "node build/app/src/app.js",
-    "gen": "graphql-codegen --config codegen.yml",
     "lint:ts": "eslint --ext .js,.ts .",
     "lint:ts:fix": "yarn lint:ts --fix",
     "format": "prettier --write \"**/*.+(js|ts|json)\"",

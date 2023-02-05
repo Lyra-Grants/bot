@@ -2,7 +2,7 @@ import { ParsePositionLeaderboard } from '../lyra/leaderboard'
 import { DISCORD_ENABLED, TESTNET } from '../secrets'
 import { ChatInputCommandInteraction, Client, EmbedBuilder, GuildBasedChannel, TextChannel } from 'discord.js'
 import { defaultActivity, defaultName } from '../integrations/discord'
-import Lyra from '@lyrafinance/lyra-js'
+import { Chain } from '@lyrafinance/lyra-js'
 import { LeaderboardDiscord } from '../templates/leaderboard'
 import { GetStats } from '../lyra/stats'
 import { StatDiscord } from '../templates/stats'
@@ -19,7 +19,6 @@ export async function SetUpDiscord(
   discordClient: Client<boolean>,
   market: string,
   accessToken: string,
-  lyra: Lyra,
 ): Promise<Client<boolean>> {
   if (DISCORD_ENABLED) {
     discordClient.on('ready', async (client) => {
@@ -97,7 +96,6 @@ export async function SetUpDiscord(
             channelName,
             interaction as ChatInputCommandInteraction,
             tradeChannel as GuildBasedChannel,
-            lyra,
           )
         }
       }
@@ -108,7 +106,6 @@ export async function SetUpDiscord(
           channelName,
           interaction as ChatInputCommandInteraction,
           arbChannel as GuildBasedChannel,
-          lyra,
         )
       }
 
@@ -118,7 +115,6 @@ export async function SetUpDiscord(
           channelName,
           interaction as ChatInputCommandInteraction,
           statsChannel as GuildBasedChannel,
-          lyra,
         )
       }
     })
@@ -136,11 +132,11 @@ async function StatsInteraction(
   channelName: string,
   interaction: ChatInputCommandInteraction,
   channel: GuildBasedChannel,
-  lyra: Lyra,
 ) {
   if (channelName === STATS_CHANNEL) {
     await interaction.deferReply()
-    const statsDto = await GetStats(market, lyra)
+    const chain = interaction.options.getString('chain') as Chain
+    const statsDto = await GetStats(market, chain)
     const stats = StatDiscord(statsDto)
     await interaction.editReply({ embeds: stats })
   } else {
@@ -153,11 +149,11 @@ async function ArbInteraction(
   channelName: string,
   interaction: ChatInputCommandInteraction,
   channel: GuildBasedChannel,
-  lyra: Lyra,
 ) {
   if (channelName === ARBS_CHANNEL) {
     await interaction.deferReply()
-    const arbs = await GetArbitrageDeals(lyra, market)
+    const chain = interaction.options.getString('chain') as Chain
+    const arbs = await GetArbitrageDeals(market, chain)
     if (arbs.arbs.length > 0) {
       const embed = ArbDiscord(arbs)
       await interaction.editReply({ embeds: embed })
@@ -173,12 +169,11 @@ async function TraderInteraction(
   channelName: string,
   interaction: ChatInputCommandInteraction,
   channel: GuildBasedChannel,
-  lyra: Lyra,
 ) {
   if (channelName === TRADE_CHANNEL) {
     await interaction.deferReply()
     const account = interaction.options.getString('account') as string
-    const trader = await GetTrader(account, lyra)
+    const trader = await GetTrader(account)
     if (trader.account != '') {
       const embed = TraderDiscord(trader)
       await interaction.editReply({ embeds: embed })

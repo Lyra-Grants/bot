@@ -1,4 +1,4 @@
-import Lyra, { Market } from '@lyrafinance/lyra-js'
+import Lyra, { Chain, Market } from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
 import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
@@ -12,9 +12,11 @@ import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED, TESTNET } from '../
 import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
 import { StatDto } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
+import getLyra from '../utils/getLyra'
 
-export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto> {
+export async function GetStats(marketName: string, chain: Chain): Promise<StatDto> {
   // get timestamp from month ago
+  const lyra = getLyra(chain)
   const startTimestamp = Math.floor(Date.now() / 1000 - SECONDS_IN_MONTH)
   const market = await Market.get(lyra, marketName)
 

@@ -1,5 +1,5 @@
 import { Telegraf } from 'telegraf'
-import { initializeLyraBot } from './bot'
+import { Run } from './bot'
 import { PostTelegram } from './integrations/telegram'
 import { LOG_CHANNEL, LOG_TOKEN } from './secrets'
 
@@ -7,7 +7,7 @@ async function Initialize(): Promise<void> {
   try {
     RegisterShutdownEvents()
     await Notifier(false)
-    await initializeLyraBot()
+    await Run()
   } catch (error) {
     console.error(error)
   }
