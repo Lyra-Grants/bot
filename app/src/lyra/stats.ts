@@ -17,12 +17,11 @@ import getLyra from '../utils/getLyra'
 export async function GetStats(marketName: string, chain: Chain): Promise<VaultStats> {
   // get timestamp from month ago
   const market = await getLyra(chain).market(marketName)
-  const startTimestamp = Math.floor(Date.now() / 1000 - SECONDS_IN_MONTH) // 1 Month
-
+  const period = SECONDS_IN_MONTH
   const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
-    market.tradingVolumeHistory({ startTimestamp: startTimestamp }),
-    market.liquidityHistory({ startTimestamp: startTimestamp }),
-    market.netGreeksHistory({ startTimestamp: startTimestamp }),
+    market.tradingVolumeHistory({ startTimestamp: market.block.timestamp - period }),
+    market.liquidityHistory({ startTimestamp: market.block.timestamp - period }),
+    market.netGreeksHistory({ startTimestamp: market.block.timestamp - period }),
   ])
 
   const liquidity = liquidityHistory[liquidityHistory.length - 1]
@@ -36,7 +35,7 @@ export async function GetStats(marketName: string, chain: Chain): Promise<VaultS
   const tokenPrice = fromBigNumber(liquidity.tokenPrice)
   const tokenPriceOld = fromBigNumber(liquidityHistory[0].tokenPrice)
   const tokenPriceChange = tokenPriceOld > 0 ? (tokenPrice - tokenPriceOld) / tokenPriceOld : 0
-  const tokenPriceChangeAnnualized = tokenPriceChange / (startTimestamp / SECONDS_IN_YEAR)
+  const tokenPriceChangeAnnualized = tokenPriceChange / (period / SECONDS_IN_YEAR)
 
   const totalNotionalVolumeNew = fromBigNumber(tradingVolume.totalNotionalVolume)
   const totalNotionalVolumeOld = fromBigNumber(tradingVolumeHistory[0].totalNotionalVolume)
@@ -45,8 +44,8 @@ export async function GetStats(marketName: string, chain: Chain): Promise<VaultS
     totalNotionalVolumeOld > 0 ? (totalNotionalVolumeNew - totalNotionalVolumeOld) / totalNotionalVolumeOld : 0
 
   const totalFees = fromBigNumber(tradingVolumeHistory.reduce((sum, { vaultFees }) => sum.add(vaultFees), ZERO_BN))
-  const openInterest = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
 
+  const openInterest = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
   return {
     market,
     liquidity,

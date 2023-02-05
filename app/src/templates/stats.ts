@@ -22,10 +22,10 @@ export function StatDiscord(stat: VaultStats, chain: Chain): EmbedBuilder[] {
       { name: 'Net Delta', value: `${FNS(fromBigNumber(stat.netGreeks.netDelta), 3)}`, inline: true },
       { name: 'Net Std. Vega', value: `${FNS(fromBigNumber(stat.netGreeks.netStdVega), 3)}`, inline: true },
       { name: 'Utilization', value: `${FN(stat.liquidity.utilization * 100, 2)}%`, inline: true },
-      { name: 'Pending Deposits', value: `${FN(fromBigNumber(stat.liquidity.pendingDeposits), 2)}`, inline: true },
+      { name: 'Pending Deposits', value: `$${FN(fromBigNumber(stat.liquidity.pendingDeposits), 2)}`, inline: true },
       {
         name: 'Pending Withdrawals',
-        value: `${FN(fromBigNumber(stat.liquidity.pendingWithdrawals), 2)}`,
+        value: `$${FN(fromBigNumber(stat.liquidity.pendingWithdrawals), 2)}`,
         inline: true,
       },
     )
