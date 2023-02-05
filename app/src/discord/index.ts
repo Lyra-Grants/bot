@@ -44,7 +44,7 @@ export async function SetUpDiscord(
           await interaction.deferReply()
           if (channelName === TRADE_CHANNEL) {
             const traders = await Promise.all(
-              global.LYRA_LEADERBOARD.slice(0, 10).map(
+              global.LEADERBOARD_DATA.slice(0, 10).map(
                 async (x, index) => await ParsePositionLeaderboard(x, index + 1),
               ),
             )
@@ -58,7 +58,7 @@ export async function SetUpDiscord(
           if (channelName === TRADE_CHANNEL) {
             await interaction.deferReply()
             const traders = await Promise.all(
-              global.LYRA_LEADERBOARD.slice(0, 30).map(
+              global.LEADERBOARD_DATA.slice(0, 30).map(
                 async (x, index) => await ParsePositionLeaderboard(x, index + 1),
               ),
             )

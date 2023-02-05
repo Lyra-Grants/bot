@@ -8,11 +8,11 @@ import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
 import { Context, Telegraf } from 'telegraf'
 import { SendTweet } from '../integrations/twitter'
-import Lyra from '@lyrafinance/lyra-js'
+import Lyra, { ERC20__factory } from '@lyrafinance/lyra-js'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { TOKEN_CHANNEL } from '../constants/discordChannels'
-import { TransferEvent, ERC20__factory } from '@lyrafinance/lyra-js'
+import { TransferEvent } from '@lyrafinance/lyra-js/src/contracts/common/typechain/ERC20'
 
 export async function TrackTransfer(
   discordClient: Client<boolean>,

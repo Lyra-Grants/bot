@@ -3,16 +3,17 @@ import fromBigNumber from '../utils/fromBigNumber'
 import { Client } from 'discord.js'
 import { BoardDto, StrikeDto } from '../types/lyra'
 import { groupBy, toDate } from '../utils/utils'
-import { Context, Telegraf } from 'telegraf'
+import { Telegraf } from 'telegraf'
 import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { EXPIRY_CHANNEL } from '../constants/discordChannels'
-import Lyra, { OptionMarket__factory, StrikeAddedEvent } from '@lyrafinance/lyra-js'
+import Lyra, { AvalonOptionMarket__factory } from '@lyrafinance/lyra-js'
 import printObject from '../utils/printObject'
 import { BoardDiscord, BoardTelegram, BoardTwitter } from '../templates/strike'
 import { PostDiscord } from '../integrations/discord'
 import { PostTelegram } from '../integrations/telegram'
+import { StrikeAddedEvent } from '@lyrafinance/lyra-js/src/contracts/avalon/typechain/AvalonOptionMarket'
 
 export async function TrackStrikeAdded(
   discordClient: Client<boolean>,
@@ -94,7 +95,7 @@ export async function BroadCastStrike(
 
 export function parseEvents(events: StrikeAddedEvent[]): StrikeAddedEvent[] {
   const result = events.map((x) => {
-    const parsedEvent = OptionMarket__factory.createInterface().parseLog(x)
+    const parsedEvent = AvalonOptionMarket__factory.createInterface().parseLog(x)
 
     if ((parsedEvent.args as StrikeAddedEvent['args']).length > 0) {
       x.args = parsedEvent.args as StrikeAddedEvent['args']

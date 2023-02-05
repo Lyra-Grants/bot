@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "module": "CommonJS",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "baseUrl": "./",
@@ -8,7 +9,10 @@
       "@lyrafinance/lyra-js": ["../sdk/src/index.ts"],
       "@/app/*": ["src/*"]
     },
-    "incremental": true
+    "outDir": "build",
+    "incremental": true,
+    "sourceMap": false,
+    "noEmit": false
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*.ts"]

@@ -8,3 +8,4 @@ deploy-commands.js
 deploy-commands-btc.js
 deploy-commands-sol.js
 dist/
+build/

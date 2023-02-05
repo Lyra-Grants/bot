@@ -9,15 +9,12 @@ import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
-import Lyra, {
-  AvalonLiquidityPool__factory,
-  AvalonDepositProcessedEvent as DepositProcessedEvent,
-  AvalonDepositQueuedEvent as DepositQueuedEvent,
-} from '@lyrafinance/lyra-js'
+import Lyra, { AvalonLiquidityPool__factory, DepositQueuedOrProcessedEvent } from '@lyrafinance/lyra-js'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { GetMarket } from '../templates/common'
 import { GetUrl } from '../utils/utils'
+import { DepositProcessedEvent, DepositQueuedEvent } from '@lyrafinance/lyra-js/src/constants/events'
 
 export async function TrackDeposits(
   discordClient: Client<boolean>,

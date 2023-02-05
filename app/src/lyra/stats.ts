@@ -1,6 +1,6 @@
 import Lyra, { Market } from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
-import { Telegraf, Context } from 'telegraf'
+import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { ZERO_BN } from '../constants/bn'
 import { STATS_CHANNEL } from '../constants/discordChannels'
@@ -18,35 +18,29 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
   const startTimestamp = Math.floor(Date.now() / 1000 - SECONDS_IN_MONTH)
   const market = await Market.get(lyra, marketName)
 
-  const [tradingVolumeHistory, liquidityHistory, netGreeks] = await Promise.all([
+  const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
     market.tradingVolumeHistory({ startTimestamp }),
     market.liquidityHistory({ startTimestamp }),
-    market.netGreeks(),
+    market.netGreeksHistory({ startTimestamp }),
   ])
 
-  const totalNotionalVolume = tradingVolumeHistory[tradingVolumeHistory.length - 1].totalNotionalVolume
-  const totalNotionalVolume30DAgo = tradingVolumeHistory[0].totalNotionalVolume
-  const tradingVolume30D = fromBigNumber(totalNotionalVolume.sub(totalNotionalVolume30DAgo))
-  const fees = tradingVolumeHistory.reduce(
-    (sum, tradingVolume) =>
-      sum
-        .add(tradingVolume.deltaCutoffFees)
-        .add(tradingVolume.lpLiquidationFees)
-        .add(tradingVolume.optionPriceFees)
-        .add(tradingVolume.spotPriceFees)
-        .add(tradingVolume.vegaFees)
-        .add(tradingVolume.varianceFees),
-    ZERO_BN,
-  )
+  const liquidity = liquidityHistory[liquidityHistory.length - 1]
+  const netGreeks = netGreeksHistory[netGreeksHistory.length - 1]
+  const tradingVolume = tradingVolumeHistory[tradingVolumeHistory.length - 1]
 
-  const liquidity = await market.liquidity()
-  const tvl = fromBigNumber(liquidity.nav)
-  const tvl30DAgo = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].nav) : 0
-  const tvlChange = tvl30DAgo > 0 ? ((tvl - tvl30DAgo) / tvl30DAgo) * 100 : 1.0
+  const tvl = fromBigNumber(liquidity.tvl)
+  const tvlOld = fromBigNumber(liquidityHistory[0].tvl)
+  const tvlChange = tvlOld > 0 ? (tvl - tvlOld) / tvlOld : 0
+
   const tokenPrice = fromBigNumber(liquidity.tokenPrice)
-  const tokenPrice30DAgo = liquidityHistory.length ? fromBigNumber(liquidityHistory[0].tokenPrice) : 0
-  const tokenPriceChange = tokenPrice30DAgo > 0 ? ((tokenPrice - tokenPrice30DAgo) / tokenPrice30DAgo) * 100 : 1.0
-  const openInterestUsd = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
+  const tokenPriceOld = fromBigNumber(liquidityHistory[0].tokenPrice)
+  const tokenPriceChange = tokenPriceOld > 0 ? (tokenPrice - tokenPriceOld) / tokenPriceOld : 0
+  const totalNotionalVolumeNew = fromBigNumber(tradingVolume.totalNotionalVolume)
+  const totalNotionalVolumeOld = fromBigNumber(tradingVolumeHistory[0].totalNotionalVolume)
+  const totalNotionalVolume = totalNotionalVolumeNew - totalNotionalVolumeOld
+
+  const totalFees = fromBigNumber(tradingVolumeHistory.reduce((sum, { vaultFees }) => sum.add(vaultFees), ZERO_BN))
+  const openInterest = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
 
   const stat: StatDto = {
     asset: market.name,
@@ -54,13 +48,13 @@ export async function GetStats(marketName: string, lyra: Lyra): Promise<StatDto>
     tvlChange: tvlChange,
     tokenPrice: tokenPrice,
     pnlChange: tokenPriceChange,
-    openInterestUsd: openInterestUsd,
+    openInterestUsd: openInterest,
     openInterestBase: fromBigNumber(market.openInterest),
     netDelta: fromBigNumber(netGreeks.netDelta),
     netStdVega: fromBigNumber(netGreeks.netStdVega),
     timestamp: new Date(),
-    tradingFees: fromBigNumber(fees),
-    tradingVolume: tradingVolume30D,
+    tradingFees: totalFees,
+    tradingVolume: totalNotionalVolume,
     utilisationRate: liquidity.utilization * 100,
   }
   return stat
