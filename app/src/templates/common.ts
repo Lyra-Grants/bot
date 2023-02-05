@@ -48,7 +48,7 @@ export function VaultLink(asset: string, chain: Chain) {
   return `${LyraDappUrl()}/#/vaults/${chain}/${asset.toLowerCase()}`
 }
 
-export function PositionLink(trade: TradeDto, chain: Chain): string {
+export function PositionLink(trade: TradeDto): string {
   return `${LyraDappUrl()}/#/position/s${trade.asset}-susd/${trade.positionId}?see=${trade.account}`
 }
 
