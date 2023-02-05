@@ -1,3 +1,4 @@
+import { Chain } from '@lyrafinance/lyra-js'
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
 import {
@@ -43,11 +44,11 @@ export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: b
   return isLong ? received : paid
 }
 
-export function VaultLink(asset: string) {
-  return `${LyraDappUrl()}/#/vaults/s${asset.toLowerCase()}-susd`
+export function VaultLink(asset: string, chain: Chain) {
+  return `${LyraDappUrl()}/#/vaults/${chain}/${asset.toLowerCase()}`
 }
 
-export function PositionLink(trade: TradeDto): string {
+export function PositionLink(trade: TradeDto, chain: Chain): string {
   return `${LyraDappUrl()}/#/position/s${trade.asset}-susd/${trade.positionId}?see=${trade.account}`
 }
 

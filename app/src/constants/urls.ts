@@ -9,6 +9,6 @@ export const urls = {
 }
 
 export const iconUrls = {
-  optimism: 'https://raw.githubusercontent.com/ethboi/assets/main/optimisum.png',
+  optimism: 'https://raw.githubusercontent.com/ethboi/assets/main/optimism.png',
   arbitrum: 'https://raw.githubusercontent.com/ethboi/assets/main/arbitrum.png',
 }
