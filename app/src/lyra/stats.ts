@@ -16,7 +16,9 @@ import getLyra from '../utils/getLyra'
 
 export async function GetStats(marketName: string, chain: Chain): Promise<VaultStats> {
   // get timestamp from month ago
-  const market = await getLyra(chain).market(marketName)
+  console.log(`Getting stats for ${marketName} on ${chain}`)
+  const lyra = getLyra(chain)
+  const market = await lyra.market(marketName)
   const period = SECONDS_IN_MONTH
   const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
     market.tradingVolumeHistory({ startTimestamp: market.block.timestamp - period }),
