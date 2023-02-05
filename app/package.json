@@ -9,7 +9,9 @@
   },
   "scripts": {
     "start:lyrabot": "ts-node-dev --files --respawn src/app.ts",
-    "start": "ts-node --transpile-only src/app.ts --env prod",
+    "prebuild": "rimraf ./build",
+    "build": "yarn prebuild && npx tsc",
+    "start": "npm run build && node build/app/src/app.js",
     "gen": "graphql-codegen --config codegen.yml",
     "lint:ts": "eslint --ext .js,.ts .",
     "lint:ts:fix": "yarn lint:ts --fix",
@@ -43,11 +45,6 @@
     "ts-node": "^10.5.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^3.0.0",
-    "@graphql-codegen/introspection": "^3.0.0",
-    "@graphql-codegen/typescript": "^3.0.0",
-    "@graphql-codegen/typescript-operations": "^3.0.0",
-    "@graphql-codegen/typescript-resolvers": "^3.0.0",
     "@types/coingecko-api": "^1.0.10",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.18",
