@@ -7,6 +7,9 @@
     "node": "18.x",
     "yarn": "1.x"
   },
+  "config": {
+    "node-options": "--optimize_for_size --max_old_space_size=460 --gc_interval=100"
+  },
   "scripts": {
     "start:lyrabot": "ts-node-dev --files --respawn src/app.ts",
     "clear": "rimraf ./build",
