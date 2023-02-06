@@ -12,6 +12,5 @@ export default function getLyra(chain: Chain): Lyra {
   if (chain === Chain.Arbitrum) {
     lyra.provider = alchemyProviderARB
   }
-  printObject(lyra)
   return lyra
 }
