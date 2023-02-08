@@ -1,44 +1,46 @@
-import { Chain } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
-import { iconUrls } from '../constants/urls'
+import { bannerUrls, iconUrls } from '../constants/urls'
 import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
 import { FN, FNS, VaultLink } from './common'
 
-export function StatDiscord(stat: VaultStats, chain: Chain): EmbedBuilder[] {
+export function StatDiscord(stat: VaultStats, network: Network): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
   const tradeEmbed = new EmbedBuilder()
-    .setColor(chain === Chain.Optimism ? '#ff0420' : '#5865f2')
-    .setURL(`${VaultLink(stat.market.name, chain)}`)
-    .setTitle(`${StatSymbol(stat.market.name)} ${stat.market.name} Market Vault`)
+    .setColor(`${MarketColor(stat.market.name)}`)
+    .setURL(`${VaultLink(stat.market.name, network)}`)
+    .setTitle(`${stat.market.name} Market Vault`)
     .addFields(
-      { name: 'TVL', value: `$${FN(stat.tvl, 0)}`, inline: true },
-      { name: `Volume (30d)`, value: `$${FN(stat.totalNotionalVolume, 2)}`, inline: true },
-      { name: 'Change (30d)', value: `${FNS(stat.tvlChange * 100, 4)}%`, inline: true },
-      { name: 'Token Value', value: `$${FN(stat.tokenPrice, 4)}`, inline: true },
-      { name: `Fees (30d)`, value: `$${FN(stat.totalFees, 2)}`, inline: true },
-      { name: 'Open Interest', value: `$${FN(stat.openInterest, 2)}`, inline: true },
-      { name: '30D Perf (Annualized)', value: `${FNS(stat.tokenPriceChangeAnnualized * 100, 4)}%`, inline: true },
-      { name: 'Net Delta', value: `${FNS(fromBigNumber(stat.netGreeks.netDelta), 3)}`, inline: true },
-      { name: 'Net Std. Vega', value: `${FNS(fromBigNumber(stat.netGreeks.netStdVega), 3)}`, inline: true },
-      { name: 'Utilization', value: `${FN(stat.liquidity.utilization * 100, 2)}%`, inline: true },
-      { name: 'Pending Deposits', value: `$${FN(fromBigNumber(stat.liquidity.pendingDeposits), 2)}`, inline: true },
+      { name: 'TVL', value: `> $${FN(stat.tvl, 0)}`, inline: true },
+      { name: 'TVL Change (30d)', value: `> ${FNS(stat.tvlChange * 100, 2)}%`, inline: true },
+      { name: `Volume (30d)`, value: `> $${FN(stat.totalNotionalVolume, 2)}`, inline: true },
+      { name: 'Token Value', value: `> $${FN(stat.tokenPrice, 4)}`, inline: true },
+      { name: `Fees (30d)`, value: `> $${FN(stat.totalFees, 2)}`, inline: true },
+      { name: 'Open Interest', value: `> $${FN(stat.openInterest, 2)}`, inline: true },
+      { name: 'Annualized Perf', value: `> ${FNS(stat.tokenPriceChangeAnnualized * 100, 2)}%`, inline: true },
+      { name: 'Net Delta', value: `> ${FNS(fromBigNumber(stat.netGreeks.netDelta), 3)}`, inline: true },
+      { name: 'Net Vega', value: `> ${FNS(fromBigNumber(stat.netGreeks.netStdVega), 3)}`, inline: true },
+      { name: 'Utilization', value: `> ${FN(stat.liquidity.utilization * 100, 2)}%`, inline: true },
+      { name: 'Pending Deposits', value: `> $${FN(fromBigNumber(stat.liquidity.pendingDeposits), 2)}`, inline: true },
       {
         name: 'Pending Withdrawals',
-        value: `$${FN(fromBigNumber(stat.liquidity.pendingWithdrawals), 2)}`,
+        value: `> $${FN(fromBigNumber(stat.liquidity.pendingWithdrawals), 2)}`,
         inline: true,
       },
     )
     .setFooter({
-      iconURL: `${chain === Chain.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
-      text: `${chain === Chain.Optimism ? 'Optimism' : 'Arbitrum'}`,
+      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
+      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
     })
     .setTimestamp()
+    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
+
   messageEmbeds.push(tradeEmbed)
   return messageEmbeds
 }
 
-export function StatTwitter(stat: VaultStats, chain: Chain) {
+export function StatTwitter(stat: VaultStats, network: Network) {
   const post: string[] = []
   post.push(`${StatSymbol(stat.market.name)} ${stat.market.name} Market Vault\n`)
   post.push(`💵 30d Perf (Annualized) ${FNS(stat.tokenPriceChangeAnnualized * 100, 4)}%\n`)
@@ -49,14 +51,14 @@ export function StatTwitter(stat: VaultStats, chain: Chain) {
   post.push(`📈 Open Interest $${FN(stat.openInterest, 2)}\n`)
   post.push(`🔒 Utilization  ${FN(stat.liquidity.utilization * 100, 2)}%\n`)
   post.push(`\nOptions for everyone, start trading 👇\n`)
-  post.push(`${VaultLink(stat.market.name, chain)}\n`)
+  post.push(`${VaultLink(stat.market.name, network)}\n`)
   return post.join('')
 }
 
-export function StatTelegram(stat: VaultStats, chain: Chain) {
+export function StatTelegram(stat: VaultStats, network: Network) {
   const post: string[] = []
   post.push(
-    `<a href="${VaultLink(stat.market.name, chain)}">${StatSymbol(stat.market.name)} ${
+    `<a href="${VaultLink(stat.market.name, network)}">${StatSymbol(stat.market.name)} ${
       stat.market.name
     } Market Vault</a>\n`,
   )
@@ -87,4 +89,23 @@ export function StatSymbol(marketName: string) {
   ) {
     return '🔶'
   }
+}
+
+export function MarketColor(marketName: string) {
+  if (
+    marketName.toLowerCase() == 'eth' ||
+    marketName.toLowerCase() == 'seth-susd' ||
+    marketName.toLowerCase() == 'eth-usdc'
+  ) {
+    return '#627EEA'
+  }
+  if (
+    marketName.toLowerCase() == 'btc' ||
+    marketName.toLowerCase() == 'sbtc-susd' ||
+    marketName.toLowerCase() == 'btc-usdc'
+  ) {
+    return '#F7931A'
+  }
+
+  return '#1AF7C0'
 }

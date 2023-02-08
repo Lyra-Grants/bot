@@ -1,4 +1,4 @@
-import { Chain } from '@lyrafinance/lyra-js'
+import { Chain, Network } from '@lyrafinance/lyra-js'
 import { Deal, OptionType, ProviderType } from '../types/arbs'
 import { useRatesData } from '../utils/arbUtils'
 import { maxBy, minBy } from 'lodash'
@@ -15,9 +15,9 @@ export function getPriceForMarket(market: string) {
   return price
 }
 
-export async function GetArbitrageDeals(market: string, chain: Chain) {
+export async function GetArbitrageDeals(market: string, network: Network) {
   const price = getPriceForMarket(market)
-  const deals = await useDeals(market, chain)
+  const deals = await useDeals(market, network)
 
   const data = deals.map((deal) => {
     const momentExp = moment(deal?.expiration)
@@ -41,8 +41,8 @@ export async function GetArbitrageDeals(market: string, chain: Chain) {
   return event
 }
 
-export async function useDeals(marketName: string, chain: Chain) {
-  const { allRates } = await useRatesData(marketName, chain)
+export async function useDeals(marketName: string, network: Network) {
+  const { allRates } = await useRatesData(marketName, network)
   const res: Deal[] = []
   const providers = [ProviderType.LYRA, ProviderType.DERIBIT]
   const profit_threshold = 3

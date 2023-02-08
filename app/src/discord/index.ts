@@ -2,7 +2,7 @@ import { ParsePositionLeaderboard } from '../lyra/leaderboard'
 import { DISCORD_ENABLED, TESTNET } from '../secrets'
 import { ChatInputCommandInteraction, Client, EmbedBuilder, GuildBasedChannel, TextChannel } from 'discord.js'
 import { defaultActivity, defaultName } from '../integrations/discord'
-import { Chain } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import { LeaderboardDiscord } from '../templates/leaderboard'
 import { GetStats } from '../lyra/stats'
 import { StatDiscord } from '../templates/stats'
@@ -135,9 +135,9 @@ async function StatsInteraction(
 ) {
   if (channelName === STATS_CHANNEL) {
     await interaction.deferReply()
-    const chain = interaction.options.getString('chain') as Chain
-    const statsDto = await GetStats(market, chain)
-    const stats = StatDiscord(statsDto, chain)
+    const network = interaction.options.getString('chain') as Network
+    const statsDto = await GetStats(market, network)
+    const stats = StatDiscord(statsDto, network)
     await interaction.editReply({ embeds: stats })
   } else {
     await interaction.reply(`Command 'stats' only available in <#${channel?.id}>`)
@@ -152,8 +152,8 @@ async function ArbInteraction(
 ) {
   if (channelName === ARBS_CHANNEL) {
     await interaction.deferReply()
-    const chain = interaction.options.getString('chain') as Chain
-    const arbs = await GetArbitrageDeals(market, chain)
+    const network = interaction.options.getString('network') as Network
+    const arbs = await GetArbitrageDeals(market, network)
     if (arbs.arbs.length > 0) {
       const embed = ArbDiscord(arbs)
       await interaction.editReply({ embeds: embed })

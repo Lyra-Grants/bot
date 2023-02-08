@@ -1,4 +1,4 @@
-import Lyra from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import { SendTweet } from '../integrations/twitter'
 import { TradeDto } from '../types/lyra'
 import {
@@ -18,31 +18,34 @@ import { PostTelegram } from '../integrations/telegram'
 import { PostDiscord } from '../integrations/discord'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
-import { Context, Telegraf } from 'telegraf'
+import { Telegraf } from 'telegraf'
 import { TradeDiscord, TradeTelegram, TradeTwitter } from '../templates/trade'
 import fromBigNumber from '../utils/fromBigNumber'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
 import { GetNotableAddress } from '../utils/notableAddresses'
 import { GetFren } from '../integrations/fren'
 import { FN } from '../templates/common'
+import getLyraSDK from '../utils/getLyraSDK'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
-  lyraClient: Lyra,
+  network: Network,
 ) {
   console.log('### Polling for Trades ###')
+  const lyra = getLyraSDK(network)
 
   let blockNumber: number | undefined = undefined
   let pollInterval = 60000
+
   if (TESTNET) {
-    blockNumber = lyraClient.provider.blockNumber - 5000
+    blockNumber = lyra.provider.blockNumber - 5000
     pollInterval = 6000
   }
 
-  lyraClient.onTrade(
+  lyra.onTrade(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)

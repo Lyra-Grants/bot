@@ -14,11 +14,13 @@ import { TwitterApi } from 'twitter-api-v2'
 import { TOKEN_CHANNEL } from '../constants/discordChannels'
 import { TransferEvent } from '@lyrafinance/lyra-js/src/contracts/common/typechain/ERC20'
 
+// exclude g-uni
+const excludeAddresses = ['0x70535c46ce04181adf749f34b65b6365164d6b6e']
+
 export async function TrackTransfer(
   discordClient: Client<boolean>,
   telegramClient: Telegraf,
   twitterClient: TwitterApi,
-  lyra: Lyra,
   genericEvent: GenericEvent,
 ): Promise<void> {
   const event = parseEvent(genericEvent as TransferEvent)
@@ -27,7 +29,11 @@ export async function TrackTransfer(
 
   console.log(`Transfer Value: ${value}`)
 
-  if (value >= TOKEN_THRESHOLD) {
+  if (
+    value >= TOKEN_THRESHOLD &&
+    !excludeAddresses.includes(event.args.to) &&
+    !excludeAddresses.includes(event.args.from)
+  ) {
     try {
       const from = GetNotableAddress(event.args.from)
       const to = GetNotableAddress(event.args.to)

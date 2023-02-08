@@ -4,10 +4,11 @@ import { convertToBoolean } from '../utils/utils'
 
 dotenv.config({ path: '.env' })
 
-export const INFURA_ID = _.defaultTo(process.env.INFURA_ID, '')
-export const INFURA_ID_OPTIMISM = _.defaultTo(process.env.INFURA_ID_OPTIMISM, '')
-export const ALCHEMY_ID = _.defaultTo(process.env.ALCHEMY_ID, '')
-export const ALCHEMY_ID_ARB = _.defaultTo(process.env.ALCHEMY_ID_ARB, '')
+export const ALCHEMY_PROJECT_ID_OPTIMISM = _.defaultTo(process.env.ALCHEMY_PROJECT_ID_OPTIMISM, '')
+export const ALCHEMY_PROJECT_ID_ARBITRUM = _.defaultTo(process.env.ALCHEMY_PROJECT_ID_ARBITRUM, '')
+export const ALCHEMY_PROJECT_ID_OPTIMISM_TESTNET = _.defaultTo(process.env.ALCHEMY_PROJECT_ID_OPTIMISM_TESTNET, '')
+export const ALCHEMY_PROJECT_ID_ARBITRUM_TESTNET = _.defaultTo(process.env.ALCHEMY_PROJECT_ID_ARBITRUM_TESTNET, '')
+export const ALCHEMY_PROJECT_ID_MAINNET = _.defaultTo(process.env.ALCHEMY_PROJECT_ID_MAINNET, '')
 
 export const LOG_TOKEN = _.defaultTo(process.env.LOG_TOKEN, '')
 export const LOG_CHANNEL = _.defaultTo(process.env.LOG_CHANNEL, '')

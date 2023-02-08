@@ -1,4 +1,4 @@
-import Lyra, { Chain, Market } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
 import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
@@ -12,13 +12,14 @@ import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED } from '../secrets'
 import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
 import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
-import getLyra from '../utils/getLyra'
+import getLyraSDK from '../utils/getLyraSDK'
 
-export async function GetStats(marketName: string, chain: Chain): Promise<VaultStats> {
+export async function GetStats(marketName: string, network: Network): Promise<VaultStats> {
   // get timestamp from month ago
-  console.log(`Getting stats for ${marketName} on ${chain}`)
-  const lyra = getLyra(chain)
+  console.log(`Getting stats for ${marketName} on ${network}`)
+  const lyra = getLyraSDK(network)
   const market = await lyra.market(marketName)
+
   const period = SECONDS_IN_MONTH
   const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
     market.tradingVolumeHistory({ startTimestamp: market.block.timestamp - period }),
@@ -73,20 +74,20 @@ export async function BroadCastStats(
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
   discordClient: Client<boolean>,
-  chain: Chain,
+  network: Network,
 ): Promise<void> {
   if (TWITTER_ENABLED) {
-    const post = StatTwitter(dto, chain)
+    const post = StatTwitter(dto, network)
     await SendTweet(post, twitterClient)
   }
 
   if (TELEGRAM_ENABLED) {
-    const post = StatTelegram(dto, chain)
+    const post = StatTelegram(dto, network)
     await PostTelegram(post, telegramClient)
   }
 
   if (DISCORD_ENABLED) {
-    const post = StatDiscord(dto, chain)
+    const post = StatDiscord(dto, network)
     await PostDiscord(post, discordClient, STATS_CHANNEL)
   }
 }

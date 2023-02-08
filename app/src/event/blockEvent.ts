@@ -32,7 +32,7 @@ export async function TrackEvents(
     rpcClient,
     async (event) => {
       if (event[0].topics[0].toLowerCase() === TRANSFER_TOPIC) {
-        await TrackTransfer(discordClient, telegramClient, twitterClient1, rpcClient, event[0])
+        await TrackTransfer(discordClient, telegramClient, twitterClient1, event[0])
       }
       // if (event[0].topics[0].toLowerCase() === DEPOSIT_PROCESSED) {
       //   await TrackDeposits(discordClient, discordClientBtc, telegramClient, twitterClient1, rpcClient, event[0])

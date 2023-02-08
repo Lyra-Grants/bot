@@ -16,6 +16,8 @@ import {
   TradeShareImage,
   TwitterLink,
 } from './common'
+import { Network } from '@lyrafinance/lyra-js'
+import { iconUrls, bannerUrls } from '../constants/urls'
 
 export function TradeTwitter(trade: TradeDto) {
   const post: string[] = []
@@ -117,13 +119,9 @@ export function TradeTelegram(trade: TradeDto) {
 
 export function TradeDiscord(trade: TradeDto): EmbedBuilder {
   const url = PositionLink(trade)
-  const img = TradeShareImage(trade)
   const tradeEmbed = new EmbedBuilder().setURL(`${url}`)
-  if (trade.isLiquidation) {
-    tradeEmbed.setImage(
-      'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/59b047e6ba0fef174b8380fd26a375d4690c4908/src/img/liquidation.jpg?raw=true',
-    )
-  }
+  const network = Network.Optimism
+
   if (!trade.isLiquidation) {
     tradeEmbed
       .setTitle(
@@ -182,20 +180,20 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
     },
   )
 
-  if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
-    tradeEmbed.addFields({
-      name: `${trade.isProfitable ? '🟢' : '🔴'} ${trade.isProfitable ? 'Profit' : 'Loss'}`,
-      value: `> ${trade.pnlFormatted} ${trade.pnlPercentFormatted}`,
-      inline: false,
-    })
-  }
-  if (trade.leaderBoard.account !== '') {
-    tradeEmbed.addFields({
-      name: `${Medal(trade.leaderBoard.position)} Leaderboard`,
-      value: `> #${trade.leaderBoard.position} ${dollar(trade.leaderBoard.realizedPnl)}`,
-      inline: false,
-    })
-  }
+  // if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
+  //   tradeEmbed.addFields({
+  //     name: `${trade.isProfitable ? '🟢' : '🔴'} ${trade.isProfitable ? 'Profit' : 'Loss'}`,
+  //     value: `> ${trade.pnlFormatted} ${trade.pnlPercentFormatted}`,
+  //     inline: false,
+  //   })
+  // }
+  // if (trade.leaderBoard.account !== '') {
+  //   tradeEmbed.addFields({
+  //     name: `${Medal(trade.leaderBoard.position)} Leaderboard`,
+  //     value: `> #${trade.leaderBoard.position} ${dollar(trade.leaderBoard.realizedPnl)}`,
+  //     inline: false,
+  //   })
+  // }
 
   if (trade.fren && trade.fren.name) {
     tradeEmbed.addFields({
@@ -214,11 +212,11 @@ export function TradeDiscord(trade: TradeDto): EmbedBuilder {
 
   tradeEmbed
     .setFooter({
-      iconURL:
-        'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/c05bc1e3595ae80d74a37f13da7ce78b219a0b06/src/img/lyra.png?raw=true',
-      text: `Lyra.js`,
+      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
+      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
     })
     .setTimestamp()
+    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
 
   return tradeEmbed
 }

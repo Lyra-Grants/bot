@@ -12,3 +12,8 @@ export const iconUrls = {
   optimism: 'https://raw.githubusercontent.com/ethboi/assets/main/optimism.png',
   arbitrum: 'https://raw.githubusercontent.com/ethboi/assets/main/arbitrum.png',
 }
+
+export const bannerUrls = {
+  optimism: 'https://raw.githubusercontent.com/ethboi/assets/main/op-bg.jpg',
+  arbitrum: 'https://raw.githubusercontent.com/ethboi/assets/main/arb-bg.jpg',
+}

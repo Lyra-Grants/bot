@@ -1,4 +1,4 @@
-import { mainNetInfuraProvider } from '../clients/ethersClient'
+import mainnetProvider from '../utils/mainnetProvider'
 
 export async function GetEns(account: string | undefined): Promise<string> {
   if (account == undefined) {
@@ -12,7 +12,7 @@ export async function GetEns(account: string | undefined): Promise<string> {
     return found
   }
 
-  const ens = await mainNetInfuraProvider.lookupAddress(account)
+  const ens = await mainnetProvider.lookupAddress(account)
 
   if (ens) {
     global.LYRA_ENS[account] = ens
@@ -30,7 +30,7 @@ export async function ResolveEns(ens: string | undefined): Promise<string> {
 
   console.debug(`Getting account for ${ens}`)
 
-  const account = await mainNetInfuraProvider.resolveName(ens.toLowerCase())
+  const account = await mainnetProvider.resolveName(ens.toLowerCase())
 
   if (account) {
     console.log(`Address found for ENS ${ens}: ${account}`)

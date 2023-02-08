@@ -7,23 +7,21 @@ import { TwitterApi } from 'twitter-api-v2'
 import { Telegraf } from 'telegraf'
 import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
-import Lyra, { Chain } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import { GetPrice } from './integrations/coingecko'
 import { TrackEvents } from './event/blockEvent'
 import { ArbitrageJob, CoinGeckoJob, LeaderBoardFillJob, LeaderboardSendJob, PricingJob, StatsJob } from './schedule'
 import { SetUpDiscord } from './discord'
 import printObject from './utils/printObject'
-import getLyra from './utils/getLyra'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let telegramClient: Telegraf
-let lyra: Lyra
 
 // const chain = interaction.options.getString('chain') as Chain
-const chains = [Chain.Optimism]
+const networks = [Network.Optimism]
 
 export async function Run() {
   global.LYRA_ENS = {}
@@ -40,9 +38,9 @@ export async function Run() {
     GetLeaderBoard(),
   ])
 
-  // listen to events
-  chains.map(async (chain) => {
-    await runBot(chain)
+  //listen to events
+  networks.map(async (network) => {
+    await runBot(network)
   })
 
   // periodic jobs
@@ -50,16 +48,15 @@ export async function Run() {
     PricingJob(discordClient, discordClientBtc)
     // LeaderBoardFillJob()
     // LeaderboardSendJob(discordClient, twitterClient, telegramClient)
-    StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, chains)
+    StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient)
-    ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, chains)
+    ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
   }
 }
 
-export async function runBot(chain: Chain) {
-  lyra = getLyra(chain)
-  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, lyra)
-  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
+export async function runBot(network: Network) {
+  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, network)
+  //await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
 }
 
 export async function SetUpTwitter() {

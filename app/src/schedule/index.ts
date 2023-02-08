@@ -1,4 +1,4 @@
-import Lyra, { Chain } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import { Client } from 'discord.js'
 import { scheduleJob } from 'node-schedule'
 import { Telegraf } from 'telegraf'
@@ -49,15 +49,15 @@ export function StatsJob(
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
-  chains: Chain[],
+  networks: Network[],
 ): void {
   console.log('Mon Wed Fri Stats job')
   scheduleJob('0 1 * * 1,3,5', async () => {
-    chains.map(async (chain) => {
+    networks.map(async (network) => {
       markets.map(async (market) => {
-        const statsDto = await GetStats(market, chain)
+        const statsDto = await GetStats(market, network)
         const discord = market == 'eth' ? discordClient : discordClientBtc
-        await BroadCastStats(statsDto, twitterClient, telegramClient, discord, chain)
+        await BroadCastStats(statsDto, twitterClient, telegramClient, discord, network)
       })
     })
   })
@@ -80,12 +80,12 @@ export function ArbitrageJob(
   discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
-  chains: Chain[],
+  networks: Network[],
 ): void {
   scheduleJob('0 4 * * 1,3,5', async () => {
-    chains.map(async (chain) => {
+    networks.map(async (network) => {
       markets.map(async (market) => {
-        const arbDto = await GetArbitrageDeals(market, chain)
+        const arbDto = await GetArbitrageDeals(market, network)
         const discord = market == 'eth' ? discordClient : discordClientBtc
         await BroadCast(arbDto, twitterClient, telegramClient, discord)
       })
