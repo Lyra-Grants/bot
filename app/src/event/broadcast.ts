@@ -1,6 +1,6 @@
+import { Network } from '@lyrafinance/lyra-js'
 import { AttachmentBuilder, Client, EmbedBuilder } from 'discord.js'
-import { Telegraf, Context } from 'telegraf'
-import { Update } from 'telegraf/typings/core/types/typegram'
+import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { ARBS_CHANNEL, TOKEN_CHANNEL } from '../constants/discordChannels'
 import { EventType } from '../constants/eventType'
@@ -15,15 +15,16 @@ import { ArbDto, BaseEvent, LyraDto } from '../types/lyra'
 export async function BroadCast<T extends BaseEvent>(
   dto: T,
   twitterClient: TwitterApi,
-  telegramClient: Telegraf<Context<Update>>,
-  discordClient: Client<boolean>,
+  telegramClient: Telegraf,
+  discordClient: Client,
+  network: Network,
 ): Promise<void> {
   if (TWITTER_ENABLED) {
     let post = ''
     if (dto.eventType == EventType.Arb) {
       const arbDto = dto as unknown as ArbDto
       if (arbDto.arbs.length > 0) {
-        post = ArbTwitter(dto as unknown as ArbDto)
+        post = ArbTwitter(dto as unknown as ArbDto, network)
       }
     }
     if (dto.eventType == EventType.CoinGecko) {
@@ -60,7 +61,7 @@ export async function BroadCast<T extends BaseEvent>(
     if (dto.eventType == EventType.Arb) {
       const arbDto = dto as unknown as ArbDto
       if (arbDto.arbs.length > 0) {
-        embed = ArbDiscord(dto as unknown as ArbDto)
+        embed = ArbDiscord(dto as unknown as ArbDto, network)
       }
       channel = ARBS_CHANNEL
     }

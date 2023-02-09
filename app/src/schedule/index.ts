@@ -67,11 +67,12 @@ export function CoinGeckoJob(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
+  network: Network,
 ): void {
   console.log('Mon Wed Fri Stats job')
   scheduleJob('0 2 * * 1,3,5', async () => {
     const lyraDto = await GetCoinGecko()
-    await BroadCast(lyraDto, twitterClient, telegramClient, discordClient)
+    await BroadCast(lyraDto, twitterClient, telegramClient, discordClient, network)
   })
 }
 
@@ -87,7 +88,7 @@ export function ArbitrageJob(
       markets.map(async (market) => {
         const arbDto = await GetArbitrageDeals(market, network)
         const discord = market == 'eth' ? discordClient : discordClientBtc
-        await BroadCast(arbDto, twitterClient, telegramClient, discord)
+        await BroadCast(arbDto, twitterClient, telegramClient, discord, network)
       })
     })
   })

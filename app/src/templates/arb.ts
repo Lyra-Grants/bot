@@ -3,6 +3,8 @@ import { ArbDto, Arb } from '../types/lyra'
 import { ProviderType } from '../types/arbs'
 import { FN, FormattedDate, FormattedDateShort } from './common'
 import { StatSymbol } from './stats'
+import { iconUrls, bannerUrls } from '../constants/urls'
+import { Network } from '@lyrafinance/lyra-js'
 
 const deribitUrl = 'https://www.deribit.com/?reg=17349.7477'
 
@@ -27,7 +29,7 @@ export function ArbTelegram(dto: ArbDto) {
 }
 
 // TWITTER
-export function ArbTwitter(dto: ArbDto) {
+export function ArbTwitter(dto: ArbDto, network: Network) {
   const post: string[] = []
   post.push(`$${dto.market.toUpperCase()} Arbs Deribit | Lyra\n\n`)
 
@@ -48,44 +50,46 @@ export function ArbTwitter(dto: ArbDto) {
 
 // 25 fields // 10 embeds
 // DISCORD
-export function ArbDiscord(dto: ArbDto): EmbedBuilder[] {
+export function ArbDiscord(dto: ArbDto, network: Network): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder()
     .setColor('#60DDBF')
-    .setTitle(`${StatSymbol(dto.market)} $${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
+    .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA (${network})`)
 
   dto.arbs.slice(0, 10).map((arb) => {
-    Arb(arb, dto.market, embed)
+    Arb(arb, dto.market, network, embed)
   })
   embed
     .setFooter({
-      iconURL:
-        'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/c05bc1e3595ae80d74a37f13da7ce78b219a0b06/src/img/lyra.png?raw=true',
-      text: `Lyra.js`,
+      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
+      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
     })
     .setTimestamp()
+    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
   messageEmbeds.push(embed)
   return messageEmbeds
 }
 
-function Arb(dto: Arb, market: string, embed: EmbedBuilder) {
+function Arb(dto: Arb, market: string, network: Network, embed: EmbedBuilder) {
   embed.addFields({
     name: `✨ $${FN(dto.strike, 0)} ${FormattedDate(new Date(dto.expiration))} ${dto.type}`,
     value: `> 🔹 **Buy** [$${FN(dto.buy.askPrice as number, 2)} ${dto.buy.provider}](${ProviderUrl(
       dto.buy.provider,
       market,
+      network,
     )})\n > 🔸 **Sell** [$${FN(dto.sell.bidPrice as number, 2)} ${dto.sell.provider}](${ProviderUrl(
       dto.sell.provider,
       market,
+      network,
     )})\n > **Discount** $${FN(dto.amount, 2)} (${FN(dto.discount, 2)}%)\n > **APY** ${FN(dto.apy, 2)}%`,
     inline: false,
   })
 }
 
-function ProviderUrl(provider: ProviderType, market: string) {
+function ProviderUrl(provider: ProviderType, market: string, network: Network) {
   if (provider === ProviderType.DERIBIT) {
     return deribitUrl //'https://www.deribit.com/options/ETH'
   }
 
-  return `https://app.lyra.finance/trade/${market}`
+  return `https://app.lyra.finance/#/trade/${network}/${market}`
 }

@@ -49,13 +49,13 @@ export async function Run() {
     // LeaderBoardFillJob()
     // LeaderboardSendJob(discordClient, twitterClient, telegramClient)
     StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
-    CoinGeckoJob(discordClient, twitterClient1, telegramClient)
+    CoinGeckoJob(discordClient, twitterClient1, telegramClient, networks[0])
     ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
   }
 }
 
 export async function runBot(network: Network) {
-  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, network)
+  //await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, network)
   //await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
 }
 

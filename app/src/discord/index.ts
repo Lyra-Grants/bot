@@ -152,13 +152,13 @@ async function ArbInteraction(
 ) {
   if (channelName === ARBS_CHANNEL) {
     await interaction.deferReply()
-    const network = interaction.options.getString('network') as Network
+    const network = interaction.options.getString('chain') as Network
     const arbs = await GetArbitrageDeals(market, network)
     if (arbs.arbs.length > 0) {
-      const embed = ArbDiscord(arbs)
+      const embed = ArbDiscord(arbs, network)
       await interaction.editReply({ embeds: embed })
     } else {
-      await interaction.editReply(`No ${market} arbs found.`)
+      await interaction.editReply(`No ${market} arbs found on ${network}.`)
     }
   } else {
     await interaction.reply(`Command 'arbs' only available in <#${channel?.id}>`)
