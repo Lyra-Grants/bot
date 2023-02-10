@@ -13,6 +13,7 @@ import { TrackEvents } from './event/blockEvent'
 import { ArbitrageJob, CoinGeckoJob, LeaderBoardFillJob, LeaderboardSendJob, PricingJob, StatsJob } from './schedule'
 import { SetUpDiscord } from './discord'
 import printObject from './utils/printObject'
+import getLyraSDK from './utils/getLyraSDK'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
@@ -27,6 +28,9 @@ export async function Run() {
   global.LYRA_ENS = {}
   global.LEADERBOARD_DATA = []
   global.FREN = {}
+  global.LYRA_ARB = getLyraSDK(Network.Arbitrum)
+  global.LYRA_OPT = getLyraSDK(Network.Optimism)
+
   await GetPrice()
 
   // set up the clients
@@ -55,8 +59,8 @@ export async function Run() {
 }
 
 export async function runBot(network: Network) {
-  //await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, network)
-  //await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
+  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, network)
+  // await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
 }
 
 export async function SetUpTwitter() {

@@ -1,13 +1,12 @@
 /* eslint-disable no-var */
 
+import Lyra from '@lyrafinance/lyra-js'
 import { PositionLeaderboard } from '@lyrafinance/lyra-js'
 import { Fren } from './fren'
 import { LeaderboardElement } from './leaderboardAPI'
 
 declare global {
-  var LYRA_LEADERBOARD: PositionLeaderboard[] = []
   var LEADERBOARD_DATA: LeaderboardElement[] = []
-
   var LYRA_ENS: { [key: string]: string } = {}
   var FREN: { [key: string]: Fren } = {}
 
@@ -17,6 +16,8 @@ declare global {
   var ETH_24HR: number
   var BTC_PRICE: number
   var BTC_24HR: number
+  var LYRA_ARB: Lyra
+  var LYRA_OPT: Lyra
 }
 
 declare module '*.json' {
