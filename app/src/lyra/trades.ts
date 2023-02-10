@@ -35,7 +35,7 @@ export async function RunTradeBot(
   network: Network,
 ) {
   console.log('### Polling for Trades ###')
-  const lyra = getLyra(network)
+  const lyra1 = getLyra(network)
 
   const blockNumber: number | undefined = undefined
   const pollInterval = 60000
@@ -45,7 +45,7 @@ export async function RunTradeBot(
     //  pollInterval = 6000
   }
 
-  lyra.onTrade(
+  lyra1.onTrade(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade)

@@ -12,13 +12,13 @@ import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED } from '../secrets'
 import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
 import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
-import getLyraSDK from '../utils/getLyraSDK'
+import getLyra from '../utils/getLyraSDK'
 
 export async function GetStats(marketName: string, network: Network): Promise<VaultStats> {
   // get timestamp from month ago
   console.log(`Getting stats for ${marketName} on ${network}`)
-  const lyra = getLyraSDK(network)
-  const market = await lyra.market(marketName)
+  const lyra2 = getLyra(network)
+  const market = await lyra2.market(marketName)
 
   const period = SECONDS_IN_MONTH
   const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
