@@ -23,7 +23,7 @@ let telegramClient: Telegraf
 
 // const chain = interaction.options.getString('chain') as Chain
 //
-const networks = [Network.Optimism]
+const networks = [Network.Optimism, Network.Arbitrum]
 
 export async function Run() {
   global.LYRA_ENS = {}
@@ -44,18 +44,18 @@ export async function Run() {
   ])
 
   //listen to events
-  // networks.map(async (network) => {
-  //   await runBot(network)
-  // })
+  networks.map(async (network) => {
+    await runBot(network)
+  })
 
   // periodic jobs
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc)
     // LeaderBoardFillJob()
     // LeaderboardSendJob(discordClient, twitterClient, telegramClient)
-    // StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
-    // CoinGeckoJob(discordClient, twitterClient1, telegramClient, networks[0])
-    // ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
+    StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
+    CoinGeckoJob(discordClient, twitterClient1, telegramClient, networks[0])
+    ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
   }
 }
 
