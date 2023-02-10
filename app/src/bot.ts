@@ -23,7 +23,7 @@ let telegramClient: Telegraf
 
 // const chain = interaction.options.getString('chain') as Chain
 //
-const networks = [Network.Optimism, Network.Arbitrum]
+const networks = [Network.Optimism]
 
 export async function Run() {
   global.LYRA_ENS = {}
