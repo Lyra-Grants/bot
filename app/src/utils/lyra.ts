@@ -21,16 +21,14 @@ export const arbitrumProvider = new CachedStaticJsonRpcProvider(
   arbitrumNetworkConfig.chainId,
 )
 
-export const lyraOptimism = new Lyra(
-  {
-    provider: optimismProvider,
-    optimismProvider: optimismProvider,
-    ethereumProvider: mainnetProvider,
-  },
-  Version.Avalon,
-)
+export const lyraOptimism = new Lyra({
+  provider: optimismProvider,
+  optimismProvider: optimismProvider,
+  ethereumProvider: mainnetProvider,
+})
 
-export const lyraArbitrum = new Lyra(
-  { provider: arbitrumProvider, optimismProvider: optimismProvider, ethereumProvider: mainnetProvider },
-  Version.Newport,
-)
+export const lyraArbitrum = new Lyra({
+  provider: arbitrumProvider,
+  optimismProvider: optimismProvider,
+  ethereumProvider: mainnetProvider,
+})
