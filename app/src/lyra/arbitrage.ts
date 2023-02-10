@@ -45,7 +45,7 @@ export async function useDeals(marketName: string, network: Network) {
   const { allRates } = await useRatesData(marketName, network)
   const res: Deal[] = []
   const providers = [ProviderType.LYRA, ProviderType.DERIBIT]
-  const profit_threshold = 0
+  const profit_threshold = 3
 
   Object.values(allRates).forEach((strike) =>
     Object.values(strike).forEach((interception) => {
