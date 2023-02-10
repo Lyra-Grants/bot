@@ -25,7 +25,7 @@ import { TRADE_CHANNEL } from '../constants/discordChannels'
 import { GetNotableAddress } from '../utils/notableAddresses'
 import { GetFren } from '../integrations/fren'
 import { FN } from '../templates/common'
-import getLyraSDK from '../utils/getLyraSDK'
+import getLyra from '../utils/getLyra'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -35,14 +35,14 @@ export async function RunTradeBot(
   network: Network,
 ) {
   console.log('### Polling for Trades ###')
-  const lyra = getLyraSDK(network)
+  const lyra = getLyra(network)
 
-  let blockNumber: number | undefined = undefined
-  let pollInterval = 60000
+  const blockNumber: number | undefined = undefined
+  const pollInterval = 60000
 
   if (TESTNET) {
-    blockNumber = lyra.provider.blockNumber - 5000
-    pollInterval = 6000
+    //  blockNumber = lyra.provider.blockNumber - 5000
+    //  pollInterval = 6000
   }
 
   lyra.onTrade(
