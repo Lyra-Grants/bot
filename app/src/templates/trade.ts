@@ -1,6 +1,5 @@
 import { TradeDto } from '../types/lyra'
 import { EmbedBuilder } from 'discord.js'
-import { dollar } from '../utils/utils'
 import {
   AmountWording,
   DisplayTrader,
@@ -9,6 +8,7 @@ import {
   FN,
   FormattedDate,
   Medal,
+  NetworkFooter,
   PortfolioLink,
   PositionLink,
   ShowProfitAndLoss,
@@ -17,7 +17,7 @@ import {
   TwitterLink,
 } from './common'
 import { Network } from '@lyrafinance/lyra-js'
-import { iconUrls, bannerUrls } from '../constants/urls'
+import formatUSD from '../utils/formatUSD'
 
 export function TradeTwitter(trade: TradeDto, network: Network) {
   const post: string[] = []
@@ -50,7 +50,7 @@ export function TradeTwitter(trade: TradeDto, network: Network) {
   }
   if (trade.leaderBoard.account !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} ${trade.leaderBoard.position}. Trader ${dollar(
+      `${Medal(trade.leaderBoard.position)} ${trade.leaderBoard.position}. Trader ${formatUSD(
         trade.leaderBoard.realizedPnl,
       )}\n`,
     )
@@ -94,7 +94,7 @@ export function TradeTelegram(trade: TradeDto, network: Network) {
   }
   if (trade.leaderBoard.account !== '') {
     post.push(
-      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader ${dollar(
+      `${Medal(trade.leaderBoard.position)} #${trade.leaderBoard.position} Trader ${formatUSD(
         trade.leaderBoard.realizedPnl,
       )}\n`,
     )
@@ -193,7 +193,7 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
   if (trade.leaderBoard.account !== '') {
     tradeEmbed.addFields({
       name: `${Medal(trade.leaderBoard.position)} Leaderboard`,
-      value: `> #${trade.leaderBoard.position} ${dollar(trade.leaderBoard.realizedPnl)}`,
+      value: `> #${trade.leaderBoard.position} ${formatUSD(trade.leaderBoard.realizedPnl)}`,
       inline: false,
     })
   }
@@ -213,13 +213,6 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
     tradeEmbed.addFields({ name: '🏦 Vault', value: `> [deposit into vault](${trade.url})`, inline: false })
   }
 
-  tradeEmbed
-    .setFooter({
-      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
-      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
-    })
-    .setTimestamp()
-    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
-
+  NetworkFooter(tradeEmbed, network)
   return tradeEmbed
 }

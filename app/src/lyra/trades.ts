@@ -27,6 +27,7 @@ import { GetFren } from '../integrations/fren'
 import { FN } from '../templates/common'
 import getLyra from '../utils/getLyra'
 import printObject from '../utils/printObject'
+import formatUSD from '../utils/formatUSD'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -85,10 +86,11 @@ export async function MapToTradeDto(trade: TradeEvent, network: Network): Promis
   const from = GetNotableAddress(trade.trader)
   const ens = await GetEns(trade.trader)
   const isNotable = from != ''
+  const asset = market.name.split('-')[0]
 
   const tradeDto: TradeDto = {
     account: trade.trader.toLowerCase(),
-    asset: market.name.split('-')[0],
+    asset: asset,
     market: market.name,
     isLong: trade.isLong,
     isCall: trade.isCall,
@@ -117,7 +119,7 @@ export async function MapToTradeDto(trade: TradeEvent, network: Network): Promis
       AmountWording(fromBigNumber(trade.premium), trade.isLong, trade.isOpen, trade.isLiquidation),
     ),
     isBaseCollateral: trade.isBaseCollateral,
-    baseCollateralFormatted: BaseCollateral(trade, market.name),
+    baseCollateralFormatted: BaseCollateral(trade, asset),
     iv: fromBigNumber(trade.iv) * 100,
     fee: fromBigNumber(trade.fee),
     optionPrice: fromBigNumber(trade.pricePerOption),
@@ -156,7 +158,7 @@ export function BaseCollateral(trade: TradeEvent, asset: string) {
   }
 
   if (!trade.isBaseCollateral && collateralValue) {
-    return `$${FN(collateralValue, 2)}`
+    return `${formatUSD(collateralValue)}`
   }
 
   return `${FN(collateralAmount, 4)} ${asset}`
