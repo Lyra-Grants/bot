@@ -1,16 +1,18 @@
 import { Network } from '@lyrafinance/lyra-js'
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
+import { EmbedBuilder } from 'discord.js'
 import {
   ETH_LIQUIDITY_POOL,
   BTC_LIQUIDITY_POOL,
   ETH_OPTION_MARKET,
   BTC_OPTION_MARKET,
 } from '../constants/contractAddresses'
+import { bannerUrls, iconUrls } from '../constants/urls'
 import { TradeDto, TraderAddress } from '../types/lyra'
 import { shortAddress } from '../utils/utils'
 
-export const zapperUrl = 'https://zapper.fi/account/'
+export const zapperUrl = 'https://zapper.xyz/account/'
 export const debankUrl = 'https://debank.com/profile/'
 
 export function ShowProfitAndLoss(positionTradeCount: number, pnl: number): boolean {
@@ -44,12 +46,12 @@ export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: b
   return isLong ? received : paid
 }
 
-export function VaultLink(asset: string, network: Network) {
-  return `${LyraDappUrl()}/#/vaults/${network}/${asset.toLowerCase()}`
+export function VaultLink(market: string, network: Network) {
+  return `${LyraDappUrl()}/#/vaults/${network}/${market.toLowerCase()}`
 }
 
 export function PositionLink(trade: TradeDto, network: Network): string {
-  return `${LyraDappUrl()}/#/position/${network}/${trade.asset.toLowerCase()}?see=${trade.account}`
+  return `${LyraDappUrl()}/#/position/${network}/${trade.market.toLowerCase()}/${trade.positionId}?see=${trade.account}`
 }
 
 export function PortfolioLink(account: string) {
@@ -60,8 +62,18 @@ export function TwitterLink(handle: string) {
   return `https://twitter.com/${handle}`
 }
 
-export function ExpiryLink(asset: string, date: string) {
-  return `${LyraDappUrl()}/#/trade/s${asset.toLowerCase()}-susd?expiry=${date}`
+export function NetworkFooter(embed: EmbedBuilder, network: Network) {
+  embed
+    .setFooter({
+      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
+      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
+    })
+    .setTimestamp()
+    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
+}
+
+export function ExpiryLink(market: string, network: Network, date: string) {
+  return `${LyraDappUrl()}/#/trade/${network}/${market.toLowerCase()}?expiry=${date}`
 }
 
 export function TradeHistoryLink(trade: TraderAddress) {

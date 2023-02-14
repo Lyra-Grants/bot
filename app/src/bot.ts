@@ -59,7 +59,7 @@ export async function Run() {
 
 export async function runBot(network: Network) {
   await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, network)
-  // await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, lyra)
+  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, network)
 }
 
 export async function SetUpTwitter() {

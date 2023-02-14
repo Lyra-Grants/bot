@@ -8,7 +8,7 @@ import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { EXPIRY_CHANNEL } from '../constants/discordChannels'
-import Lyra, { AvalonOptionMarket__factory } from '@lyrafinance/lyra-js'
+import Lyra, { AvalonOptionMarket__factory, Network } from '@lyrafinance/lyra-js'
 import printObject from '../utils/printObject'
 import { BoardDiscord, BoardTelegram, BoardTwitter } from '../templates/strike'
 import { PostDiscord } from '../integrations/discord'
@@ -21,6 +21,7 @@ export async function TrackStrikeAdded(
   telegramClient: Telegraf,
   twitterClient: TwitterApi,
   lyra: Lyra,
+  network: Network,
   genericEvents: GenericEvent[],
 ): Promise<void> {
   const events = parseEvents(genericEvents as StrikeAddedEvent[])
@@ -28,7 +29,15 @@ export async function TrackStrikeAdded(
 
   Object.keys(boardEvents).map(
     async (x) =>
-      await processBoardStrikes(discordClient, discordClientBtc, telegramClient, twitterClient, boardEvents[x], lyra),
+      await processBoardStrikes(
+        discordClient,
+        discordClientBtc,
+        telegramClient,
+        twitterClient,
+        boardEvents[x],
+        lyra,
+        network,
+      ),
   )
 }
 export async function processBoardStrikes(
@@ -38,6 +47,7 @@ export async function processBoardStrikes(
   twitterClient: TwitterApi,
   events: StrikeAddedEvent[],
   lyra: Lyra,
+  network: Network,
 ) {
   const board = await lyra.board(events[0].address, events[0].args.boardId.toNumber())
   const event = events[0]
@@ -59,7 +69,7 @@ export async function processBoardStrikes(
   }
 
   try {
-    BroadCastStrike(boardDto, discordClient, discordClientBtc, telegramClient, twitterClient)
+    BroadCastStrike(boardDto, discordClient, discordClientBtc, telegramClient, twitterClient, network)
   } catch (ex) {
     console.log(ex)
   }
@@ -71,9 +81,10 @@ export async function BroadCastStrike(
   discordClientBtc: Client<boolean>,
   telegramClient: Telegraf,
   twitterClient: TwitterApi,
+  network: Network,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
-    const post = BoardDiscord(dto)
+    const post = BoardDiscord(dto, network)
     if (dto.market.toLowerCase() === 'eth') {
       await PostDiscord(post, discordClient, EXPIRY_CHANNEL)
     }
@@ -83,12 +94,12 @@ export async function BroadCastStrike(
   }
 
   if (TELEGRAM_ENABLED) {
-    const post = BoardTelegram(dto)
+    const post = BoardTelegram(dto, network)
     await PostTelegram(post, telegramClient)
   }
 
   if (TWITTER_ENABLED) {
-    const post = BoardTwitter(dto)
+    const post = BoardTwitter(dto, network)
     await SendTweet(post, twitterClient)
   }
 }

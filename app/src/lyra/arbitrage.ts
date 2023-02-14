@@ -1,4 +1,4 @@
-import { Chain, Network } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import { Deal, OptionType, ProviderType } from '../types/arbs'
 import { useRatesData } from '../utils/arbUtils'
 import { maxBy, minBy } from 'lodash'

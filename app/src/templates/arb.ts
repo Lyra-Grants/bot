@@ -1,9 +1,8 @@
 import { EmbedBuilder } from 'discord.js'
 import { ArbDto, Arb } from '../types/lyra'
 import { ProviderType } from '../types/arbs'
-import { FN, FormattedDate, FormattedDateShort } from './common'
+import { FN, FormattedDate, FormattedDateShort, NetworkFooter } from './common'
 import { StatSymbol } from './stats'
-import { iconUrls, bannerUrls } from '../constants/urls'
 import { Network } from '@lyrafinance/lyra-js'
 
 const deribitUrl = 'https://www.deribit.com/?reg=17349.7477'
@@ -54,18 +53,13 @@ export function ArbDiscord(dto: ArbDto, network: Network): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder()
     .setColor('#60DDBF')
-    .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA (${network})`)
+    .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
 
   dto.arbs.slice(0, 10).map((arb) => {
     Arb(arb, dto.market, network, embed)
   })
-  embed
-    .setFooter({
-      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
-      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
-    })
-    .setTimestamp()
-    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
+
+  NetworkFooter(embed, network)
   messageEmbeds.push(embed)
   return messageEmbeds
 }

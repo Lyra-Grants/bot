@@ -1,24 +1,25 @@
+import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
-import { BoardDto, DepositDto, StrikeDto } from '../types/lyra'
-import { EtherScanTransactionLink, ExpiryLink, FN, FormattedDate, LyraDappUrl } from './common'
+import { BoardDto } from '../types/lyra'
+import { ExpiryLink, FN, FormattedDate, NetworkFooter } from './common'
 import { StatSymbol } from './stats'
 
 // TWITTER
-export function BoardTwitter(dto: BoardDto) {
+export function BoardTwitter(dto: BoardDto, network: Network) {
   const post: string[] = []
   post.push(`New strike${dto.strikes.length > 1 ? 's' : ''} listed!\n`)
-  post.push(`${StatSymbol(dto.market)} ${dto.market} Market\n`)
+  post.push(`${dto.market} Market\n`)
   post.push(`⏰ Exp ${FormattedDate(dto.expiry)}\n\n`)
   dto.strikes.map((strike) => {
     post.push(`🎯 $${FN(strike.strikePrice, 0)}\n`)
   })
   post.push(`\nOptions for everyone, start trading 👇\n`)
-  post.push(`${ExpiryLink(dto.market, dto.expiryString)}`)
+  post.push(`${ExpiryLink(dto.market, network, dto.expiryString)}`)
   return post.join('')
 }
 
 // TELEGRAM
-export function BoardTelegram(dto: BoardDto) {
+export function BoardTelegram(dto: BoardDto, network: Network) {
   const post: string[] = []
   post.push(`New strike${dto.strikes.length > 1 ? 's' : ''} listed!\n`)
   post.push(`${StatSymbol(dto.market)} ${dto.market} Market\n`)
@@ -27,16 +28,16 @@ export function BoardTelegram(dto: BoardDto) {
     post.push(`🎯 $${FN(strike.strikePrice, 0)}\n`)
   })
   post.push(`\nOptions for everyone, start trading 👇\n`)
-  post.push(`<a href='${ExpiryLink(dto.market, dto.expiryString)}'>Open trade</a>`)
+  post.push(`<a href='${ExpiryLink(dto.market, network, dto.expiryString)}'>Open trade</a>`)
   return post.join('')
 }
 
 // DISCORD
-export function BoardDiscord(dto: BoardDto): EmbedBuilder[] {
+export function BoardDiscord(dto: BoardDto, network: Network): EmbedBuilder[] {
   const embeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder()
     .setColor('#00ff7f')
-    .setURL(`${ExpiryLink(dto.market, dto.expiryString)}`)
+    .setURL(`${ExpiryLink(dto.market, network, dto.expiryString)}`)
     .setTitle(
       `Strike${dto.strikes.length > 1 ? 's' : ''}: ${StatSymbol(dto.market)} ${dto.market} Market | ${FormattedDate(
         dto.expiry,
@@ -50,13 +51,8 @@ export function BoardDiscord(dto: BoardDto): EmbedBuilder[] {
       inline: false,
     })
   })
-  embed
-    .setFooter({
-      iconURL:
-        'https://github.com/Lyra-Grants/lyra-avalon-bot/blob/c05bc1e3595ae80d74a37f13da7ce78b219a0b06/src/img/lyra.png?raw=true',
-      text: `Lyra.js`,
-    })
-    .setTimestamp()
+
+  NetworkFooter(embed, network)
   embeds.push(embed)
   return embeds
 }

@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js'
 import { Trader } from '../types/lyra'
 import { dollar } from '../utils/utils'
-import { DisplayTraderNoEmoji, FN, FNS, LyraDappUrl, Medal, PortfolioLink, TwitterLink } from './common'
+import { DisplayTraderNoEmoji, FNS, Medal, PortfolioLink, TwitterLink } from './common'
 
 export function TraderDiscord(trader: Trader): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []

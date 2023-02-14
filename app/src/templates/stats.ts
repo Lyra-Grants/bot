@@ -1,9 +1,8 @@
 import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
-import { bannerUrls, iconUrls } from '../constants/urls'
 import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
-import { FN, FNS, VaultLink } from './common'
+import { FN, FNS, NetworkFooter, VaultLink } from './common'
 
 export function StatDiscord(stat: VaultStats, network: Network): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
@@ -29,13 +28,8 @@ export function StatDiscord(stat: VaultStats, network: Network): EmbedBuilder[] 
         inline: true,
       },
     )
-    .setFooter({
-      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
-      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
-    })
-    .setTimestamp()
-    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
 
+  NetworkFooter(tradeEmbed, network)
   messageEmbeds.push(tradeEmbed)
   return messageEmbeds
 }

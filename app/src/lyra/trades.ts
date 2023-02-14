@@ -88,7 +88,8 @@ export async function MapToTradeDto(trade: TradeEvent, network: Network): Promis
 
   const tradeDto: TradeDto = {
     account: trade.trader.toLowerCase(),
-    asset: market.name,
+    asset: market.name.split('-')[0],
+    market: market.name,
     isLong: trade.isLong,
     isCall: trade.isCall,
     isBuy: trade.isBuy,

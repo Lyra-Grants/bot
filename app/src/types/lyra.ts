@@ -57,6 +57,7 @@ export type TraderAddress = {
 export type TradeDto = BaseDto &
   TraderAddress & {
     asset: string
+    market: string
     isOpen: boolean
     isLong: boolean
     isCall: boolean
