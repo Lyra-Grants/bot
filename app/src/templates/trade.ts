@@ -182,20 +182,21 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
     },
   )
 
-  // if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
-  //   tradeEmbed.addFields({
-  //     name: `${trade.isProfitable ? '🟢' : '🔴'} ${trade.isProfitable ? 'Profit' : 'Loss'}`,
-  //     value: `> ${trade.pnlFormatted} ${trade.pnlPercentFormatted}`,
-  //     inline: false,
-  //   })
-  // }
-  // if (trade.leaderBoard.account !== '') {
-  //   tradeEmbed.addFields({
-  //     name: `${Medal(trade.leaderBoard.position)} Leaderboard`,
-  //     value: `> #${trade.leaderBoard.position} ${dollar(trade.leaderBoard.realizedPnl)}`,
-  //     inline: false,
-  //   })
-  // }
+  if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
+    tradeEmbed.addFields({
+      name: `${trade.isProfitable ? '🟢' : '🔴'} ${trade.isProfitable ? 'Profit' : 'Loss'}`,
+      value: `> ${trade.pnlFormatted} ${trade.pnlPercentFormatted}`,
+      inline: false,
+    })
+  }
+
+  if (trade.leaderBoard.account !== '') {
+    tradeEmbed.addFields({
+      name: `${Medal(trade.leaderBoard.position)} Leaderboard`,
+      value: `> #${trade.leaderBoard.position} ${dollar(trade.leaderBoard.realizedPnl)}`,
+      inline: false,
+    })
+  }
 
   if (trade.fren && trade.fren.name) {
     tradeEmbed.addFields({
