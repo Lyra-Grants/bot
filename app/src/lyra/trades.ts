@@ -51,7 +51,7 @@ export async function RunTradeBot(
       try {
         const tradeDto = await MapToTradeDto(trade, network)
         //console.log(tradeDto)
-        switch (tradeDto.asset.toUpperCase()) {
+        switch (tradeDto.market.toUpperCase()) {
           case 'SBTC-SUSD':
           case 'BTC-USDC':
             await BroadCastTrade(tradeDto, network, twitterClient, telegramClient, discordClientBtc)
