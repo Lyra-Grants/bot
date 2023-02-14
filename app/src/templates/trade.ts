@@ -19,7 +19,7 @@ import {
 import { Network } from '@lyrafinance/lyra-js'
 import { iconUrls, bannerUrls } from '../constants/urls'
 
-export function TradeTwitter(trade: TradeDto) {
+export function TradeTwitter(trade: TradeDto, network: Network) {
   const post: string[] = []
 
   if (!trade.isLiquidation) {
@@ -38,6 +38,7 @@ export function TradeTwitter(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
+  post.push(`⛓️ Network: ${network}\n`)
   post.push(`⚡ IV ${FN(trade.iv, 2)}%\n`)
   post.push(`⏰ Exp ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
@@ -55,14 +56,14 @@ export function TradeTwitter(trade: TradeDto) {
     )
   }
   post.push(`${DisplayTrader(trade)}\n`)
-  post.push(`${PositionLink(trade)}\n`)
+  post.push(`${PositionLink(trade, network)}\n`)
   if (trade.url) {
     post.push(`${trade.url}\n`)
   }
   return post.join('')
 }
 
-export function TradeTelegram(trade: TradeDto) {
+export function TradeTelegram(trade: TradeDto, network: Network) {
   const img = TradeShareImage(trade)
   const post: string[] = []
   if (!trade.isLiquidation) {
@@ -81,6 +82,7 @@ export function TradeTelegram(trade: TradeDto) {
     post.push(`💵 Amount ${trade.premiumFormatted}\n`)
     post.push(`🔥 LP Fees $${trade.lpFees?.toFixed(2)}\n`)
   }
+  post.push(`⛓️ Network: ${network}\n`)
   post.push(`⚡ IV ${FN(trade.iv, 2)}%\n`)
   post.push(`⏰ Exp ${FormattedDate(trade.expiry)}\n`)
   if (ShowProfitAndLoss(trade.positionTradeCount, trade.pnl)) {
@@ -103,13 +105,14 @@ export function TradeTelegram(trade: TradeDto) {
   if (trade.url) {
     post.push(`<a href="${trade.url}">Go to Vault</a>\n`)
   }
-  post.push(`<a href='${PositionLink(trade)}'>${DisplayTrader(trade, true)}</a>\n`)
+  post.push(`<a href='${PositionLink(trade, network)}'>${DisplayTrader(trade, true)}</a>\n`)
   post.push(`============================\n`)
   post.push(
     `<a href='${EtherScanTransactionLink(trade.transactionHash)}'>Trxn</a> | <a href='${TradeHistoryLink(
       trade,
     )}'>History</a> | <a href='${PortfolioLink(trade.account)}'>Portfolio</a> | <a href='${PositionLink(
       trade,
+      network,
     )}'>Position</a>\n`,
   )
   post.push(`============================\n`)
@@ -117,10 +120,9 @@ export function TradeTelegram(trade: TradeDto) {
   return post.join('')
 }
 
-export function TradeDiscord(trade: TradeDto): EmbedBuilder {
-  const url = PositionLink(trade)
+export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
+  const url = PositionLink(trade, network)
   const tradeEmbed = new EmbedBuilder().setURL(`${url}`)
-  const network = Network.Optimism
 
   if (!trade.isLiquidation) {
     tradeEmbed

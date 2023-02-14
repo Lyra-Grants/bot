@@ -1,4 +1,4 @@
-import { Chain, Network } from '@lyrafinance/lyra-js'
+import { Network } from '@lyrafinance/lyra-js'
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
 import {
@@ -48,8 +48,8 @@ export function VaultLink(asset: string, network: Network) {
   return `${LyraDappUrl()}/#/vaults/${network}/${asset.toLowerCase()}`
 }
 
-export function PositionLink(trade: TradeDto): string {
-  return `${LyraDappUrl()}/#/position/s${trade.asset}-susd/${trade.positionId}?see=${trade.account}`
+export function PositionLink(trade: TradeDto, network: Network): string {
+  return `${LyraDappUrl()}/#/position/${network}/${trade.asset.toLowerCase()}?see=${trade.account}`
 }
 
 export function PortfolioLink(account: string) {

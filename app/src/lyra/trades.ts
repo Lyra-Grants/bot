@@ -26,6 +26,7 @@ import { GetNotableAddress } from '../utils/notableAddresses'
 import { GetFren } from '../integrations/fren'
 import { FN } from '../templates/common'
 import getLyra from '../utils/getLyra'
+import printObject from '../utils/printObject'
 
 export async function RunTradeBot(
   discordClient: Client<boolean>,
@@ -35,27 +36,29 @@ export async function RunTradeBot(
   network: Network,
 ) {
   console.log('### Polling for Trades ###')
-  const lyra1 = getLyra(network)
+  const lyra = getLyra(network)
 
-  const blockNumber: number | undefined = undefined
-  const pollInterval = 60000
+  let blockNumber: number | undefined = undefined
+  let pollInterval = 60000 // 1 min
 
   if (TESTNET) {
-    //  blockNumber = lyra.provider.blockNumber - 5000
-    //  pollInterval = 6000
+    blockNumber = lyra.provider.blockNumber - 5000
+    pollInterval = 20000 // 20 secs
   }
 
-  lyra1.onTrade(
+  lyra.onTrade(
     async (trade) => {
       try {
-        const tradeDto = await MapToTradeDto(trade)
-        console.log(tradeDto)
-        switch (tradeDto.asset) {
-          case 'sBtc-sUSD':
-            await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClientBtc)
+        const tradeDto = await MapToTradeDto(trade, network)
+        //console.log(tradeDto)
+        switch (tradeDto.asset.toUpperCase()) {
+          case 'SBTC-SUSD':
+          case 'BTC-USDC':
+            await BroadCastTrade(tradeDto, network, twitterClient, telegramClient, discordClientBtc)
             break
-          case 'sETH-sUSD':
-            await BroadCastTrade(tradeDto, twitterClient, telegramClient, discordClient)
+          case 'SETH-SUSD':
+          case 'ETH-USDC':
+            await BroadCastTrade(tradeDto, network, twitterClient, telegramClient, discordClient)
             break
         }
       } catch (e: any) {
@@ -66,7 +69,7 @@ export async function RunTradeBot(
   )
 }
 
-export async function MapToTradeDto(trade: TradeEvent): Promise<TradeDto> {
+export async function MapToTradeDto(trade: TradeEvent, network: Network): Promise<TradeDto> {
   const position = await trade.position()
   //const tradePnl = fromBigNumber(trade.pnl(position))
   const positionPnl = position.pnl()
@@ -160,6 +163,7 @@ export function BaseCollateral(trade: TradeEvent, asset: string) {
 
 export async function BroadCastTrade(
   trade: TradeDto,
+  network: Network,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
   discordClient: Client<boolean>,
@@ -172,7 +176,7 @@ export async function BroadCastTrade(
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     TWITTER_ENABLED
   ) {
-    await SendTweet(TradeTwitter(trade), twitterClient)
+    await SendTweet(TradeTwitter(trade, network), twitterClient)
   }
 
   if (
@@ -181,7 +185,7 @@ export async function BroadCastTrade(
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     TELEGRAM_ENABLED
   ) {
-    await PostTelegram(TradeTelegram(trade), telegramClient)
+    await PostTelegram(TradeTelegram(trade, network), telegramClient)
   }
 
   if (
@@ -190,6 +194,6 @@ export async function BroadCastTrade(
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     DISCORD_ENABLED
   ) {
-    await PostDiscord([TradeDiscord(trade)], discordClient, TRADE_CHANNEL)
+    await PostDiscord([TradeDiscord(trade, network)], discordClient, TRADE_CHANNEL)
   }
 }

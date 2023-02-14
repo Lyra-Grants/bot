@@ -51,7 +51,7 @@ export const NETWORK_CONFIGS: Record<Chain, NetworkConfig> = {
     chainId: 42161,
     network: Network.Arbitrum,
     walletRpcUrl: 'https://arb1.arbitrum.io/rpc',
-    readRpcUrls: [`https://arb1.arbitrum.io/rpc`],
+    readRpcUrls: [`https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_PROJECT_ID_ARBITRUM}`],
     blockExplorerUrl: 'https://arbiscan.io/',
     iconUrls: ['https://optimism.io/images/metamask_icon.svg', 'https://optimism.io/images/metamask_icon.png'],
   },

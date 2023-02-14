@@ -21,9 +21,7 @@ let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let telegramClient: Telegraf
 
-// const chain = interaction.options.getString('chain') as Chain
-//
-const networks = [Network.Optimism]
+const networks = [Network.Optimism, Network.Arbitrum]
 
 export async function Run() {
   global.LYRA_ENS = {}
