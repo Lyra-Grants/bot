@@ -1,12 +1,12 @@
 /* eslint-disable no-var */
 
 import Lyra from '@lyrafinance/lyra-js'
-import { PositionLeaderboard } from '@lyrafinance/lyra-js'
 import { Fren } from './fren'
 import { LeaderboardElement } from './leaderboardAPI'
 
 declare global {
-  var LEADERBOARD_DATA: LeaderboardElement[] = []
+  var LEADERBOARD_ARB: LeaderboardElement[] = []
+  var LEADERBOARD_OPT: LeaderboardElement[] = []
   var LYRA_ENS: { [key: string]: string } = {}
   var FREN: { [key: string]: Fren } = {}
 

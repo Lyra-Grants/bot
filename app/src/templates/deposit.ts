@@ -1,7 +1,6 @@
 import { EmbedBuilder } from 'discord.js'
 import { DepositDto } from '../types/lyra'
-import { DisplayTrader, DisplayTraderNoEmoji, EtherScanTransactionLink, FN, LyraDappUrl } from './common'
-import { StatSymbol } from './stats'
+import { DisplayTrader, DisplayTraderNoEmoji, EtherScanTransactionLink, FN, LyraDappUrl, StatSymbol } from './common'
 
 // TWITTER
 export function DepositTwitter(dto: DepositDto) {

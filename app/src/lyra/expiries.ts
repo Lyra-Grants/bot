@@ -1,6 +1,6 @@
 import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
-import { Client } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { BoardDto, StrikeDto } from '../types/lyra'
 import { groupBy, toDate } from '../utils/utils'
 import { Telegraf } from 'telegraf'
@@ -85,11 +85,12 @@ export async function BroadCastStrike(
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = BoardDiscord(dto, network)
+    const rows: ActionRowBuilder<ButtonBuilder>[] = []
     if (dto.market.toLowerCase() === 'eth') {
-      await PostDiscord(post, discordClient, EXPIRY_CHANNEL)
+      await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
     }
     if (dto.market.toLowerCase() == 'btc') {
-      await PostDiscord(post, discordClientBtc, EXPIRY_CHANNEL)
+      await PostDiscord(post, rows, discordClientBtc, EXPIRY_CHANNEL)
     }
   }
 

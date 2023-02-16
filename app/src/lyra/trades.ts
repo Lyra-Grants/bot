@@ -10,13 +10,13 @@ import {
   DISCORD_THRESHOLD,
   TESTNET,
 } from '../secrets'
-import { dollar, GetUrl, signed, toDate } from '../utils/utils'
+import { GetUrl, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { FindOnLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
 import { PostDiscord } from '../integrations/discord'
-import { Client } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Telegraf } from 'telegraf'
 import { TradeDiscord, TradeTelegram, TradeTwitter } from '../templates/trade'
@@ -102,20 +102,20 @@ export async function MapToTradeDto(trade: TradeEvent, network: Network): Promis
     transactionHash: trade.transactionHash,
     isOpen: trade.isOpen,
     ens: ens,
-    leaderBoard: await FindOnLeaderBoard(trade.trader),
+    leaderBoard: await FindOnLeaderBoard(trade.trader, network),
     pnl: pnl,
     pnlPercent: pnlPercent,
     totalPremiumPaid: totalPremiumPaid,
     isProfitable: pnl > 0,
     positionId: trade.positionId,
     positionTradeCount: noTrades,
-    pnlFormatted: dollar(pnl),
+    pnlFormatted: formatUSD(pnl),
     pnlPercentFormatted: `(${signed(pnlPercent)}%)`,
     isLiquidation: trade.isLiquidation,
     setCollateralTo: trade.collateralValue ? fromBigNumber(trade.collateralValue) : undefined,
     pricePerOption: fromBigNumber(trade.pricePerOption),
     lpFees: trade.liquidation ? fromBigNumber(trade.liquidation.lpFee) : undefined,
-    premiumFormatted: dollar(
+    premiumFormatted: formatUSD(
       AmountWording(fromBigNumber(trade.premium), trade.isLong, trade.isOpen, trade.isLiquidation),
     ),
     isBaseCollateral: trade.isBaseCollateral,
@@ -129,7 +129,7 @@ export async function MapToTradeDto(trade: TradeEvent, network: Network): Promis
     isNotable: isNotable,
     unrealizedPnl: unrealizedPnl,
     unrealizedPnlPercent: unrealizedPnlPercent,
-    unrealizedPnlFormatted: dollar(unrealizedPnl),
+    unrealizedPnlFormatted: formatUSD(unrealizedPnl),
     unrealizedPnlPercentFormatted: `(${signed(pnlPercent)}%)`,
     fren: await GetFren(ens),
     url: GetUrl(trade.trader.toLowerCase(), isNotable),
@@ -197,6 +197,8 @@ export async function BroadCastTrade(
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     DISCORD_ENABLED
   ) {
-    await PostDiscord([TradeDiscord(trade, network)], discordClient, TRADE_CHANNEL)
+    const embeds = [TradeDiscord(trade, network)]
+    const rows: ActionRowBuilder<ButtonBuilder>[] = []
+    await PostDiscord(embeds, rows, discordClient, TRADE_CHANNEL)
   }
 }

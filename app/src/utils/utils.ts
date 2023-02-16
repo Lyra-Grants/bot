@@ -22,14 +22,6 @@ export function shortAddress(value: string): string {
   return `${value.slice(0, 5)}...${value.slice(-4)}`
 }
 
-export function dollar(value: number): string {
-  const nonNeg = value > 0 ? value : value * -1
-  if (nonNeg == 0) {
-    return `$${FN(nonNeg, 2)}`
-  }
-  return `${value > 0 ? '+' : '-'}$${FN(nonNeg, 2)}`
-}
-
 export function signed(value: number): string {
   const nonNeg = value > 0 ? value : value * -1
   return `${value > 0 ? '+' : '-'}${nonNeg.toFixed(2)}`

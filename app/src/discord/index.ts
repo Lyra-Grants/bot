@@ -1,6 +1,6 @@
-import { ParsePositionLeaderboard } from '../lyra/leaderboard'
+import { GetLeaderBoard, ParsePositionLeaderboard } from '../lyra/leaderboard'
 import { DISCORD_ENABLED, TESTNET } from '../secrets'
-import { ChatInputCommandInteraction, Client, EmbedBuilder, GuildBasedChannel, TextChannel } from 'discord.js'
+import { ChatInputCommandInteraction, Client, GuildBasedChannel, TextChannel } from 'discord.js'
 import { defaultActivity, defaultName } from '../integrations/discord'
 import { Network } from '@lyrafinance/lyra-js'
 import { LeaderboardDiscord } from '../templates/leaderboard'
@@ -37,35 +37,24 @@ export async function SetUpDiscord(
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
 
-      // eth only
       if (market == 'eth') {
         if (commandName === 'leaderboard') {
-          await interaction.deferReply()
-          if (channelName === TRADE_CHANNEL) {
-            const traders = await Promise.all(
-              global.LEADERBOARD_DATA.slice(0, 10).map(
-                async (x, index) => await ParsePositionLeaderboard(x, index + 1),
-              ),
-            )
-            const post = LeaderboardDiscord(traders)
-            await interaction.editReply({ embeds: post })
-          } else {
-            await interaction.reply(`Command 'leaderboard' only available in <#${tradeChannel?.id}>`)
-          }
+          await LeaderBoardInteraction(
+            channelName,
+            interaction as ChatInputCommandInteraction,
+            tradeChannel as GuildBasedChannel,
+            10,
+            commandName,
+          )
         }
         if (commandName === 'top30') {
-          if (channelName === TRADE_CHANNEL) {
-            await interaction.deferReply()
-            const traders = await Promise.all(
-              global.LEADERBOARD_DATA.slice(0, 30).map(
-                async (x, index) => await ParsePositionLeaderboard(x, index + 1),
-              ),
-            )
-            const post = LeaderboardDiscord(traders)
-            await interaction.editReply({ embeds: post })
-          } else {
-            await interaction.reply(`Command 'top30' only available in <#${tradeChannel?.id}>`)
-          }
+          await LeaderBoardInteraction(
+            channelName,
+            interaction as ChatInputCommandInteraction,
+            tradeChannel as GuildBasedChannel,
+            30,
+            commandName,
+          )
         }
         if (commandName === 'help') {
           if (channelName === STATS_CHANNEL || channelName === TRADE_CHANNEL) {
@@ -118,6 +107,7 @@ export async function SetUpDiscord(
         )
       }
     })
+
     await discordClient.login(accessToken)
     if (!TESTNET) {
       defaultActivity(discordClient, market)
@@ -125,6 +115,27 @@ export async function SetUpDiscord(
     }
   }
   return discordClient
+}
+
+async function LeaderBoardInteraction(
+  channelName: string,
+  interaction: ChatInputCommandInteraction,
+  channel: GuildBasedChannel,
+  take: number,
+  commandName: string,
+) {
+  if (channelName === TRADE_CHANNEL) {
+    await interaction.deferReply()
+    const network = interaction.options.getString('chain') as Network
+    const leaderBoard = await GetLeaderBoard(network)
+    const traders = await Promise.all(
+      leaderBoard.slice(0, take).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
+    )
+    const embeds = LeaderboardDiscord(traders, network)
+    await interaction.editReply({ embeds: embeds })
+  } else {
+    await interaction.reply(`Command ${commandName} only available in <#${channel?.id}>`)
+  }
 }
 
 async function StatsInteraction(
@@ -155,8 +166,8 @@ async function ArbInteraction(
     const network = interaction.options.getString('chain') as Network
     const arbs = await GetArbitrageDeals(market, network)
     if (arbs.arbs.length > 0) {
-      const embed = ArbDiscord(arbs, network)
-      await interaction.editReply({ embeds: embed })
+      const { embeds, rows } = ArbDiscord(arbs, network)
+      await interaction.editReply({ embeds: embeds, components: rows })
     } else {
       await interaction.editReply(`No ${market} arbs found on ${network}.`)
     }
@@ -173,7 +184,8 @@ async function TraderInteraction(
   if (channelName === TRADE_CHANNEL) {
     await interaction.deferReply()
     const account = interaction.options.getString('account') as string
-    const trader = await GetTrader(account)
+    // todo support both networks
+    const trader = await GetTrader(account, Network.Optimism)
     if (trader.account != '') {
       const embed = TraderDiscord(trader)
       await interaction.editReply({ embeds: embed })

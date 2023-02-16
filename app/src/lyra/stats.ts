@@ -1,5 +1,5 @@
 import { Network } from '@lyrafinance/lyra-js'
-import { Client } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { ZERO_BN } from '../constants/bn'
@@ -12,13 +12,13 @@ import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED } from '../secrets'
 import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
 import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
-import getLyra from '../utils/getLyraSDK'
+import getLyraSDK from '../utils/getLyraSDK'
 
 export async function GetStats(marketName: string, network: Network): Promise<VaultStats> {
   // get timestamp from month ago
   console.log(`Getting stats for ${marketName} on ${network}`)
-  const lyra2 = getLyra(network)
-  const market = await lyra2.market(marketName)
+  const lyra = getLyraSDK(network)
+  const market = await lyra.market(marketName)
 
   const period = SECONDS_IN_MONTH
   const [tradingVolumeHistory, liquidityHistory, netGreeksHistory] = await Promise.all([
@@ -87,7 +87,8 @@ export async function BroadCastStats(
   }
 
   if (DISCORD_ENABLED) {
-    const post = StatDiscord(dto, network)
-    await PostDiscord(post, discordClient, STATS_CHANNEL)
+    const embeds = StatDiscord(dto, network)
+    const rows: ActionRowBuilder<ButtonBuilder>[] = []
+    await PostDiscord(embeds, rows, discordClient, STATS_CHANNEL)
   }
 }

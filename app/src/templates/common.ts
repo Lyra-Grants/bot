@@ -163,3 +163,39 @@ export function DisplayTraderNoEmoji(trade: TraderAddress) {
 
   return `${trade.account}`
 }
+
+export function MarketColor(marketName: string) {
+  if (
+    marketName.toLowerCase() == 'eth' ||
+    marketName.toLowerCase() == 'seth-susd' ||
+    marketName.toLowerCase() == 'eth-usdc'
+  ) {
+    return '#627EEA'
+  }
+  if (
+    marketName.toLowerCase() == 'btc' ||
+    marketName.toLowerCase() == 'sbtc-susd' ||
+    marketName.toLowerCase() == 'btc-usdc'
+  ) {
+    return '#F7931A'
+  }
+
+  return '#1AF7C0'
+}
+
+export function StatSymbol(marketName: string) {
+  if (
+    marketName.toLowerCase() == 'eth' ||
+    marketName.toLowerCase() == 'seth-susd' ||
+    marketName.toLowerCase() == 'eth-usdc'
+  ) {
+    return '🔷'
+  }
+  if (
+    marketName.toLowerCase() == 'btc' ||
+    marketName.toLowerCase() == 'sbtc-susd' ||
+    marketName.toLowerCase() == 'btc-usdc'
+  ) {
+    return '🔶'
+  }
+}

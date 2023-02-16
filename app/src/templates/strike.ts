@@ -1,8 +1,7 @@
 import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
 import { BoardDto } from '../types/lyra'
-import { ExpiryLink, FN, FormattedDate, NetworkFooter } from './common'
-import { StatSymbol } from './stats'
+import { ExpiryLink, FN, FormattedDate, NetworkFooter, StatSymbol } from './common'
 
 // TWITTER
 export function BoardTwitter(dto: BoardDto, network: Network) {

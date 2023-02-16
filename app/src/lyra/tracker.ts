@@ -1,6 +1,6 @@
 import { DISCORD_ENABLED, TOKEN_THRESHOLD, TWITTER_ENABLED } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
-import { Client } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { TransferDto } from '../types/lyra'
 import { PostDiscord } from '../integrations/discord'
 import { TransferDiscord, TransferTwitter } from '../templates/transfer'
@@ -71,7 +71,8 @@ export async function BroadCastTransfer(
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = TransferDiscord(transferDto)
-    await PostDiscord(post, discordClient, TOKEN_CHANNEL)
+    const rows: ActionRowBuilder<ButtonBuilder>[] = []
+    await PostDiscord(post, rows, discordClient, TOKEN_CHANNEL)
   }
 
   if (TWITTER_ENABLED) {

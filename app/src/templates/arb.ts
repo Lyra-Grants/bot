@@ -1,22 +1,26 @@
-import { EmbedBuilder } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js'
 import { ArbDto, Arb } from '../types/lyra'
 import { ProviderType } from '../types/arbs'
-import { FN, FormattedDate, FormattedDateShort, NetworkFooter } from './common'
-import { StatSymbol } from './stats'
+import { FN, FormattedDate, FormattedDateShort, NetworkFooter, StatSymbol } from './common'
 import { Network } from '@lyrafinance/lyra-js'
 
 const deribitUrl = 'https://www.deribit.com/?reg=17349.7477'
 
-export function ArbTelegram(dto: ArbDto) {
+export function ArbTelegram(dto: ArbDto, network: Network) {
   const post: string[] = []
   post.push(`${StatSymbol(dto.market)} $${dto.market.toUpperCase()} Arbs Deribit | Lyra\n\n`)
+  post.push(`⛓️ Network: ${network}\n`)
   dto.arbs.slice(0, 10).map((arb) => {
     post.push(`✨ $${FN(arb.strike, 0)} ${FormattedDateShort(new Date(arb.expiration))} ${arb.type}\n`)
     post.push(
-      `🔹 Buy $${FN(arb.buy.askPrice as number, 2)} ${arb.buy.provider === ProviderType.DERIBIT ? 'DB' : 'LY'}\n`,
+      `🔹 Buy $${FN(arb.buy.askPrice as number, 2)} ${
+        arb.buy.provider === ProviderType.DERIBIT ? 'DB' : `LYRA ${network}`
+      }\n`,
     )
     post.push(
-      `🔸 Sell $${FN(arb.sell.bidPrice as number, 2)} ${arb.sell.provider === ProviderType.DERIBIT ? 'DB' : 'LY'}\n`,
+      `🔸 Sell $${FN(arb.sell.bidPrice as number, 2)} ${
+        arb.sell.provider === ProviderType.DERIBIT ? 'DB' : `LYRA ${network}`
+      }\n`,
     )
     post.push(`Discount $${FN(arb.amount, 2)} (${FN(arb.discount, 2)}%)\n`)
     post.push(`APY ${FN(arb.apy, 2)}%\n\n`)
@@ -31,14 +35,14 @@ export function ArbTelegram(dto: ArbDto) {
 export function ArbTwitter(dto: ArbDto, network: Network) {
   const post: string[] = []
   post.push(`$${dto.market.toUpperCase()} Arbs Deribit | Lyra\n\n`)
-
   dto.arbs.slice(0, 3).map((arb) => {
     post.push(`$${FN(arb.strike, 0)} ${FormattedDateShort(new Date(arb.expiration))} ${arb.type}\n`)
+    post.push(`⛓️ Network: ${network}\n`)
     post.push(
       `🔹 Buy $${FN(arb.buy.askPrice as number, 2)} ${
-        arb.buy.provider === ProviderType.DERIBIT ? 'DB' : 'LY'
+        arb.buy.provider === ProviderType.DERIBIT ? 'DB' : `LYRA ${network}`
       }\n🔸 Sell $${FN(arb.sell.bidPrice as number, 2)} ${
-        arb.sell.provider === ProviderType.DERIBIT ? 'DB' : 'LY'
+        arb.sell.provider === ProviderType.DERIBIT ? 'DB' : `LYRA ${network}`
       }\nAPY: ${FN(arb.apy, 2)}%\n\n`,
     )
   })
@@ -49,8 +53,9 @@ export function ArbTwitter(dto: ArbDto, network: Network) {
 
 // 25 fields // 10 embeds
 // DISCORD
-export function ArbDiscord(dto: ArbDto, network: Network): EmbedBuilder[] {
-  const messageEmbeds: EmbedBuilder[] = []
+export function ArbDiscord(dto: ArbDto, network: Network) {
+  const embeds: EmbedBuilder[] = []
+  const rows: ActionRowBuilder<ButtonBuilder>[] = []
   const embed = new EmbedBuilder()
     .setColor('#60DDBF')
     .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
@@ -59,9 +64,19 @@ export function ArbDiscord(dto: ArbDto, network: Network): EmbedBuilder[] {
     Arb(arb, dto.market, network, embed)
   })
 
+  // const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+  //   new ButtonBuilder().setCustomId('arb-deribit1').setLabel('Arb Deribit 1').setStyle(ButtonStyle.Primary),
+  //   new ButtonBuilder().setCustomId('arb-deribit2').setLabel('Arb Deribit 2').setStyle(ButtonStyle.Danger),
+  //   new ButtonBuilder().setLabel('Arb Deribit 3').setStyle(ButtonStyle.Link).setURL(deribitUrl),
+  //   new ButtonBuilder().setCustomId('arb-deribit4').setLabel('Arb Deribit 4').setStyle(ButtonStyle.Secondary),
+  //   new ButtonBuilder().setCustomId('arb-deribit5').setLabel('Arb Deribit 5').setStyle(ButtonStyle.Success),
+  // )
+
   NetworkFooter(embed, network)
-  messageEmbeds.push(embed)
-  return messageEmbeds
+  embeds.push(embed)
+  //rows.push(buttons)
+
+  return { embeds, rows }
 }
 
 function Arb(dto: Arb, market: string, network: Network, embed: EmbedBuilder) {

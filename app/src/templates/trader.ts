@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js'
 import { Trader } from '../types/lyra'
-import { dollar } from '../utils/utils'
+import formatUSD from '../utils/formatUSD'
 import { DisplayTraderNoEmoji, FNS, Medal, PortfolioLink, TwitterLink } from './common'
 
 export function TraderDiscord(trader: Trader): EmbedBuilder[] {
@@ -11,32 +11,35 @@ export function TraderDiscord(trader: Trader): EmbedBuilder[] {
     .setTitle(`${trader.account}`)
     .setDescription(`${Medal(trader.position)} #${trader.position} Leaderboard`)
     .setURL(`${PortfolioLink(trader.account)}`)
-
     .addFields(
       {
         name: '👨 Trader',
         value: `> ${DisplayTraderNoEmoji(trader)}`,
         inline: false,
       },
-      { name: 'Long Pnl', value: `> ${dollar(trader.longPnl)} (${FNS(trader.longPnlPercentage, 2)}%)`, inline: false },
+      {
+        name: 'Long Pnl',
+        value: `> ${formatUSD(trader.longPnl)} (${FNS(trader.longPnlPercentage, 2)}%)`,
+        inline: false,
+      },
       {
         name: 'Short Pnl',
-        value: `> ${dollar(trader.shortPnl)} (${FNS(trader.shortPnlPercentage, 2)}%)`,
+        value: `> ${formatUSD(trader.shortPnl)} (${FNS(trader.shortPnlPercentage, 2)}%)`,
         inline: false,
       },
       {
         name: 'Realized Pnl',
-        value: `> ${dollar(trader.realizedPnl)}`,
+        value: `> ${formatUSD(trader.realizedPnl)}`,
         inline: false,
       },
       {
         name: 'Unrealized Pnl',
-        value: `> ${dollar(trader.unrealizedPnl)}  (${FNS(trader.unrealizedPnlPercentage, 2)}%)`,
+        value: `> ${formatUSD(trader.unrealizedPnl)}  (${FNS(trader.unrealizedPnlPercentage, 2)}%)`,
         inline: false,
       },
       {
         name: 'Initial Cost Of Open',
-        value: `> ${dollar(trader.initialCostOfOpen)}`,
+        value: `> ${formatUSD(trader.initialCostOfOpen)}`,
         inline: false,
       },
     )

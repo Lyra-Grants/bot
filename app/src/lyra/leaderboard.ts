@@ -1,5 +1,5 @@
-import { Client } from 'discord.js'
-import { Context, Telegraf } from 'telegraf'
+import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
+import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { PostDiscord } from '../integrations/discord'
 import { SendTweet } from '../integrations/twitter'
@@ -9,76 +9,21 @@ import { DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../
 import { PostTelegram } from '../integrations/telegram'
 import { LeaderboardDiscord, LeaderboardTwitter, LeaderboardTelegram } from '../templates/leaderboard'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
-import Lyra, { PositionLeaderboard, PositionLeaderboardSortBy } from '@lyrafinance/lyra-js'
-import { ONE_BN } from '../constants/bn'
+import { Network } from '@lyrafinance/lyra-js'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import fromBigNumber from '../utils/fromBigNumber'
 import { GetUrl } from '../utils/utils'
 import { GetFren } from '../integrations/fren'
-import moment from 'moment'
 import { GetLeaderboardAPI } from '../integrations/leaderboard'
 import { LeaderboardElement } from '../types/leaderboardAPI'
 
-// async function GetLeaderBoardTrades(): Promise<Trade[]> {
-//   const trades = (
-//     await apolloClient.query<{ trades: Trade[] }>({
-//       query: leaderboardTradesQuery(),
-//     })
-//   ).data.trades
-//   return trades
-// }
+export async function GetLeaderBoard(network: Network) {
+  if (network == Network.Arbitrum) {
+    return LEADERBOARD_ARB
+  }
+  return LEADERBOARD_OPT
+}
 
-// async function GetLeaderBoardPositions(): Promise<Position[]> {
-//   const positions = (
-//     await apolloClient.query<{ positions: Position[] }>({
-//       query: positionsQuery(),
-//     })
-//   ).data.positions
-//   return positions
-// }
-
-// export async function GetLeaderBoard(take: number) {
-//   const trades = await GetLeaderBoardTrades()
-//   const positions = await GetLeaderBoardPositions()
-//   const owners = Array.from(new Set(Object.values(trades).map((val) => <string>val.trader.toLowerCase())))
-
-//   const traders = owners
-//     .map((owner) => {
-//       const userTrades = trades.filter((trade) => trade.trader.toLowerCase() === owner)
-//       const netPremiums = NetPremiums(userTrades)
-//       const userPositions = positions.filter((position) => position.owner.toLowerCase() === owner)
-//       const openOptionsValue = userPositions.reduce((sum, position) => {
-//         const optionValue = OpenOptionValue(position)
-//         return sum + optionValue
-//       }, 0)
-//       const balance = netPremiums + openOptionsValue
-//       const trader: Trader = {
-//         owner: owner,
-//         balance: balance,
-//         netPremiums: netPremiums,
-//         openOptionsValue: openOptionsValue,
-//         isProfitable: balance > 0,
-//         ens: '',
-//         position: 0,
-//         netPremiumsFormatted: dollar(netPremiums),
-//         openOptionsFormatted: openOptionsValue == 0 ? '' : `(${dollar(openOptionsValue)})`,
-//       }
-//       return trader
-//     })
-//     .sort((a, b) => b.netPremiums - a.netPremiums)
-//     .slice(0, take)
-
-//   await Promise.all(
-//     traders.map(async (trader, index) => {
-//       trader.ens = await GetEns(trader.owner)
-//       trader.position = index + 1
-//     }),
-//   )
-
-//   return traders
-// }
-
-export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> {
+export async function FindOnLeaderBoard(traderAddress: string, network: Network): Promise<Trader> {
   const EMPTY: Trader = {
     account: '',
     longPnl: 0,
@@ -98,16 +43,18 @@ export async function FindOnLeaderBoard(traderAddress: string): Promise<Trader> 
     fren: undefined,
   }
 
-  const index = LEADERBOARD_DATA.findIndex(
+  const leaderBoardData = await GetLeaderBoard(network)
+
+  const index = leaderBoardData.findIndex(
     (leaderboard) => leaderboard.owner.toLowerCase() === traderAddress.toLowerCase(),
   )
 
   if (index === -1) {
-    console.log('Trader not on leaderboard')
+    console.log(`Trader not on ${network} leaderboard`)
     return EMPTY
   }
 
-  const trader = await ParsePositionLeaderboard(LEADERBOARD_DATA[index], index + 1)
+  const trader = await ParsePositionLeaderboard(leaderBoardData[index], index + 1)
   return trader
 }
 
@@ -138,34 +85,30 @@ export async function ParsePositionLeaderboard(positionLeaderBoard: LeaderboardE
   return result
 }
 
-export async function GetLeaderBoard() {
-  // const monthAgo = moment().subtract(7, 'days').unix()
-  // LYRA_LEADERBOARD = await lyra.leaderboard({
-  //   minOpenTimestamp: monthAgo,
-  //   sortBy: PositionLeaderboardSortBy.RealizedPnl,
-  //   secondarySortBy: PositionLeaderboardSortBy.UnrealizedPnl,
-  //   minTotalPremiums: ONE_BN.mul(100),
-  // })
+export async function FetchLeaderBoard() {
   await GetLeaderboardAPI()
-  console.log('### Leaderboard Retrieved ###')
 }
 
 export async function BroadcastLeaderBoard(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
+  network: Network,
 ) {
   console.log('### Broadcast Leaderboard ###')
 
+  const leaderBoard = await GetLeaderBoard(network)
+
   const traders = await Promise.all(
-    global.LEADERBOARD_DATA.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
+    leaderBoard.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
   )
 
   if (DISCORD_ENABLED) {
     const channelName = TRADE_CHANNEL
 
-    const embeds = LeaderboardDiscord(traders.slice(0, 10))
-    await PostDiscord(embeds, discordClient, channelName)
+    const embeds = LeaderboardDiscord(traders.slice(0, 10), network)
+    const rows: ActionRowBuilder<ButtonBuilder>[] = []
+    await PostDiscord(embeds, rows, discordClient, channelName)
   }
 
   if (TWITTER_ENABLED) {

@@ -1,11 +1,16 @@
 import { TradeDto } from '../types/lyra'
-import { ActivityType, Client, EmbedBuilder, TextChannel } from 'discord.js'
+import { ActionRowBuilder, ActivityType, ButtonBuilder, Client, EmbedBuilder, TextChannel } from 'discord.js'
 import dayjs from 'dayjs'
 import { FN } from '../templates/common'
 import printObject from '../utils/printObject'
 import { TESTNET } from '../secrets'
 
-export async function PostDiscord(embed: EmbedBuilder[], client: Client<boolean>, channelName: string) {
+export async function PostDiscord(
+  embed: EmbedBuilder[],
+  rows: ActionRowBuilder<ButtonBuilder>[],
+  client: Client<boolean>,
+  channelName: string,
+) {
   if (TESTNET) {
     printObject(embed)
   } else {
@@ -14,7 +19,7 @@ export async function PostDiscord(embed: EmbedBuilder[], client: Client<boolean>
         .filter((value) => (value as TextChannel)?.name == channelName)
         .map(async (channel) => {
           console.log(`found channel: ${channelName}`)
-          await (channel as TextChannel).send({ embeds: embed })
+          await (channel as TextChannel).send({ embeds: embed, components: rows })
         })
     } catch (e: any) {
       console.log(e)

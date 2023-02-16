@@ -8,7 +8,7 @@ import { GetPrice } from '../integrations/coingecko'
 import { defaultActivity, defaultName } from '../integrations/discord'
 import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { GetCoinGecko } from '../lyra/coingecko'
-import { BroadcastLeaderBoard, GetLeaderBoard } from '../lyra/leaderboard'
+import { BroadcastLeaderBoard, FetchLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
 
 const markets = ['eth', 'btc']
@@ -29,7 +29,7 @@ export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Cli
 export function LeaderBoardFillJob(): void {
   console.log('On the hour job running')
   scheduleJob('* 0 * * *', async () => {
-    await GetLeaderBoard()
+    await FetchLeaderBoard()
   })
 }
 
@@ -37,10 +37,13 @@ export function LeaderboardSendJob(
   discordClient: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
+  networks: Network[],
 ): void {
   console.log('Mon Wed Fri leaderboard job')
   scheduleJob('0 0 * * 1,3,5', async () => {
-    await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient)
+    networks.map(async (network) => {
+      await BroadcastLeaderBoard(discordClient, twitterClient, telegramClient, network)
+    })
   })
 }
 

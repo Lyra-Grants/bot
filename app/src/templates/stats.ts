@@ -2,7 +2,7 @@ import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
 import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
-import { FN, FNS, NetworkFooter, VaultLink } from './common'
+import { FN, FNS, MarketColor, NetworkFooter, StatSymbol, VaultLink } from './common'
 
 export function StatDiscord(stat: VaultStats, network: Network): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
@@ -37,6 +37,7 @@ export function StatDiscord(stat: VaultStats, network: Network): EmbedBuilder[] 
 export function StatTwitter(stat: VaultStats, network: Network) {
   const post: string[] = []
   post.push(`${StatSymbol(stat.market.name)} ${stat.market.name} Market Vault\n`)
+  post.push(`⛓️ Network: ${network}\n`)
   post.push(`💵 30d Perf (Annualized) ${FNS(stat.tokenPriceChangeAnnualized * 100, 4)}%\n`)
   post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
   post.push(`📊 Volume (30d) $${FN(stat.totalNotionalVolume, 2)}\n`)
@@ -56,6 +57,7 @@ export function StatTelegram(stat: VaultStats, network: Network) {
       stat.market.name
     } Market Vault</a>\n`,
   )
+  post.push(`⛓️ Network: ${network}\n`)
   post.push(`💵 30d Perf (Annualized) ${FNS(stat.tokenPriceChangeAnnualized, 4)}%\n`)
   post.push(`🏦 TVL $${FN(stat.tvl, 0)}\n`)
   post.push(`📊 Volume (30d) $${FN(stat.totalNotionalVolume, 2)}\n`)
@@ -66,40 +68,4 @@ export function StatTelegram(stat: VaultStats, network: Network) {
   post.push(`〽️ Net Std. Vega ${FNS(fromBigNumber(stat.netGreeks.netStdVega), 3)}\n`)
   post.push(`🔒 Utilization  ${FN(stat.liquidity.utilization * 100, 2)}%\n`)
   return post.join('')
-}
-
-export function StatSymbol(marketName: string) {
-  if (
-    marketName.toLowerCase() == 'eth' ||
-    marketName.toLowerCase() == 'seth-susd' ||
-    marketName.toLowerCase() == 'eth-usdc'
-  ) {
-    return '🔷'
-  }
-  if (
-    marketName.toLowerCase() == 'btc' ||
-    marketName.toLowerCase() == 'sbtc-susd' ||
-    marketName.toLowerCase() == 'btc-usdc'
-  ) {
-    return '🔶'
-  }
-}
-
-export function MarketColor(marketName: string) {
-  if (
-    marketName.toLowerCase() == 'eth' ||
-    marketName.toLowerCase() == 'seth-susd' ||
-    marketName.toLowerCase() == 'eth-usdc'
-  ) {
-    return '#627EEA'
-  }
-  if (
-    marketName.toLowerCase() == 'btc' ||
-    marketName.toLowerCase() == 'sbtc-susd' ||
-    marketName.toLowerCase() == 'btc-usdc'
-  ) {
-    return '#F7931A'
-  }
-
-  return '#1AF7C0'
 }

@@ -1,5 +1,5 @@
 import { RunTradeBot } from './lyra/trades'
-import { GetLeaderBoard } from './lyra/leaderboard'
+import { FetchLeaderBoard, GetLeaderBoard } from './lyra/leaderboard'
 import { DISCORD_ACCESS_TOKEN, DISCORD_ACCESS_TOKEN_BTC, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
 import { DiscordClient } from './clients/discordClient'
 import { Client } from 'discord.js'
@@ -25,7 +25,8 @@ const networks = [Network.Optimism, Network.Arbitrum]
 
 export async function Run() {
   global.LYRA_ENS = {}
-  global.LEADERBOARD_DATA = []
+  global.LEADERBOARD_OPT = []
+  global.LEADERBOARD_ARB = []
   global.FREN = {}
   global.LYRA_ARB = getLyraSDK(Network.Arbitrum)
   global.LYRA_OPT = getLyraSDK(Network.Optimism)
@@ -38,7 +39,7 @@ export async function Run() {
     SetUpDiscord((discordClientBtc = DiscordClient()), 'btc', DISCORD_ACCESS_TOKEN_BTC),
     SetUpTwitter(),
     SetUpTelegram(),
-    GetLeaderBoard(),
+    FetchLeaderBoard(),
   ])
 
   //listen to events
@@ -49,7 +50,7 @@ export async function Run() {
   // periodic jobs
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc)
-    // LeaderBoardFillJob()
+    LeaderBoardFillJob()
     // LeaderboardSendJob(discordClient, twitterClient, telegramClient)
     StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient, networks[0])
