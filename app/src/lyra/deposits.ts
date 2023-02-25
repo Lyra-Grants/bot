@@ -38,7 +38,7 @@ export async function TrackDeposits(
 
   console.log(`Deposit Value: ${value}, threshold: ${DEPOSIT_THRESHOLD}`)
 
-  if (value >= 100) {
+  if (value >= DEPOSIT_THRESHOLD) {
     try {
       const dto: DepositDto = {
         account: toAddress,
