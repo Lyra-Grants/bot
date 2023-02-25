@@ -1,6 +1,5 @@
 import { vaultIntegrations } from '../constants/addresses'
 import { urls } from '../constants/urls'
-import { FN } from '../templates/common'
 
 export function Timestamp(): number {
   return Math.floor(Date.now() / 1000)

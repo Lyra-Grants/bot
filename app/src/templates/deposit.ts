@@ -1,38 +1,46 @@
+import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
 import { DepositDto } from '../types/lyra'
-import { DisplayTrader, DisplayTraderNoEmoji, EtherScanTransactionLink, FN, LyraDappUrl, StatSymbol } from './common'
+import formatUSD from '../utils/formatUSD'
+import {
+  DisplayTrader,
+  DisplayTraderNoEmoji,
+  BlockExplorerLink,
+  LyraDappUrl,
+  StatSymbol,
+  NetworkFooter,
+  PortfolioLink,
+  MarketColor,
+} from './common'
 
-// TWITTER
-export function DepositTwitter(dto: DepositDto) {
+export function DepositTwitter(dto: DepositDto, network: Network, mainnet = false) {
   const post: string[] = []
-  post.push(`💵 $${FN(dto.amount, 2)} sUSD Deposit\n\n`)
+  post.push(`💵 ${formatUSD(dto.amount)} Deposit\n\n`)
   post.push(`from ${DisplayTrader(dto)}\n`)
   post.push(`to ${StatSymbol(dto.market)} ${dto.market} Market Vault\n\n`)
   if (dto.totalQueued > 0) {
-    post.push(`🏦 Total queued: $${FN(dto.totalQueued, 0)}\n`)
+    post.push(`🏦 Total queued: ${formatUSD(dto.totalQueued)}\n`)
   }
-  // post.push(`🔗 ${EtherScanTransactionLink(dto.transactionHash)}\n`)
   post.push(`\nOptions for everyone, start trading 👇\n`)
   post.push(`${LyraDappUrl()}`)
   return post.join('')
 }
 
-// DISCORD
-export function DepositDiscord(dto: DepositDto): EmbedBuilder[] {
+export function DepositDiscord(dto: DepositDto, network: Network, mainnet = false): EmbedBuilder[] {
   const embeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder()
-    .setColor('#00ff7f')
-    // .setURL(`${`https://optimistic.etherscan.io/tx/${dto.transactionHash}`}`)
+    .setColor(`${MarketColor(dto.market)}`)
+    .setURL(`${BlockExplorerLink(dto.transactionHash, network)}`)
     .setTitle(`Deposit: ${StatSymbol(dto.market)} ${dto.market} Market Vault`)
     .addFields(
       {
         name: `💵 Amount:`,
-        value: `> $${FN(dto.amount, 2)} sUSD`,
+        value: `> ${formatUSD(dto.value)}`,
         inline: false,
       },
       {
         name: `from:`,
-        value: `> ${DisplayTraderNoEmoji(dto)}`,
+        value: `> [${DisplayTraderNoEmoji(dto)}](${PortfolioLink(dto.account)})`,
         inline: false,
       },
     )
@@ -40,16 +48,11 @@ export function DepositDiscord(dto: DepositDto): EmbedBuilder[] {
   if (dto.totalQueued > 0) {
     embed.addFields({
       name: `🏦 Total Queued:`,
-      value: `> $${FN(dto.totalQueued, 0)}`,
+      value: `> ${formatUSD(dto.value)}`,
       inline: false,
     })
   }
-  embed
-    .setFooter({
-      iconURL: 'https://raw.githubusercontent.com/ethboi/assets/main/optimism.png',
-      text: `Optimism`,
-    })
-    .setTimestamp()
+  NetworkFooter(embed, network)
   embeds.push(embed)
   return embeds
 }

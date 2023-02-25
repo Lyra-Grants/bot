@@ -6,22 +6,23 @@ import { PostDiscord } from '../integrations/discord'
 import { TransferDiscord, TransferTwitter } from '../templates/transfer'
 import { GetEns } from '../integrations/ens'
 import { GetNotableAddress } from '../utils/notableAddresses'
-import { Context, Telegraf } from 'telegraf'
 import { SendTweet } from '../integrations/twitter'
-import Lyra, { ERC20__factory } from '@lyrafinance/lyra-js'
+import { ERC20__factory } from '@lyrafinance/lyra-js'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { TOKEN_CHANNEL } from '../constants/discordChannels'
 import { TransferEvent } from '@lyrafinance/lyra-js/src/contracts/common/typechain/ERC20'
+import { Network } from '@lyrafinance/lyra-js'
+import { getTokenName } from '../utils/getTokenName'
 
 // exclude g-uni
 const excludeAddresses = ['0x70535c46ce04181adf749f34b65b6365164d6b6e']
 
 export async function TrackTransfer(
-  discordClient: Client<boolean>,
-  telegramClient: Telegraf,
+  discordClient: Client,
   twitterClient: TwitterApi,
   genericEvent: GenericEvent,
+  network: Network,
 ): Promise<void> {
   const event = parseEvent(genericEvent as TransferEvent)
   const amount = fromBigNumber(event.args.value)
@@ -31,8 +32,8 @@ export async function TrackTransfer(
 
   if (
     value >= TOKEN_THRESHOLD &&
-    !excludeAddresses.includes(event.args.to) &&
-    !excludeAddresses.includes(event.args.from)
+    !excludeAddresses.includes(event.args.to.toLowerCase()) &&
+    !excludeAddresses.includes(event.args.from.toLowerCase())
   ) {
     try {
       const from = GetNotableAddress(event.args.from)
@@ -53,8 +54,9 @@ export async function TrackTransfer(
         notableFrom: from !== '',
         fromAddress: event.args.from,
         toAddress: event.args.to,
+        token: getTokenName(event.address),
       }
-      BroadCastTransfer(transferDto, discordClient, telegramClient, twitterClient)
+      BroadCastTransfer(transferDto, discordClient, twitterClient, network)
     } catch (ex) {
       console.log(ex)
     }
@@ -66,17 +68,17 @@ export async function TrackTransfer(
 export async function BroadCastTransfer(
   transferDto: TransferDto,
   discordClient: Client<boolean>,
-  telegramClient: Telegraf,
   twitterClient: TwitterApi,
+  network: Network,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
-    const post = TransferDiscord(transferDto)
+    const post = TransferDiscord(transferDto, network)
     const rows: ActionRowBuilder<ButtonBuilder>[] = []
     await PostDiscord(post, rows, discordClient, TOKEN_CHANNEL)
   }
 
   if (TWITTER_ENABLED) {
-    const post = TransferTwitter(transferDto)
+    const post = TransferTwitter(transferDto, network)
     await SendTweet(post, twitterClient)
   }
 }

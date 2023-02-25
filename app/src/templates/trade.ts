@@ -4,7 +4,7 @@ import {
   AmountWording,
   DisplayTrader,
   DisplayTraderNoEmoji,
-  EtherScanTransactionLink,
+  BlockExplorerLink,
   FN,
   FormattedDate,
   Medal,
@@ -15,6 +15,8 @@ import {
   TradeHistoryLink,
   TradeShareImage,
   TwitterLink,
+  MarketColor,
+  BlockExplorerAddress,
 } from './common'
 import { Network } from '@lyrafinance/lyra-js'
 import formatUSD from '../utils/formatUSD'
@@ -108,7 +110,7 @@ export function TradeTelegram(trade: TradeDto, network: Network) {
   post.push(`<a href='${PositionLink(trade, network)}'>${DisplayTrader(trade, true)}</a>\n`)
   post.push(`============================\n`)
   post.push(
-    `<a href='${EtherScanTransactionLink(trade.transactionHash)}'>Trxn</a> | <a href='${TradeHistoryLink(
+    `<a href='${BlockExplorerLink(trade.transactionHash, network)}'>Trxn</a> | <a href='${TradeHistoryLink(
       trade,
     )}'>History</a> | <a href='${PortfolioLink(trade.account)}'>Portfolio</a> | <a href='${PositionLink(
       trade,
@@ -131,7 +133,7 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
           trade.asset
         } $${FN(trade.strike, 0)} ${trade.isCall ? 'Call' : 'Put'}`,
       )
-      .setColor('#60DDBF')
+      .setColor(`${MarketColor(trade.market)}`)
   } else {
     tradeEmbed
       .setTitle(`🔥 Liquidation ${trade.size} $${trade.asset} $${FN(trade.strike, 0)} ${trade.isCall ? 'Call' : 'Put'}`)
@@ -177,7 +179,7 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
     },
     {
       name: '👨 Trader',
-      value: `> ${DisplayTraderNoEmoji(trade)}`,
+      value: `> [${DisplayTraderNoEmoji(trade)}](${BlockExplorerAddress(trade.account, network)})`,
       inline: false,
     },
   )

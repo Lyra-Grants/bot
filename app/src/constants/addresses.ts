@@ -209,6 +209,7 @@ export const NotableAddresses: { [key: string]: string } = {
   '0xde48b1b5853cc63b1d05e507414d3e02831722f8': '🟢 Lyra Staking',
   '0xd4c00fe7657791c2a43025de483f05e49a5f76a6': '🟢 Lyra MultiSig',
   '0x0bfb21f64e414ff616ac54853e52679eedb22dd2': '🟢 Lyra Distributor',
+  '0xecb73d4621cabbf199e778caebc74be27f2ecee1': '🟢 Lyra Distributor',
   '0xb02e538a08cfa00e9900cf94e33b161323d8d162': '🟢 Lyra Staking Rewards G-UNI',
   '0x70535c46ce04181adf749f34b65b6365164d6b6e': '🍨 Gelato Uniswap WETH/LYRA LP (G-UNI)',
   '0xe47d437252fe9cb5e74396eee63360d8647df25d': '🚴 Velodrome LYRA/sUSD',
@@ -231,6 +232,10 @@ export const NotableAddresses: { [key: string]: string } = {
   '0xe6da92fca08d540aa624e9949f9e7768fee80e6c': '🐂 Toros Eth Call ',
   '0x44ca2d499e6254dfdc17fdef8c23e7283e7c24e4': '🐂 Toros Eth LongVol',
   '0xc56f04ec20dad27c0f4701b14977c2dbe85142ba': '⌛ Arrakis Finance',
+  '0x5fa594dd5e198de5e7ef539f1b8fb154aefd3891': '🏰 Camelot LYRA/WETH',
+  '0xa8766ffab2710a1ce91bb3b744e0862110f6c9bb': '🦄 Uniswap LYRA/USDC',
+  '0x09c2f309068c46fb4d9b23b6c33a6707c274c692': '🦄 Uniswap stkLYRA/LYRA',
+  '0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae': '🌉 Li.Fi Diamond Bridge',
 }
 
 export const vaultIntegrations = {

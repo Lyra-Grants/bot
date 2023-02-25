@@ -3,10 +3,11 @@ import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
 import { EmbedBuilder } from 'discord.js'
 import {
-  ETH_LIQUIDITY_POOL,
-  BTC_LIQUIDITY_POOL,
-  ETH_OPTION_MARKET,
-  BTC_OPTION_MARKET,
+  ETH_LIQUIDITY_POOL_ARB,
+  ETH_LIQUIDITY_POOL_OP,
+  ETH_OPTION_MARKET_OP,
+  BTC_LIQUIDITY_POOL_OP,
+  BTC_OPTION_MARKET_OP,
 } from '../constants/contractAddresses'
 import { bannerUrls, iconUrls } from '../constants/urls'
 import { TradeDto, TraderAddress } from '../types/lyra'
@@ -80,8 +81,28 @@ export function TradeHistoryLink(trade: TraderAddress) {
   return `${LyraDappUrl()}/#/portfolio/history?see=${trade.account}`
 }
 
-export function EtherScanTransactionLink(transactionHash: string) {
-  return `${EtherScanUrl()}/tx/${transactionHash}`
+export function BlockExplorerLink(transactionHash: string, network: Network, mainnet = false) {
+  if (mainnet) {
+    return `https://etherscan.io/tx/${transactionHash}`
+  }
+
+  if (network == Network.Arbitrum) {
+    return `https://arbiscan.io/tx/${transactionHash}`
+  }
+
+  return `https://optimistic.etherscan.io/tx/${transactionHash}`
+}
+
+export function BlockExplorerAddress(address: string, network: Network, mainnet = false) {
+  if (mainnet) {
+    return `https://etherscan.io/address/${address}`
+  }
+
+  if (network == Network.Arbitrum) {
+    return `https://arbiscan.io/address/${address}`
+  }
+
+  return `https://optimistic.etherscan.io/address/${address}`
 }
 
 export function FormattedDate(date: Date) {
@@ -99,11 +120,7 @@ export function FormattedDateTime(date: Date) {
   return dayjs(date).utc().format('MMM-DD-YY HH:mm:ss') + ' UTC'
 }
 
-export function EtherScanUrl() {
-  return 'https://optimistic.etherscan.io'
-}
-
-export function LyraDappUrl() {
+export const LyraDappUrl = () => {
   return 'https://app.lyra.finance'
 }
 
@@ -128,13 +145,33 @@ export function FNS(value: number, decimals: number) {
   })}`
 }
 
-export function GetMarket(address: string) {
-  let market = ''
-  if (address.toLowerCase() == ETH_LIQUIDITY_POOL || address.toLowerCase() == ETH_OPTION_MARKET) {
-    market = 'ETH'
+export function GetAsset(address: string) {
+  const asset = ''
+
+  switch (address.toLowerCase()) {
+    case ETH_LIQUIDITY_POOL_ARB.toLowerCase():
+    case ETH_LIQUIDITY_POOL_OP.toLowerCase():
+    case ETH_OPTION_MARKET_OP.toLowerCase():
+      return 'ETH'
+    case BTC_LIQUIDITY_POOL_OP.toLowerCase():
+    case BTC_OPTION_MARKET_OP.toLowerCase():
+      return 'BTC'
   }
-  if (address.toLowerCase() == BTC_LIQUIDITY_POOL || address.toLowerCase() == BTC_OPTION_MARKET) {
-    market = 'BTC'
+  return asset
+}
+
+export function GetMarket(address: string) {
+  const market = ''
+
+  switch (address.toLowerCase()) {
+    case ETH_LIQUIDITY_POOL_ARB.toLowerCase():
+      return 'ETH-USDC'
+    case ETH_LIQUIDITY_POOL_OP.toLowerCase():
+    case ETH_OPTION_MARKET_OP.toLowerCase():
+      return 'sETH-sUSD'
+    case BTC_LIQUIDITY_POOL_OP.toLowerCase():
+    case BTC_OPTION_MARKET_OP.toLowerCase():
+      return 'sBTC-sUSD'
   }
   return market
 }

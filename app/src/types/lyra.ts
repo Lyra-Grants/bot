@@ -35,16 +35,18 @@ export type ArbDto = BaseEvent & {
   market: string
 }
 
-export type DepositDto = TraderAddress & {
-  to: string
-  amount: number
-  value: number
-  notableTo: boolean
-  fromAddress: string
-  toAddress: string
-  totalQueued: number
-  market: string
-}
+export type DepositDto = BaseDto &
+  TraderAddress & {
+    to: string
+    amount: number
+    value: number
+    notableTo: boolean
+    fromAddress: string
+    toAddress: string
+    totalQueued: number
+    market: string
+    asset: string
+  }
 
 export type TraderAddress = {
   ens: string
@@ -152,6 +154,7 @@ export type TransferDto = BaseDto & {
   notableFrom: boolean
   fromAddress: string
   toAddress: string
+  token: string
 }
 
 export type StrikeDto = {

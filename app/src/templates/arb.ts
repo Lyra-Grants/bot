@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js'
 import { ArbDto, Arb } from '../types/lyra'
 import { ProviderType } from '../types/arbs'
-import { FN, FormattedDate, FormattedDateShort, NetworkFooter, StatSymbol } from './common'
+import { FN, FormattedDate, FormattedDateShort, MarketColor, NetworkFooter, StatSymbol } from './common'
 import { Network } from '@lyrafinance/lyra-js'
 
 const deribitUrl = 'https://www.deribit.com/?reg=17349.7477'
@@ -57,7 +57,7 @@ export function ArbDiscord(dto: ArbDto, network: Network) {
   const embeds: EmbedBuilder[] = []
   const rows: ActionRowBuilder<ButtonBuilder>[] = []
   const embed = new EmbedBuilder()
-    .setColor('#60DDBF')
+    .setColor(`${MarketColor(dto.market)}`)
     .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
 
   dto.arbs.slice(0, 10).map((arb) => {
