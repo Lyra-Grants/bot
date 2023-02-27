@@ -54,7 +54,7 @@ export async function RunTradeBot(
         //console.log(tradeDto)
         switch (tradeDto.market.toUpperCase()) {
           case 'SBTC-SUSD':
-          case 'BTC-USDC':
+          case 'WBTC-USDC':
             await BroadCastTrade(tradeDto, network, twitterClient, telegramClient, discordClientBtc)
             break
           case 'SETH-SUSD':

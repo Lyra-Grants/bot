@@ -8,6 +8,7 @@ import {
   ETH_OPTION_MARKET_OP,
   BTC_LIQUIDITY_POOL_OP,
   BTC_OPTION_MARKET_OP,
+  BTC_LIQUIDITY_POOL_ARB,
 } from '../constants/contractAddresses'
 import { bannerUrls, iconUrls } from '../constants/urls'
 import { TradeDto, TraderAddress } from '../types/lyra'
@@ -155,6 +156,7 @@ export function GetAsset(address: string) {
       return 'ETH'
     case BTC_LIQUIDITY_POOL_OP.toLowerCase():
     case BTC_OPTION_MARKET_OP.toLowerCase():
+    case BTC_LIQUIDITY_POOL_ARB.toLowerCase():
       return 'BTC'
   }
   return asset
@@ -172,6 +174,8 @@ export function GetMarket(address: string) {
     case BTC_LIQUIDITY_POOL_OP.toLowerCase():
     case BTC_OPTION_MARKET_OP.toLowerCase():
       return 'sBTC-sUSD'
+    case BTC_LIQUIDITY_POOL_ARB.toLowerCase():
+      return 'WBTC-USDC'
   }
   return market
 }
@@ -212,7 +216,7 @@ export function MarketColor(marketName: string) {
   if (
     marketName.toLowerCase() == 'btc' ||
     marketName.toLowerCase() == 'sbtc-susd' ||
-    marketName.toLowerCase() == 'btc-usdc'
+    marketName.toLowerCase() == 'wbtc-usdc'
   ) {
     return '#F7931A'
   }
@@ -231,7 +235,7 @@ export function StatSymbol(marketName: string) {
   if (
     marketName.toLowerCase() == 'btc' ||
     marketName.toLowerCase() == 'sbtc-susd' ||
-    marketName.toLowerCase() == 'btc-usdc'
+    marketName.toLowerCase() == 'wbtc-usdc'
   ) {
     return '🔶'
   }
