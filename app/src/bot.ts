@@ -51,7 +51,7 @@ export async function Run() {
   if (!TESTNET) {
     PricingJob(discordClient, discordClientBtc)
     LeaderBoardFillJob()
-    // LeaderboardSendJob(discordClient, twitterClient, telegramClient)
+    LeaderboardSendJob(discordClient, twitterClient, telegramClient, networks)
     StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
     CoinGeckoJob(discordClient, twitterClient1, telegramClient, networks[0])
     ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)

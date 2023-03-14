@@ -12,7 +12,6 @@ async function Initialize(): Promise<void> {
     console.error(error)
   }
 }
-//
 
 async function Notifier(isDown = true) {
   await PostTelegram(`⚡ Lyra Bot ${isDown ? 'Down' : 'Up'}\n`, new Telegraf(LOG_TOKEN), LOG_CHANNEL)

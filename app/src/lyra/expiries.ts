@@ -14,6 +14,7 @@ import { BoardDiscord, BoardTelegram, BoardTwitter } from '../templates/strike'
 import { PostDiscord } from '../integrations/discord'
 import { PostTelegram } from '../integrations/telegram'
 import { StrikeAddedEvent } from '@lyrafinance/lyra-js/src/contracts/avalon/typechain/AvalonOptionMarket'
+import { GetAsset } from '../templates/common'
 
 export async function TrackStrikeAdded(
   discordClient: Client<boolean>,
@@ -51,13 +52,16 @@ export async function processBoardStrikes(
 ) {
   const board = await lyra.board(events[0].address, events[0].args.boardId.toNumber())
   const event = events[0]
-
+  const market = board.market()
+  const marketName = market.name
+  const asset = GetAsset(market.address)
   const boardDto: BoardDto = {
     blockNumber: event.blockNumber,
     transactionHash: event.transactionHash,
     expiry: toDate(board.expiryTimestamp),
     expiryString: board.expiryTimestamp as unknown as string,
-    market: board.market().name,
+    market: marketName,
+    asset: asset,
     strikes: events.map((event) => {
       const dto: StrikeDto = {
         strikeId: event.args.strikeId.toNumber(),
@@ -67,7 +71,7 @@ export async function processBoardStrikes(
       return dto
     }),
   }
-
+  console.log(boardDto)
   try {
     BroadCastStrike(boardDto, discordClient, discordClientBtc, telegramClient, twitterClient, network)
   } catch (ex) {
@@ -86,10 +90,10 @@ export async function BroadCastStrike(
   if (DISCORD_ENABLED) {
     const post = BoardDiscord(dto, network)
     const rows: ActionRowBuilder<ButtonBuilder>[] = []
-    if (dto.market.toLowerCase() === 'eth') {
-      await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
+    if (dto.asset.toLowerCase() === 'eth') {
+      // await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
     }
-    if (dto.market.toLowerCase() == 'btc') {
+    if (dto.asset.toLowerCase() == 'btc') {
       await PostDiscord(post, rows, discordClientBtc, EXPIRY_CHANNEL)
     }
   }

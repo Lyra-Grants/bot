@@ -16,7 +16,7 @@ export function LeaderboardDiscord(leaderBoard: Trader[], network: Network): Emb
       { name: `\u200b`, value: '-------------', inline: true },
       { name: '💵 Profit', value: '-------------', inline: true },
     )
-  //\u200b
+
   leaderBoard.slice(0, 5).map((trader) => {
     return leaderBoardRow(tradeEmbed, trader)
   })

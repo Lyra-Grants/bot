@@ -56,3 +56,8 @@ export function GetUrl(account: string, isNotable: boolean) {
   }
   return ''
 }
+
+export function titleCaseWord(word: string) {
+  if (!word) return word
+  return (word = word[0].toUpperCase() + word.slice(1))
+}

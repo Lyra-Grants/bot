@@ -168,4 +168,5 @@ export type BoardDto = BaseDto & {
   strikes: StrikeDto[]
   market: string
   expiryString: string
+  asset: string
 }

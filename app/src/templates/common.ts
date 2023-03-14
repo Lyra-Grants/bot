@@ -9,6 +9,8 @@ import {
   BTC_LIQUIDITY_POOL_OP,
   BTC_OPTION_MARKET_OP,
   BTC_LIQUIDITY_POOL_ARB,
+  ETH_OPTION_MARKET_ARB,
+  BTC_OPTION_MARKET_ARB,
 } from '../constants/contractAddresses'
 import { bannerUrls, iconUrls } from '../constants/urls'
 import { TradeDto, TraderAddress } from '../types/lyra'
@@ -153,10 +155,12 @@ export function GetAsset(address: string) {
     case ETH_LIQUIDITY_POOL_ARB.toLowerCase():
     case ETH_LIQUIDITY_POOL_OP.toLowerCase():
     case ETH_OPTION_MARKET_OP.toLowerCase():
+    case ETH_OPTION_MARKET_ARB.toLowerCase():
       return 'ETH'
     case BTC_LIQUIDITY_POOL_OP.toLowerCase():
-    case BTC_OPTION_MARKET_OP.toLowerCase():
     case BTC_LIQUIDITY_POOL_ARB.toLowerCase():
+    case BTC_OPTION_MARKET_OP.toLowerCase():
+    case BTC_OPTION_MARKET_ARB.toLowerCase():
       return 'BTC'
   }
   return asset
@@ -167,6 +171,7 @@ export function GetMarket(address: string) {
 
   switch (address.toLowerCase()) {
     case ETH_LIQUIDITY_POOL_ARB.toLowerCase():
+    case ETH_OPTION_MARKET_ARB.toLowerCase():
       return 'ETH-USDC'
     case ETH_LIQUIDITY_POOL_OP.toLowerCase():
     case ETH_OPTION_MARKET_OP.toLowerCase():
@@ -175,6 +180,7 @@ export function GetMarket(address: string) {
     case BTC_OPTION_MARKET_OP.toLowerCase():
       return 'sBTC-sUSD'
     case BTC_LIQUIDITY_POOL_ARB.toLowerCase():
+    case BTC_OPTION_MARKET_ARB.toLowerCase():
       return 'WBTC-USDC'
   }
   return market

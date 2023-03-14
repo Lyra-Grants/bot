@@ -39,14 +39,14 @@ export async function TrackEvents(
       if (event[0].topics[0].toLowerCase() === DEPOSIT_PROCESSED.toLowerCase()) {
         await TrackDeposits(discordClient, discordClientBtc, twitterClient1, event[0], network)
       }
-      if (event[0].topics[0].toLowerCase() === STRIKE_ADDED) {
-        //await TrackStrikeAdded(discordClient, discordClientBtc, telegramClient, twitterClient, lyra, network, event)
+      if (event[0].topics[0].toLowerCase() === STRIKE_ADDED.toLowerCase()) {
+        await TrackStrikeAdded(discordClient, discordClientBtc, telegramClient, twitterClient, lyra, network, event)
       }
     },
     {
       startBlockNumber: blockNumber,
       addresses: CONTRACT_ADDRESSES,
-      topics: [DEPOSIT_PROCESSED, TRANSFER_TOPIC], //STRIKE_ADDED, ,DEPOSIT_PROCESSED //TRANSFER_TOPIC
+      topics: [STRIKE_ADDED, DEPOSIT_PROCESSED, TRANSFER_TOPIC], //STRIKE_ADDED, ,DEPOSIT_PROCESSED //TRANSFER_TOPIC
       pollInterval: pollInterval,
     },
   )

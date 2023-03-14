@@ -57,7 +57,7 @@ export function ArbDiscord(dto: ArbDto, network: Network) {
   const embeds: EmbedBuilder[] = []
   const rows: ActionRowBuilder<ButtonBuilder>[] = []
   const embed = new EmbedBuilder()
-    .setColor(`${MarketColor(dto.market)}`)
+    .setColor(`#ffd500`)
     .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
 
   dto.arbs.slice(0, 10).map((arb) => {
