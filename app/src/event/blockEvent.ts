@@ -29,25 +29,28 @@ export async function TrackEvents(
     blockNumber = lyra.provider.blockNumber - 5000000
     pollInterval = 3000
   }
-
-  BlockEvent.on(
-    lyra,
-    async (event) => {
-      if (event[0].topics[0].toLowerCase() === TRANSFER_TOPIC.toLowerCase()) {
-        await TrackTransfer(discordClient, twitterClient1, event[0], network)
-      }
-      if (event[0].topics[0].toLowerCase() === DEPOSIT_PROCESSED.toLowerCase()) {
-        await TrackDeposits(discordClient, discordClientBtc, twitterClient1, event[0], network)
-      }
-      if (event[0].topics[0].toLowerCase() === STRIKE_ADDED.toLowerCase()) {
-        await TrackStrikeAdded(discordClient, discordClientBtc, telegramClient, twitterClient, lyra, network, event)
-      }
-    },
-    {
-      startBlockNumber: blockNumber,
-      addresses: CONTRACT_ADDRESSES,
-      topics: [STRIKE_ADDED, DEPOSIT_PROCESSED, TRANSFER_TOPIC], //STRIKE_ADDED, ,DEPOSIT_PROCESSED //TRANSFER_TOPIC
-      pollInterval: pollInterval,
-    },
-  )
+  try {
+    BlockEvent.on(
+      lyra,
+      async (event) => {
+        if (event[0].topics[0].toLowerCase() === TRANSFER_TOPIC.toLowerCase()) {
+          await TrackTransfer(discordClient, twitterClient1, event[0], network)
+        }
+        if (event[0].topics[0].toLowerCase() === DEPOSIT_PROCESSED.toLowerCase()) {
+          await TrackDeposits(discordClient, discordClientBtc, twitterClient1, event[0], network)
+        }
+        if (event[0].topics[0].toLowerCase() === STRIKE_ADDED.toLowerCase()) {
+          await TrackStrikeAdded(discordClient, discordClientBtc, telegramClient, twitterClient, lyra, network, event)
+        }
+      },
+      {
+        startBlockNumber: blockNumber,
+        addresses: CONTRACT_ADDRESSES,
+        topics: [STRIKE_ADDED, DEPOSIT_PROCESSED, TRANSFER_TOPIC], //STRIKE_ADDED, ,DEPOSIT_PROCESSED //TRANSFER_TOPIC
+        pollInterval: pollInterval,
+      },
+    )
+  } catch (error) {
+    console.log(error)
+  }
 }

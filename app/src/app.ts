@@ -18,9 +18,16 @@ async function Notifier(isDown = true) {
 }
 
 function RegisterShutdownEvents(): void {
-  process.on('beforeExit', async (code) => {
+  process.on('uncaughtException', async (error) => {
+    console.log('Uncaught error!')
     await Notifier()
-    process.exit(code)
+    await PostTelegram(`Error:\n\n ${error.message}`, new Telegraf(LOG_TOKEN), LOG_CHANNEL)
+
+    console.error(error)
+  })
+
+  process.on('beforeExit', async (code) => {
+    await Notifier().then(process.exit(code))
   })
 }
 
