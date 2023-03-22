@@ -1,7 +1,7 @@
 {
   "name": "@lyra-grants/app",
   "version": "1.0.0",
-  "description": "Lyra Bot",
+  "description": "Lyra Bot!",
   "license": "MIT",
   "engines": {
     "node": "18.x",
