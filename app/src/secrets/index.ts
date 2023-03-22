@@ -18,9 +18,9 @@ export const TWITTER_APP_SECRET = _.defaultTo(process.env.TWITTER_APP_SECRET, ''
 export const TWITTER_ACCESS_TOKEN = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN, '')
 export const TWITTER_ACCESS_SECRET = _.defaultTo(process.env.TWITTER_ACCESS_SECRET, '')
 
-export const TWITTER_THRESHOLD = _.defaultTo(process.env.TWITTER_THRESHOLD, 0)
+export const TWITTER_THRESHOLD = _.defaultTo(process.env.TWITTER_THRESHOLD, 500)
 export const TELEGRAM_THRESHOLD = _.defaultTo(process.env.TELEGRAM_THRESHOLD, 100)
-export const DISCORD_THRESHOLD = _.defaultTo(process.env.DISCORD_THRESHOLD, 0)
+export const DISCORD_THRESHOLD = _.defaultTo(process.env.DISCORD_THRESHOLD, 250)
 
 export const TWITTER_ENABLED: boolean = _.defaultTo(
   convertToBoolean(process.env.TWITTER_ENABLED as string),
