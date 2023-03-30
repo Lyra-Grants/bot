@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "Lyra Bot!",
   "license": "MIT",
-  "engines": {
-    "node": "18.x",
-    "yarn": "1.x"
-  },
   "config": {
     "node-options": "--optimize_for_size --max_old_space_size=2560 --gc_interval=100"
   },

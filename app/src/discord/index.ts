@@ -7,9 +7,7 @@ import { LeaderboardDiscord } from '../templates/leaderboard'
 import { GetStats } from '../lyra/stats'
 import { StatDiscord } from '../templates/stats'
 import { ARBS_CHANNEL, STATS_CHANNEL, TOKEN_CHANNEL, TRADE_CHANNEL } from '../constants/discordChannels'
-import { HelpDiscord, QuantDiscord } from '../templates/help'
-import { CoinGeckoDiscord } from '../templates/coingecko'
-import { GetCoinGecko } from '../lyra/coingecko'
+import { HelpDiscord } from '../templates/help'
 import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { ArbDiscord } from '../templates/arb'
 import { GetTrader } from '../lyra/trader'
@@ -65,20 +63,6 @@ export async function SetUpDiscord(
               `Command 'help' only available in <#${statsChannel?.id}> or <#${tradeChannel?.id}> `,
             )
           }
-        }
-        if (commandName === 'lyra') {
-          if (channelName === TOKEN_CHANNEL) {
-            await interaction.deferReply()
-            const lyraDto = await GetCoinGecko()
-            const embed = CoinGeckoDiscord(lyraDto)
-            await interaction.editReply({ embeds: embed })
-          } else {
-            await interaction.reply(`Command 'lyra' only available in <#${tokenChannel?.id}>`)
-          }
-        }
-        if (commandName === 'quant') {
-          const embed = QuantDiscord()
-          await interaction.reply({ embeds: embed })
         }
         if (commandName === 'trader') {
           await TraderInteraction(

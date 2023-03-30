@@ -1,5 +1,5 @@
 import { RunTradeBot } from './lyra/trades'
-import { FetchLeaderBoard, GetLeaderBoard } from './lyra/leaderboard'
+import { FetchLeaderBoard } from './lyra/leaderboard'
 import { DISCORD_ACCESS_TOKEN, DISCORD_ACCESS_TOKEN_BTC, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
 import { DiscordClient } from './clients/discordClient'
 import { Client } from 'discord.js'
@@ -8,9 +8,9 @@ import { Telegraf } from 'telegraf'
 import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
 import { Network } from '@lyrafinance/lyra-js'
-import { GetPrice } from './integrations/coingecko'
+import { GetPrices } from './integrations/prices'
 import { TrackEvents } from './event/blockEvent'
-import { ArbitrageJob, CoinGeckoJob, LeaderBoardFillJob, LeaderboardSendJob, PricingJob, StatsJob } from './schedule'
+import { ArbitrageJob, LeaderBoardFillJob, LeaderboardSendJob, PricingJob, StatsJob } from './schedule'
 import { SetUpDiscord } from './discord'
 import printObject from './utils/printObject'
 import getLyraSDK from './utils/getLyraSDK'
@@ -31,7 +31,7 @@ export async function Run() {
   global.LYRA_ARB = getLyraSDK(Network.Arbitrum)
   global.LYRA_OPT = getLyraSDK(Network.Optimism)
 
-  await GetPrice()
+  await GetPrices()
 
   // set up the clients
   await Promise.all([
@@ -53,7 +53,6 @@ export async function Run() {
     LeaderBoardFillJob()
     LeaderboardSendJob(discordClient, twitterClient, telegramClient, networks)
     StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
-    CoinGeckoJob(discordClient, twitterClient1, telegramClient, networks[0])
     ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
   }
 }

@@ -49,10 +49,10 @@ export function defaultActivity(client: Client<boolean>, market: string) {
 export async function defaultName(client: Client<boolean>, market: string) {
   try {
     if (market === 'eth') {
-      await client.user?.setUsername(`ETH - $${FN(global.ETH_PRICE, 2)}`)
+      await client.user?.setUsername(`ETH - $${FN(global.ETH_PRICE, 2)} (${global.ETH_24HR >= 0 ? '↗' : '↘'})`)
     }
     if (market === 'btc') {
-      await client.user?.setUsername(`BTC - $${FN(global.BTC_PRICE, 2)}`)
+      await client.user?.setUsername(`BTC - $${FN(global.BTC_PRICE, 2)} (${global.BTC_24HR >= 0 ? '↗' : '↘'})`)
     }
   } catch (e: any) {
     console.log(e)
