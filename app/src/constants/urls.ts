@@ -1,5 +1,5 @@
 export const urls = {
-  dexscreenerUrl: 'http://api.dexscreener.com/latest/dex/pairs/optimism/',
+  dexscreenerUrl: 'https://api.dexscreener.com/latest/dex/tokens/',
   etherleaderboardApiUrl: 'https://ethleaderboard.xyz/api/frens',
   polynomialDappUrl: 'https://earn.polynomial.fi',
   brahmaDappUrl: 'https://app.brahma.fi',
