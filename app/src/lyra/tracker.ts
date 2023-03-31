@@ -31,7 +31,7 @@ export async function TrackTransfer(
   console.log(`Transfer Value: ${value}`)
 
   if (
-    value >= TOKEN_THRESHOLD &&
+    value >= Number(TOKEN_THRESHOLD) &&
     !excludeAddresses.includes(event.args.to.toLowerCase()) &&
     !excludeAddresses.includes(event.args.from.toLowerCase())
   ) {
