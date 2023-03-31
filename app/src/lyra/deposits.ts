@@ -1,4 +1,4 @@
-import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED, DEPOSIT_THRESHOLD } from '../secrets'
+import { DISCORD_ENABLED, TWITTER_ENABLED, DEPOSIT_THRESHOLD } from '../secrets'
 import fromBigNumber from '../utils/fromBigNumber'
 import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { PostDiscord } from '../integrations/discord'
@@ -8,7 +8,7 @@ import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
-import { AvalonLiquidityPool__factory, DepositQueuedOrProcessedEvent, Network } from '@lyrafinance/lyra-js'
+import { AvalonLiquidityPool__factory, Network } from '@lyrafinance/lyra-js'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { GetAsset, GetMarket } from '../templates/common'
@@ -33,12 +33,11 @@ export async function TrackDeposits(
   const to = GetNotableAddress(event.args.beneficiary.toLowerCase())
   const toAddress = event.args.beneficiary.toLowerCase()
   const toEns = await GetEns(event.args.beneficiary.toLowerCase())
-
   const isNotable = from !== ''
 
   console.log(`Deposit Value: ${value}, threshold: ${DEPOSIT_THRESHOLD}`)
 
-  if (value >= DEPOSIT_THRESHOLD) {
+  if (value >= Number(DEPOSIT_THRESHOLD)) {
     try {
       const dto: DepositDto = {
         account: toAddress,

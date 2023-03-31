@@ -2,15 +2,14 @@ import { Network } from '@lyrafinance/lyra-js'
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, Client, EmbedBuilder } from 'discord.js'
 import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
-import { ARBS_CHANNEL, TOKEN_CHANNEL } from '../constants/discordChannels'
+import { ARBS_CHANNEL } from '../constants/discordChannels'
 import { EventType } from '../constants/eventType'
 import { PostDiscord } from '../integrations/discord'
 import { PostTelegram } from '../integrations/telegram'
 import { SendTweet } from '../integrations/twitter'
 import { TWITTER_ENABLED, TESTNET, DISCORD_ENABLED, TELEGRAM_ENABLED } from '../secrets'
 import { ArbDiscord, ArbTelegram, ArbTwitter } from '../templates/arb'
-import { CoinGeckoDiscord, CoinGeckoTwitter } from '../templates/coingecko'
-import { ArbDto, BaseEvent, LyraDto } from '../types/lyra'
+import { ArbDto, BaseEvent } from '../types/lyra'
 
 export async function BroadCast<T extends BaseEvent>(
   dto: T,
@@ -26,9 +25,6 @@ export async function BroadCast<T extends BaseEvent>(
       if (arbDto.arbs.length > 0) {
         post = ArbTwitter(dto as unknown as ArbDto, network)
       }
-    }
-    if (dto.eventType == EventType.CoinGecko) {
-      post = CoinGeckoTwitter(dto as unknown as LyraDto)
     }
     if (post != '') {
       await SendTweet(post, twitterClient)
@@ -66,10 +62,6 @@ export async function BroadCast<T extends BaseEvent>(
         ;({ embeds, rows } = ArbDiscord(dto as unknown as ArbDto, network))
       }
       channel = ARBS_CHANNEL
-    }
-    if (dto.eventType == EventType.CoinGecko) {
-      embeds = CoinGeckoDiscord(dto as unknown as LyraDto)
-      channel = TOKEN_CHANNEL
     }
 
     if (embeds.length > 0 && channel != '') {

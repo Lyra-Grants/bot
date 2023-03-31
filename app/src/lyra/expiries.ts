@@ -91,7 +91,7 @@ export async function BroadCastStrike(
     const post = BoardDiscord(dto, network)
     const rows: ActionRowBuilder<ButtonBuilder>[] = []
     if (dto.asset.toLowerCase() === 'eth') {
-      // await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
+      await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
     }
     if (dto.asset.toLowerCase() == 'btc') {
       await PostDiscord(post, rows, discordClientBtc, EXPIRY_CHANNEL)

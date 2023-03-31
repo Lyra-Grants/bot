@@ -6,7 +6,7 @@ import { Network } from '@lyrafinance/lyra-js'
 import { LeaderboardDiscord } from '../templates/leaderboard'
 import { GetStats } from '../lyra/stats'
 import { StatDiscord } from '../templates/stats'
-import { ARBS_CHANNEL, STATS_CHANNEL, TOKEN_CHANNEL, TRADE_CHANNEL } from '../constants/discordChannels'
+import { ARBS_CHANNEL, STATS_CHANNEL, TRADE_CHANNEL } from '../constants/discordChannels'
 import { HelpDiscord } from '../templates/help'
 import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { ArbDiscord } from '../templates/arb'
@@ -27,7 +27,6 @@ export async function SetUpDiscord(
       if (!interaction.isCommand()) {
         return
       }
-
       const tradeChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === TRADE_CHANNEL)
       const statsChannel = interaction?.guild?.channels.cache.find((channel) => channel.name === STATS_CHANNEL)
       const arbChannel = interaction?.guild?.channels?.cache?.find((channel) => channel.name === ARBS_CHANNEL)

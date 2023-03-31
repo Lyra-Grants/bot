@@ -57,7 +57,7 @@ export function ArbDiscord(dto: ArbDto, network: Network) {
   const embeds: EmbedBuilder[] = []
   const rows: ActionRowBuilder<ButtonBuilder>[] = []
   const embed = new EmbedBuilder()
-    .setColor(`#ffd500`)
+    .setColor(`${MarketColor(dto.market)}`)
     .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
 
   dto.arbs.slice(0, 10).map((arb) => {
@@ -97,7 +97,7 @@ function Arb(dto: Arb, market: string, network: Network, embed: EmbedBuilder) {
 
 function ProviderUrl(provider: ProviderType, market: string, network: Network) {
   if (provider === ProviderType.DERIBIT) {
-    return deribitUrl //'https://www.deribit.com/options/ETH'
+    return deribitUrl
   }
 
   return `https://app.lyra.finance/#/trade/${network}/${market}`
