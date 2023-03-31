@@ -2,6 +2,7 @@ import { EmbedBuilder } from 'discord.js'
 import { Trader } from '../types/lyra'
 import formatUSD from '../utils/formatUSD'
 import { DisplayTraderNoEmoji, FNS, Medal, PortfolioLink, TwitterLink } from './common'
+import formatNumber from '../utils/formatNumber'
 
 export function TraderDiscord(trader: Trader): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
@@ -18,28 +19,25 @@ export function TraderDiscord(trader: Trader): EmbedBuilder[] {
         inline: false,
       },
       {
-        name: 'Long Pnl',
-        value: `> ${formatUSD(trader.longPnl)} (${FNS(trader.longPnlPercentage, 2)}%)`,
+        name: '📈 Long Pnl',
+        value: `> ${formatUSD(trader.longPnl)} (${formatNumber(trader.longPnlPercentage, { showSign: true })}%)`,
         inline: false,
       },
       {
-        name: 'Short Pnl',
-        value: `> ${formatUSD(trader.shortPnl)} (${FNS(trader.shortPnlPercentage, 2)}%)`,
+        name: '📉 Short Pnl',
+        value: `> ${formatUSD(trader.shortPnl)} (${formatNumber(trader.shortPnlPercentage, { showSign: true })}%)`,
         inline: false,
       },
       {
-        name: 'Realized Pnl',
+        name: '💵 Realized Pnl',
         value: `> ${formatUSD(trader.realizedPnl)}`,
         inline: false,
       },
       {
-        name: 'Unrealized Pnl',
-        value: `> ${formatUSD(trader.unrealizedPnl)}  (${FNS(trader.unrealizedPnlPercentage, 2)}%)`,
-        inline: false,
-      },
-      {
-        name: 'Initial Cost Of Open',
-        value: `> ${formatUSD(trader.initialCostOfOpen)}`,
+        name: '💸 Unrealized Pnl',
+        value: `> ${formatUSD(trader.unrealizedPnl)}  (${formatNumber(trader.unrealizedPnlPercentage, {
+          showSign: true,
+        })}%)`,
         inline: false,
       },
     )

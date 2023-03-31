@@ -9,7 +9,7 @@ export async function GetTrader(account: string, network: Network): Promise<Trad
   if (trader.account == '') {
     const ensAcc = await ResolveEns(account)
     if (ensAcc != '') {
-      trader = await FindOnLeaderBoard(account.toLowerCase(), network)
+      trader = await FindOnLeaderBoard(ensAcc.toLowerCase(), network)
     }
   }
 

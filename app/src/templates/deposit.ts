@@ -39,7 +39,7 @@ export function DepositDiscord(dto: DepositDto, network: Network, mainnet = fals
         inline: false,
       },
       {
-        name: `from:`,
+        name: `From:`,
         value: `> [${DisplayTraderNoEmoji(dto)}](${PortfolioLink(dto.account)})`,
         inline: false,
       },
