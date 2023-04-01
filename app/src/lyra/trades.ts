@@ -9,13 +9,13 @@ import {
   TELEGRAM_THRESHOLD,
   DISCORD_THRESHOLD,
   TESTNET,
-} from '../secrets'
+} from '../config'
 import { GetUrl, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { FindOnLeaderBoard } from './leaderboard'
 import { GetEns } from '../integrations/ens'
 import { PostTelegram } from '../integrations/telegram'
-import { PostDiscord } from '../integrations/discord'
+import { PostDiscord } from '../discord'
 import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
 import { Telegraf } from 'telegraf'
@@ -174,7 +174,7 @@ export async function BroadCastTrade(
   console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
   console.log('Trade Premium: ' + trade.premium)
   if (
-    (trade.premium >= TWITTER_THRESHOLD ||
+    (trade.premium >= Number(TWITTER_THRESHOLD) ||
       trade.isNotable ||
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     TWITTER_ENABLED
@@ -183,7 +183,7 @@ export async function BroadCastTrade(
   }
 
   if (
-    (trade.premium >= TELEGRAM_THRESHOLD ||
+    (trade.premium >= Number(TELEGRAM_THRESHOLD) ||
       trade.isNotable ||
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     TELEGRAM_ENABLED
@@ -192,7 +192,7 @@ export async function BroadCastTrade(
   }
 
   if (
-    (trade.premium >= DISCORD_THRESHOLD ||
+    (trade.premium >= Number(DISCORD_THRESHOLD) ||
       trade.isNotable ||
       (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
     DISCORD_ENABLED

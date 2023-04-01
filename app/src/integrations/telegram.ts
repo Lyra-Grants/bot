@@ -1,4 +1,4 @@
-import { TELEGRAM_CHANNEL, TESTNET } from '../secrets'
+import { TELEGRAM_CHANNEL, TESTNET } from '../config'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 

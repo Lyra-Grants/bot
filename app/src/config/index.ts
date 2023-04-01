@@ -37,8 +37,10 @@ export const DISCORD_ENABLED: boolean = _.defaultTo(
 
 export const TELEGRAM_ACCESS_TOKEN = _.defaultTo(process.env.TELEGRAM_ACCESS_TOKEN, '')
 export const TELEGRAM_CHANNEL = _.defaultTo(process.env.TELEGRAM_CHANNEL, '')
+
 export const DISCORD_ACCESS_TOKEN = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN, '')
 export const DISCORD_ACCESS_TOKEN_BTC = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_BTC, '')
+export const DISCORD_ACCESS_TOKEN_LYRA = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_LYRA, '')
 
 export const TESTNET: boolean = _.defaultTo(convertToBoolean(process.env.TESTNET as string), true) as boolean
 export const ENTROPY = _.defaultTo(process.env.ENTROPY, '')

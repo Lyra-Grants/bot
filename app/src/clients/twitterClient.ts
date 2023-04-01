@@ -8,7 +8,7 @@ import {
   TWITTER_APP_SECRET1,
   TWITTER_ACCESS_TOKEN1,
   TWITTER_ACCESS_SECRET1,
-} from '../secrets'
+} from '../config'
 
 export const TwitterClient = new TwitterApi({
   appKey: TWITTER_APP_KEY,

@@ -1,7 +1,7 @@
 import { Telegraf } from 'telegraf'
 import { Run } from './bot'
 import { PostTelegram } from './integrations/telegram'
-import { LOG_CHANNEL, LOG_TOKEN } from './secrets'
+import { LOG_CHANNEL, LOG_TOKEN } from './config'
 
 async function Initialize(): Promise<void> {
   try {

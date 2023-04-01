@@ -1,5 +1,5 @@
 import { TwitterApi } from 'twitter-api-v2'
-import { TESTNET } from '../secrets'
+import { TESTNET } from '../config'
 
 export async function SendTweet(tweet: string, twitterApi: TwitterApi) {
   if (TESTNET) {

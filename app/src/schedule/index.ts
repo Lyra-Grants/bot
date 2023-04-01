@@ -5,14 +5,18 @@ import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { BroadCast } from '../event/broadcast'
 import { GetPrices } from '../integrations/prices'
-import { defaultActivity, defaultName } from '../integrations/discord'
+import { defaultActivity, defaultName } from '../discord'
 import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { BroadcastLeaderBoard, FetchLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
 
 const markets = ['eth', 'btc']
 
-export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Client<boolean>): void {
+export function PricingJob(
+  discordClient: Client<boolean>,
+  discordClientBtc: Client<boolean>,
+  discordClientLyra: Client<boolean>,
+): void {
   console.log('30 min pricing job running')
   scheduleJob('*/30 * * * *', async () => {
     await GetPrices()
@@ -22,6 +26,9 @@ export function PricingJob(discordClient: Client<boolean>, discordClientBtc: Cli
 
     defaultActivity(discordClientBtc, 'btc')
     await defaultName(discordClientBtc, 'btc')
+
+    defaultActivity(discordClientLyra, 'lyra')
+    await defaultName(discordClientLyra, 'lyra')
   })
 }
 

@@ -1,7 +1,15 @@
 import { GetLeaderBoard, ParsePositionLeaderboard } from '../lyra/leaderboard'
-import { DISCORD_ENABLED, TESTNET } from '../secrets'
-import { ChatInputCommandInteraction, Client, GuildBasedChannel, TextChannel } from 'discord.js'
-import { defaultActivity, defaultName } from '../integrations/discord'
+import { DISCORD_ENABLED, TESTNET } from '../config'
+import {
+  ActionRowBuilder,
+  ActivityType,
+  ButtonBuilder,
+  EmbedBuilder,
+  ChatInputCommandInteraction,
+  Client,
+  GuildBasedChannel,
+  TextChannel,
+} from 'discord.js'
 import { Network } from '@lyrafinance/lyra-js'
 import { LeaderboardDiscord } from '../templates/leaderboard'
 import { GetStats } from '../lyra/stats'
@@ -12,6 +20,11 @@ import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { ArbDiscord } from '../templates/arb'
 import { GetTrader } from '../lyra/trader'
 import { TraderDiscord } from '../templates/trader'
+import { TradeDto } from '../types/lyra'
+import {} from 'discord.js'
+import dayjs from 'dayjs'
+import { FN } from '../templates/common'
+import printObject from '../utils/printObject'
 
 export async function SetUpDiscord(
   discordClient: Client<boolean>,
@@ -176,5 +189,65 @@ async function TraderInteraction(
     }
   } else {
     await interaction.reply(`Command 'trader' only available in <#${channel?.id}>`)
+  }
+}
+
+export async function PostDiscord(
+  embed: EmbedBuilder[],
+  rows: ActionRowBuilder<ButtonBuilder>[],
+  client: Client<boolean>,
+  channelName: string,
+) {
+  if (TESTNET) {
+    printObject(embed)
+  } else {
+    try {
+      const channels = client.channels.cache
+        .filter((value) => (value as TextChannel)?.name == channelName)
+        .map(async (channel) => {
+          console.log(`found channel: ${channelName}`)
+          await (channel as TextChannel).send({ embeds: embed, components: rows })
+        })
+    } catch (e: any) {
+      console.log(e)
+    }
+  }
+}
+
+export function activityString(trade: TradeDto) {
+  return `${trade.asset} ${dayjs(trade.expiry).format('DD MMM')} ${trade.isLong ? 'Long' : 'Short'} ${
+    trade.isCall ? 'C' : 'P'
+  } $${trade.strike} x ${trade.size} $${trade.premium}`
+}
+
+export function defaultActivity(client: Client<boolean>, market: string) {
+  try {
+    if (market === 'eth') {
+      client.user?.setActivity(`24h: ${FN(global.ETH_24HR, 2)}%`, { type: ActivityType.Watching })
+    }
+    if (market === 'btc') {
+      client.user?.setActivity(`24h: ${FN(global.BTC_24HR, 2)}%`, { type: ActivityType.Watching })
+    }
+    if (market === 'lyra') {
+      client.user?.setActivity(`24h: ${FN(global.LYRA_24HR, 2)}%`, { type: ActivityType.Watching })
+    }
+  } catch (e: any) {
+    console.log(e)
+  }
+}
+
+export async function defaultName(client: Client<boolean>, market: string) {
+  try {
+    if (market === 'eth') {
+      await client.user?.setUsername(`ETH $${FN(global.ETH_PRICE, 2)} (${global.ETH_24HR >= 0 ? '↗' : '↘'})`)
+    }
+    if (market === 'btc') {
+      await client.user?.setUsername(`BTC $${FN(global.BTC_PRICE, 2)} (${global.BTC_24HR >= 0 ? '↗' : '↘'})`)
+    }
+    if (market === 'lyra') {
+      await client.user?.setUsername(`LYRA $${FN(global.LYRA_PRICE, 2)} (${global.LYRA_24HR >= 0 ? '↗' : '↘'})`)
+    }
+  } catch (e: any) {
+    console.log(e)
   }
 }

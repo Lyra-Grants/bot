@@ -1,6 +1,13 @@
 import { RunTradeBot } from './lyra/trades'
 import { FetchLeaderBoard } from './lyra/leaderboard'
-import { DISCORD_ACCESS_TOKEN, DISCORD_ACCESS_TOKEN_BTC, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from './secrets'
+import {
+  DISCORD_ACCESS_TOKEN,
+  DISCORD_ACCESS_TOKEN_BTC,
+  DISCORD_ACCESS_TOKEN_LYRA,
+  TELEGRAM_ENABLED,
+  TESTNET,
+  TWITTER_ENABLED,
+} from './config'
 import { DiscordClient } from './clients/discordClient'
 import { Client } from 'discord.js'
 import { TwitterApi } from 'twitter-api-v2'
@@ -17,6 +24,8 @@ import getLyraSDK from './utils/getLyraSDK'
 
 let discordClient: Client<boolean>
 let discordClientBtc: Client<boolean>
+let discordClientLyra: Client<boolean>
+
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let telegramClient: Telegraf
@@ -37,6 +46,7 @@ export async function Run() {
   await Promise.all([
     SetUpDiscord((discordClient = DiscordClient()), 'eth', DISCORD_ACCESS_TOKEN),
     SetUpDiscord((discordClientBtc = DiscordClient()), 'btc', DISCORD_ACCESS_TOKEN_BTC),
+    SetUpDiscord((discordClientLyra = DiscordClient()), 'lyra', DISCORD_ACCESS_TOKEN_LYRA),
     SetUpTwitter(),
     SetUpTelegram(),
     FetchLeaderBoard(),
@@ -49,7 +59,7 @@ export async function Run() {
 
   // periodic jobs
   if (!TESTNET) {
-    PricingJob(discordClient, discordClientBtc)
+    PricingJob(discordClient, discordClientBtc, discordClientLyra)
     LeaderBoardFillJob()
     LeaderboardSendJob(discordClient, twitterClient, telegramClient, networks)
     StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
