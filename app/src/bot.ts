@@ -46,7 +46,7 @@ export async function Run() {
   await Promise.all([
     SetUpDiscord((discordClient = DiscordClient()), 'eth', DISCORD_ACCESS_TOKEN),
     SetUpDiscord((discordClientBtc = DiscordClient()), 'btc', DISCORD_ACCESS_TOKEN_BTC),
-    SetUpDiscord((discordClientLyra = DiscordClient()), 'lyra', DISCORD_ACCESS_TOKEN_LYRA),
+    //SetUpDiscord((discordClientLyra = DiscordClient()), 'lyra', DISCORD_ACCESS_TOKEN_LYRA),
     SetUpTwitter(),
     SetUpTelegram(),
     FetchLeaderBoard(),
