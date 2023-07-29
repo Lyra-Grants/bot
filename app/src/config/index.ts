@@ -38,9 +38,11 @@ export const DISCORD_ENABLED: boolean = _.defaultTo(
 export const TELEGRAM_ACCESS_TOKEN = _.defaultTo(process.env.TELEGRAM_ACCESS_TOKEN, '')
 export const TELEGRAM_CHANNEL = _.defaultTo(process.env.TELEGRAM_CHANNEL, '')
 
-export const DISCORD_ACCESS_TOKEN = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN, '')
+export const DISCORD_ACCESS_TOKEN_ETH = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_ETH, '')
 export const DISCORD_ACCESS_TOKEN_BTC = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_BTC, '')
 export const DISCORD_ACCESS_TOKEN_LYRA = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_LYRA, '')
+export const DISCORD_ACCESS_TOKEN_ARB = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_ARB, '')
+export const DISCORD_ACCESS_TOKEN_OP = _.defaultTo(process.env.DISCORD_ACCESS_TOKEN_OP, '')
 
 export const TESTNET: boolean = _.defaultTo(convertToBoolean(process.env.TESTNET as string), true) as boolean
 export const ENTROPY = _.defaultTo(process.env.ENTROPY, '')
@@ -54,6 +56,6 @@ export const TWITTER_APP_KEY1 = _.defaultTo(process.env.TWITTER_APP_KEY1, '')
 export const TWITTER_APP_SECRET1 = _.defaultTo(process.env.TWITTER_APP_SECRET1, '')
 export const TWITTER_ACCESS_TOKEN1 = _.defaultTo(process.env.TWITTER_ACCESS_TOKEN1, '')
 export const TWITTER_ACCESS_SECRET1 = _.defaultTo(process.env.TWITTER_ACCESS_SECRET1, '')
-
+export const SATSUMA_API_KEY = _.defaultTo(process.env.SATSUMA_API_KEY, '')
 export const TOKEN_THRESHOLD = _.defaultTo(process.env.TOKEN_THRESHOLD, 1000)
 export const DEPOSIT_THRESHOLD = _.defaultTo(process.env.DEPOSIT_THRESHOLD, 1000)

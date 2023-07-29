@@ -5,6 +5,7 @@ import { OptionsMap, OptionType, ProviderType } from '../types/arbs'
 import { getDeribitRates } from '../providers/deribit'
 import { getLyraRates } from '../providers/Lyra'
 import { Network } from '@lyrafinance/lyra-js'
+import { GetPrice } from '../integrations/prices'
 
 type Strikes = {
   allStrikes?: number[]
@@ -14,7 +15,7 @@ type Strikes = {
 }
 
 export const useStrikes = (): Strikes => {
-  const basePrice = ETH_PRICE
+  const basePrice = GetPrice('eth')
   // Call : 0.8x spot -> 2x spot
   // Put : 0.5x spot -> 1.2x spot
 
@@ -70,7 +71,8 @@ type TermStrikesOptions = {
 export async function useRatesData(marketName: string, network: Network, filterSell = false) {
   const providers: ProviderType[] = [ProviderType.LYRA, ProviderType.DERIBIT]
 
-  const [deribit, lyra] = await Promise.all([getDeribitRates(marketName), getLyraRates(marketName, network)])
+  const deribit = await getDeribitRates(marketName)
+  const lyra = await getLyraRates(marketName, network)
 
   const rates = {
     [ProviderType.DERIBIT]: deribit,

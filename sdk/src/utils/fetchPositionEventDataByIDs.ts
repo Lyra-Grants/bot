@@ -12,13 +12,11 @@ import {
   TransferQueryResult,
 } from '../constants/queries'
 import Lyra from '../lyra'
-import { Market } from '../market'
-import fetchRecentPositionEventsByIDs from './fetchRecentPositionEventsByIDs'
 import getCollateralUpdateDataFromSubgraph from './getCollateralUpdateDataFromSubgraph'
 import getSettleDataFromSubgraph from './getSettleDataFromSubgraph'
 import getTradeDataFromSubgraph from './getTradeDataFromSubgraph'
 import getTransferDataFromSubgraph from './getTransferDataFromSubgraph'
-import getUniqueBy from './getUniqueBy'
+import subgraphRequest from './subgraphRequest'
 
 // TODO: @dappbeast Handle more than 1k trade queries
 const positionEventsQuery = gql`
@@ -38,71 +36,62 @@ const positionEventsQuery = gql`
   }
 `
 
+type PositionInputData = {
+  marketAddress: string
+  positionId: number
+}
+
 export default async function fetchPositionEventDataByIDs(
   lyra: Lyra,
-  market: Market,
-  positionIds: number[]
-): Promise<Record<number, PositionEventData>> {
-  const [subgraphData, recentContractEvents] = await Promise.all([
-    lyra.subgraphClient.query<
-      {
-        trades: TradeQueryResult[]
-        collateralUpdates: CollateralUpdateQueryResult[]
-        settles: SettleQueryResult[]
-        optionTransfers: TransferQueryResult[]
-      },
-      {
-        positionIds: string[]
-      }
-    >({
-      query: positionEventsQuery,
-      variables: {
-        positionIds: positionIds.map(pid => `${market.address.toLowerCase()}-${pid}`),
-      },
-    }),
-    fetchRecentPositionEventsByIDs(lyra, market, positionIds),
-  ])
+  positionIds: PositionInputData[]
+): Promise<Record<string, Record<number, PositionEventData>>> {
+  const subgraphData = await subgraphRequest<
+    {
+      trades: TradeQueryResult[]
+      collateralUpdates: CollateralUpdateQueryResult[]
+      settles: SettleQueryResult[]
+      optionTransfers: TransferQueryResult[]
+    },
+    {
+      positionIds: string[]
+    }
+  >(lyra.subgraphClient, {
+    query: positionEventsQuery,
+    variables: {
+      positionIds: positionIds.map(({ positionId, marketAddress }) => `${marketAddress.toLowerCase()}-${positionId}`),
+    },
+  })
 
-  const eventsByPositionID: Record<number, PositionEventData> = positionIds.reduce(
-    (dict, positionId) => ({
+  const eventsByMarketByPositionID: Record<string, Record<number, PositionEventData>> = positionIds.reduce(
+    (dict, { positionId, marketAddress }) => ({
       ...dict,
-      [positionId]: { trades: [], collateralUpdates: [], transfers: [], settle: null },
+      [marketAddress]: {
+        [positionId]: { trades: [], collateralUpdates: [], transfers: [], settle: null },
+        ...dict[marketAddress],
+      },
     }),
-    {} as Record<number, PositionEventData>
+    {} as Record<string, Record<number, PositionEventData>>
   )
 
   // Initialise with subgraph values
-  const trades = subgraphData.data.trades.map(getTradeDataFromSubgraph)
-  const collateralUpdates = subgraphData.data.collateralUpdates.map(getCollateralUpdateDataFromSubgraph)
-  const transfers = subgraphData.data.optionTransfers.map(getTransferDataFromSubgraph)
-  const settles = subgraphData.data.settles.map(getSettleDataFromSubgraph)
+  const trades = subgraphData.data?.trades.map(getTradeDataFromSubgraph) ?? []
+  const collateralUpdates = subgraphData.data?.collateralUpdates.map(getCollateralUpdateDataFromSubgraph) ?? []
+  const transfers = subgraphData.data?.optionTransfers.map(getTransferDataFromSubgraph) ?? []
+  const settles = subgraphData.data?.settles.map(getSettleDataFromSubgraph) ?? []
   trades.forEach(trade => {
-    eventsByPositionID[trade.positionId].trades.push(trade)
+    eventsByMarketByPositionID[trade.marketAddress][trade.positionId].trades.push(trade)
   })
   collateralUpdates.forEach(collateralUpdate => {
-    eventsByPositionID[collateralUpdate.positionId].collateralUpdates.push(collateralUpdate)
+    eventsByMarketByPositionID[collateralUpdate.marketAddress][collateralUpdate.positionId].collateralUpdates.push(
+      collateralUpdate
+    )
   })
   transfers.forEach(transfer => {
-    eventsByPositionID[transfer.positionId].transfers.push(transfer)
+    eventsByMarketByPositionID[transfer.marketAddress][transfer.positionId].transfers.push(transfer)
   })
   settles.forEach(settle => {
-    eventsByPositionID[settle.positionId].settle = settle
+    eventsByMarketByPositionID[settle.marketAddress][settle.positionId].settle = settle
   })
 
-  // Merge recent contract events with subgraph events
-  Object.entries(recentContractEvents).map(([key, { trades, collateralUpdates }]) => {
-    const positionId = parseInt(key)
-    eventsByPositionID[positionId].trades = getUniqueBy(
-      // Merge events by tx hash, prefer subgraph events
-      [...eventsByPositionID[positionId].trades, ...trades],
-      trade => trade.transactionHash
-    )
-    eventsByPositionID[positionId].collateralUpdates = getUniqueBy(
-      // Merge events by tx hash, prefer subgraph events
-      [...eventsByPositionID[positionId].collateralUpdates, ...collateralUpdates],
-      update => update.transactionHash
-    )
-  })
-
-  return eventsByPositionID
+  return eventsByMarketByPositionID
 }

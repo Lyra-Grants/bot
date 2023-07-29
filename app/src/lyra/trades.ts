@@ -30,8 +30,7 @@ import printObject from '../utils/printObject'
 import formatUSD from '../utils/formatUSD'
 
 export async function RunTradeBot(
-  discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
+  discordClient: Client,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
   network: Network,
@@ -39,6 +38,7 @@ export async function RunTradeBot(
   console.log('### Polling for Trades ###')
   const lyra = getLyra(network)
 
+  // eslint-disable-next-line prefer-const
   let blockNumber: number | undefined = undefined
   let pollInterval = 60000 // 1 min
 
@@ -51,17 +51,7 @@ export async function RunTradeBot(
     async (trade) => {
       try {
         const tradeDto = await MapToTradeDto(trade, network)
-        //console.log(tradeDto)
-        switch (tradeDto.market.toUpperCase()) {
-          case 'SBTC-SUSD':
-          case 'WBTC-USDC':
-            await BroadCastTrade(tradeDto, network, twitterClient, telegramClient, discordClientBtc)
-            break
-          case 'SETH-SUSD':
-          case 'ETH-USDC':
-            await BroadCastTrade(tradeDto, network, twitterClient, telegramClient, discordClient)
-            break
-        }
+        await BroadCastTrade(tradeDto, network, twitterClient, telegramClient, discordClient)
       } catch (e: any) {
         console.log(e)
       }

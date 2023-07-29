@@ -8,7 +8,7 @@ import {
   FN,
   FormattedDate,
   Medal,
-  NetworkFooter,
+  Footer,
   PortfolioLink,
   PositionLink,
   ShowProfitAndLoss,
@@ -17,9 +17,11 @@ import {
   TwitterLink,
   MarketColor,
   BlockExplorerAddress,
+  getThumb,
 } from './common'
 import { Network } from '@lyrafinance/lyra-js'
 import formatUSD from '../utils/formatUSD'
+import { titleCaseWord } from '../utils/utils'
 
 export function TradeTwitter(trade: TradeDto, network: Network) {
   const post: string[] = []
@@ -66,7 +68,7 @@ export function TradeTwitter(trade: TradeDto, network: Network) {
 }
 
 export function TradeTelegram(trade: TradeDto, network: Network) {
-  const img = TradeShareImage(trade)
+  //const img = TradeShareImage(trade)
   const post: string[] = []
   if (!trade.isLiquidation) {
     post.push(
@@ -125,13 +127,24 @@ export function TradeTelegram(trade: TradeDto, network: Network) {
 export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
   const url = PositionLink(trade, network)
   const tradeEmbed = new EmbedBuilder().setURL(`${url}`)
+  const assetThumb = getThumb(trade.asset.toLowerCase())
+
+  if (assetThumb) {
+    tradeEmbed.setThumbnail(assetThumb)
+  }
+
+  let decimals = 0
+
+  if (trade.asset == 'OP' || trade.asset == 'ARB') {
+    decimals = 2
+  }
 
   if (!trade.isLiquidation) {
     tradeEmbed
       .setTitle(
         `${trade.isOpen ? '✅ Opened:' : '🚫 Closed:'} ${trade.isLong ? 'Long' : 'Short'} ${trade.size} ${
           trade.asset
-        } $${FN(trade.strike, 0)} ${trade.isCall ? 'Call' : 'Put'}`,
+        } $${FN(trade.strike, decimals)} ${trade.isCall ? 'Call' : 'Put'}`,
       )
       .setColor(`${MarketColor(trade.market)}`)
   } else {
@@ -142,6 +155,11 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
 
   tradeEmbed.addFields(
     {
+      name: `🪙 Market`,
+      value: `> ${trade.market}`,
+      inline: false,
+    },
+    {
       name: `⏰ Expiry`,
       value: `> ${FormattedDate(trade.expiry)}`,
       inline: false,
@@ -149,6 +167,11 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
     {
       name: `💵 ${AmountWording(trade.isLong, trade.isOpen, trade.isLiquidation)}`,
       value: `> ${trade.premiumFormatted}`,
+      inline: false,
+    },
+    {
+      name: `⛓️ Network`,
+      value: `> ${titleCaseWord(network)}`,
       inline: false,
     },
   )
@@ -215,6 +238,6 @@ export function TradeDiscord(trade: TradeDto, network: Network): EmbedBuilder {
     tradeEmbed.addFields({ name: '🏦 Vault', value: `> [deposit into vault](${trade.url})`, inline: false })
   }
 
-  NetworkFooter(tradeEmbed, network)
+  Footer(tradeEmbed)
   return tradeEmbed
 }

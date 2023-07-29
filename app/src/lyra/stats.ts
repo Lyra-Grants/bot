@@ -50,6 +50,7 @@ export async function GetStats(marketName: string, network: Network): Promise<Va
 
   const openInterest = fromBigNumber(market.openInterest) * fromBigNumber(market.spotPrice)
   return {
+    asset: marketName,
     market,
     liquidity,
     netGreeks,

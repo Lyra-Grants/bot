@@ -3,7 +3,7 @@ import { EmbedBuilder } from 'discord.js'
 import { BoardDto } from '../types/lyra'
 import formatUSD from '../utils/formatUSD'
 import { titleCaseWord } from '../utils/utils'
-import { ExpiryLink, FormattedDate, MarketColor, NetworkFooter, StatSymbol } from './common'
+import { ExpiryLink, FormattedDate, MarketColor, Footer, StatSymbol, getThumb } from './common'
 
 // TWITTER
 export function BoardTwitter(dto: BoardDto, network: Network) {
@@ -41,12 +41,17 @@ export function BoardDiscord(dto: BoardDto, network: Network): EmbedBuilder[] {
   const embed = new EmbedBuilder()
     .setColor(MarketColor(dto.asset))
     .setURL(`${ExpiryLink(dto.market, network, dto.expiryString)}`)
-    .setTitle(
-      `Strike${dto.strikes.length > 1 ? 's' : ''}: ${StatSymbol(dto.market)} ${dto.market} Market | ${FormattedDate(
-        dto.expiry,
-      )}`,
-    )
+    .setTitle(`Strike${dto.strikes.length > 1 ? 's' : ''}: ${dto.market} Market | ${FormattedDate(dto.expiry)}`)
+  embed.addFields({
+    name: `⛓️ Network`,
+    value: `> ${titleCaseWord(network)}`,
+    inline: false,
+  })
+  const assetThumb = getThumb(dto.asset.toLowerCase())
 
+  if (assetThumb) {
+    embed.setThumbnail(assetThumb)
+  }
   dto.strikes.map((strike) => {
     embed.addFields({
       name: `🎯 ${formatUSD(strike.strikePrice)}`,
@@ -55,7 +60,7 @@ export function BoardDiscord(dto: BoardDto, network: Network): EmbedBuilder[] {
     })
   })
 
-  NetworkFooter(embed, network)
+  Footer(embed)
   embeds.push(embed)
   return embeds
 }

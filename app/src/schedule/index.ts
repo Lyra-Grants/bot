@@ -5,30 +5,63 @@ import { Telegraf } from 'telegraf'
 import { TwitterApi } from 'twitter-api-v2'
 import { BroadCast } from '../event/broadcast'
 import { GetPrices } from '../integrations/prices'
-import { defaultActivity, defaultName } from '../discord'
+import { setNameActivityPrice } from '../discord'
 import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { BroadcastLeaderBoard, FetchLeaderBoard } from '../lyra/leaderboard'
 import { GetStats, BroadCastStats } from '../lyra/stats'
+import { ETH_OP, BTC_OP, ARB_OP, OP_OP, LYRA_OP } from '../constants/contractAddresses'
 
 const markets = ['eth', 'btc']
 
-export function PricingJob(
-  discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
-  discordClientLyra: Client<boolean>,
+export function OneMinuteJob(
+  discordClientEth: Client,
+  discordClientBtc: Client,
+  discordOP: Client,
+  discordArb: Client,
+  discordLyra: Client,
 ): void {
-  console.log('30 min pricing job running')
-  scheduleJob('*/30 * * * *', async () => {
-    await GetPrices()
+  scheduleJob('*/1 * * * *', async () => {
+    try {
+      console.log(`Getting Prices: ${Date.now()}`)
+      const pairs = await GetPrices()
+      global.PRICES = pairs
+      //ETH
+      const ethPair = pairs.find((pair) => pair.baseToken.address.toLowerCase() == ETH_OP.toLowerCase())
+      if (ethPair) {
+        console.log(ethPair.priceUsd)
+        await setNameActivityPrice(discordClientEth, ethPair, 'eth')
+      }
 
-    defaultActivity(discordClient, 'eth')
-    await defaultName(discordClient, 'eth')
+      //BTC
+      const btcPair = pairs.find((pair) => pair.baseToken.address.toLowerCase() == BTC_OP.toLowerCase())
+      if (btcPair) {
+        console.log(btcPair.priceUsd)
+        await setNameActivityPrice(discordClientBtc, btcPair, 'btc')
+      }
 
-    defaultActivity(discordClientBtc, 'btc')
-    await defaultName(discordClientBtc, 'btc')
+      //ARB
+      const arbPair = pairs.find((pair) => pair.baseToken.address.toLowerCase() == ARB_OP.toLowerCase())
+      if (arbPair) {
+        console.log(arbPair.priceUsd)
+        await setNameActivityPrice(discordArb, arbPair, 'arb')
+      }
 
-    defaultActivity(discordClientLyra, 'lyra')
-    await defaultName(discordClientLyra, 'lyra')
+      //OP
+      const opPair = pairs.find((pair) => pair.baseToken.address.toLowerCase() == OP_OP.toLowerCase())
+      if (opPair) {
+        console.log(opPair.priceUsd)
+        await setNameActivityPrice(discordOP, opPair, 'op')
+      }
+
+      //LYRA
+      const lyraPair = pairs.find((pair) => pair.baseToken.address.toLowerCase() == LYRA_OP.toLowerCase())
+      if (lyraPair) {
+        console.log(lyraPair.priceUsd)
+        await setNameActivityPrice(discordLyra, lyraPair, 'lyra')
+      }
+    } catch (e) {
+      console.log(e)
+    }
   })
 }
 
@@ -55,7 +88,6 @@ export function LeaderboardSendJob(
 
 export function StatsJob(
   discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
   networks: Network[],
@@ -65,8 +97,7 @@ export function StatsJob(
     networks.map(async (network) => {
       markets.map(async (market) => {
         const statsDto = await GetStats(market, network)
-        const discord = market == 'eth' ? discordClient : discordClientBtc
-        await BroadCastStats(statsDto, twitterClient, telegramClient, discord, network)
+        await BroadCastStats(statsDto, twitterClient, telegramClient, discordClient, network)
       })
     })
   })
@@ -74,7 +105,6 @@ export function StatsJob(
 
 export function ArbitrageJob(
   discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
   twitterClient: TwitterApi,
   telegramClient: Telegraf,
   networks: Network[],
@@ -83,8 +113,7 @@ export function ArbitrageJob(
     networks.map(async (network) => {
       markets.map(async (market) => {
         const arbDto = await GetArbitrageDeals(market, network)
-        const discord = market == 'eth' ? discordClient : discordClientBtc
-        await BroadCast(arbDto, twitterClient, telegramClient, discord, network)
+        await BroadCast(arbDto, twitterClient, telegramClient, discordClient, network)
       })
     })
   })

@@ -8,20 +8,18 @@ import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { EXPIRY_CHANNEL } from '../constants/discordChannels'
-import Lyra, { AvalonOptionMarket__factory, Network } from '@lyrafinance/lyra-js'
-import printObject from '../utils/printObject'
+import { AvalonFactories, Network } from '@lyrafinance/lyra-js'
 import { BoardDiscord, BoardTelegram, BoardTwitter } from '../templates/strike'
 import { PostDiscord } from '../discord'
 import { PostTelegram } from '../integrations/telegram'
 import { StrikeAddedEvent } from '@lyrafinance/lyra-js/src/contracts/avalon/typechain/AvalonOptionMarket'
 import { GetAsset } from '../templates/common'
+import getLyraSDK from '../utils/getLyraSDK'
 
 export async function TrackStrikeAdded(
   discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
   telegramClient: Telegraf,
   twitterClient: TwitterApi,
-  lyra: Lyra,
   network: Network,
   genericEvents: GenericEvent[],
 ): Promise<void> {
@@ -29,27 +27,17 @@ export async function TrackStrikeAdded(
   const boardEvents = groupBy(events, (i) => i.args.boardId.toNumber() as unknown as string)
 
   Object.keys(boardEvents).map(
-    async (x) =>
-      await processBoardStrikes(
-        discordClient,
-        discordClientBtc,
-        telegramClient,
-        twitterClient,
-        boardEvents[x],
-        lyra,
-        network,
-      ),
+    async (x) => await processBoardStrikes(discordClient, telegramClient, twitterClient, boardEvents[x], network),
   )
 }
 export async function processBoardStrikes(
-  discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
+  discordClient: Client,
   telegramClient: Telegraf,
   twitterClient: TwitterApi,
   events: StrikeAddedEvent[],
-  lyra: Lyra,
   network: Network,
 ) {
+  const lyra = getLyraSDK(network)
   const board = await lyra.board(events[0].address, events[0].args.boardId.toNumber())
   const event = events[0]
   const market = board.market()
@@ -73,7 +61,7 @@ export async function processBoardStrikes(
   }
   console.log(boardDto)
   try {
-    BroadCastStrike(boardDto, discordClient, discordClientBtc, telegramClient, twitterClient, network)
+    BroadCastStrike(boardDto, discordClient, telegramClient, twitterClient, network)
   } catch (ex) {
     console.log(ex)
   }
@@ -82,7 +70,6 @@ export async function processBoardStrikes(
 export async function BroadCastStrike(
   dto: BoardDto,
   discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
   telegramClient: Telegraf,
   twitterClient: TwitterApi,
   network: Network,
@@ -90,12 +77,7 @@ export async function BroadCastStrike(
   if (DISCORD_ENABLED) {
     const post = BoardDiscord(dto, network)
     const rows: ActionRowBuilder<ButtonBuilder>[] = []
-    if (dto.asset.toLowerCase() === 'eth') {
-      await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
-    }
-    if (dto.asset.toLowerCase() == 'btc') {
-      await PostDiscord(post, rows, discordClientBtc, EXPIRY_CHANNEL)
-    }
+    await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
   }
 
   if (TELEGRAM_ENABLED) {
@@ -111,7 +93,7 @@ export async function BroadCastStrike(
 
 export function parseEvents(events: StrikeAddedEvent[]): StrikeAddedEvent[] {
   const result = events.map((x) => {
-    const parsedEvent = AvalonOptionMarket__factory.createInterface().parseLog(x)
+    const parsedEvent = AvalonFactories.AvalonOptionMarket__factory.createInterface().parseLog(x)
 
     if ((parsedEvent.args as StrikeAddedEvent['args']).length > 0) {
       x.args = parsedEvent.args as StrikeAddedEvent['args']

@@ -2,7 +2,7 @@ import moment from 'moment'
 import { pick } from 'lodash'
 import { Instrument, OptionsMap, OptionType, ProviderType } from '../../types/arbs'
 import { RpcWebSocketClient } from 'rpc-websocket-client'
-import { getPriceForMarket } from '../../lyra/arbitrage'
+import { GetPrice } from '../../integrations/prices'
 
 // const authRequest = {
 //   jsonrpc: "2.0",
@@ -119,7 +119,7 @@ async function useDeribitData(market: string) {
 
 export async function getDeribitRates(market: string) {
   const [data] = await useDeribitData(market)
-  const price = getPriceForMarket(market)
+  const price = GetPrice(market)
 
   const optionsMap = data
     .filter(({ mid_price, ask_price, bid_price }) => ask_price && bid_price)

@@ -2,7 +2,8 @@ import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
 import { TransferDto } from '../types/lyra'
 import formatUSD from '../utils/formatUSD'
-import { BlockExplorerAddress, BlockExplorerLink, FN, LyraDappUrl, NetworkFooter } from './common'
+import { BlockExplorerAddress, BlockExplorerLink, FN, LyraDappUrl, Footer } from './common'
+import { titleCaseWord } from '../utils/utils'
 
 // TWITTER
 export function TransferTwitter(dto: TransferDto, network: Network) {
@@ -25,17 +26,22 @@ export function TransferDiscord(dto: TransferDto, network: Network): EmbedBuilde
     .setTitle(`✅ Transfer: ${FN(dto.amount, 2)} $${dto.token} (${formatUSD(dto.value)})`)
     .addFields(
       {
-        name: `From:`,
+        name: `⛓️ Network`,
+        value: `> ${titleCaseWord(network)}`,
+        inline: false,
+      },
+      {
+        name: `📤 From:`,
         value: `> [${dto.fromEns ? dto.fromEns : dto.from}](${BlockExplorerAddress(dto.fromAddress, network)})`,
         inline: false,
       },
       {
-        name: `To:`,
+        name: `📥 To:`,
         value: `> [${dto.toEns ? dto.toEns : dto.to}](${BlockExplorerAddress(dto.toAddress, network)})`,
         inline: false,
       },
     )
-  NetworkFooter(tradeEmbed, network)
+  Footer(tradeEmbed)
   messageEmbeds.push(tradeEmbed)
   return messageEmbeds
 }

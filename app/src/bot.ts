@@ -1,9 +1,11 @@
 import { RunTradeBot } from './lyra/trades'
 import { FetchLeaderBoard } from './lyra/leaderboard'
 import {
-  DISCORD_ACCESS_TOKEN,
+  DISCORD_ACCESS_TOKEN_ARB,
   DISCORD_ACCESS_TOKEN_BTC,
+  DISCORD_ACCESS_TOKEN_ETH,
   DISCORD_ACCESS_TOKEN_LYRA,
+  DISCORD_ACCESS_TOKEN_OP,
   TELEGRAM_ENABLED,
   TESTNET,
   TWITTER_ENABLED,
@@ -17,31 +19,37 @@ import { TelegramClient } from './clients/telegramClient'
 import { Network } from '@lyrafinance/lyra-js'
 import { GetPrices } from './integrations/prices'
 import { TrackEvents } from './event/blockEvent'
-import { ArbitrageJob, LeaderBoardFillJob, LeaderboardSendJob, PricingJob, StatsJob } from './schedule'
+import { ArbitrageJob, LeaderBoardFillJob, LeaderboardSendJob, OneMinuteJob, StatsJob } from './schedule'
 import { SetUpDiscord } from './discord'
-import printObject from './utils/printObject'
 import getLyraSDK from './utils/getLyraSDK'
+import { GetArbitrageDeals } from './lyra/arbitrage'
+import { getLyraRates } from './providers/Lyra'
 
-let discordClient: Client<boolean>
-let discordClientBtc: Client<boolean>
-let discordClientLyra: Client<boolean>
+let discordClientEth: Client
+let discordClientBtc: Client
+let discordClientLyra: Client
+let discordClientArb: Client
+let discordClientOp: Client
 
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let telegramClient: Telegraf
 
-const networks = [Network.Optimism, Network.Arbitrum]
+const networks = [Network.Arbitrum, Network.Optimism] // Network.Arbitrum]
 
 export async function Run() {
   InitVariables()
 
-  await GetPrices()
+  const pairs = await GetPrices()
+  global.PRICES = pairs
 
   // set up the clients
   await Promise.all([
-    SetUpDiscord((discordClient = DiscordClient()), 'eth', DISCORD_ACCESS_TOKEN),
+    SetUpDiscord((discordClientEth = DiscordClient()), 'eth', DISCORD_ACCESS_TOKEN_ETH),
     SetUpDiscord((discordClientBtc = DiscordClient()), 'btc', DISCORD_ACCESS_TOKEN_BTC),
-    //SetUpDiscord((discordClientLyra = DiscordClient()), 'lyra', DISCORD_ACCESS_TOKEN_LYRA),
+    SetUpDiscord((discordClientArb = DiscordClient()), 'arb', DISCORD_ACCESS_TOKEN_ARB),
+    SetUpDiscord((discordClientOp = DiscordClient()), 'op', DISCORD_ACCESS_TOKEN_OP),
+    SetUpDiscord((discordClientLyra = DiscordClient()), 'lyra', DISCORD_ACCESS_TOKEN_LYRA),
     SetUpTwitter(),
     SetUpTelegram(),
     FetchLeaderBoard(),
@@ -51,14 +59,13 @@ export async function Run() {
   networks.map(async (network) => {
     await runBot(network)
   })
-
+  OneMinuteJob(discordClientEth, discordClientBtc, discordClientOp, discordClientArb, discordClientLyra)
   // periodic jobs
   if (!TESTNET) {
-    PricingJob(discordClient, discordClientBtc, discordClientLyra)
     LeaderBoardFillJob()
-    LeaderboardSendJob(discordClient, twitterClient, telegramClient, networks)
-    StatsJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
-    ArbitrageJob(discordClient, discordClientBtc, twitterClient, telegramClient, networks)
+    LeaderboardSendJob(discordClientLyra, twitterClient, telegramClient, networks)
+    StatsJob(discordClientLyra, twitterClient, telegramClient, networks)
+    ArbitrageJob(discordClientLyra, twitterClient, telegramClient, networks)
   }
 }
 
@@ -66,20 +73,15 @@ function InitVariables() {
   global.LYRA_ENS = {}
   global.LEADERBOARD_OPT = []
   global.LEADERBOARD_ARB = []
+  global.PRICES = []
   global.FREN = {}
   global.LYRA_ARB = getLyraSDK(Network.Arbitrum)
   global.LYRA_OPT = getLyraSDK(Network.Optimism)
-  global.ETH_PRICE = 0
-  global.ETH_24HR = 0
-  global.BTC_PRICE = 0
-  global.BTC_24HR = 0
-  global.LYRA_PRICE = 0
-  global.LYRA_24HR = 0
 }
 
 export async function runBot(network: Network) {
-  await RunTradeBot(discordClient, discordClientBtc, twitterClient, telegramClient, network)
-  await TrackEvents(discordClient, discordClientBtc, telegramClient, twitterClient, twitterClient1, network)
+  await RunTradeBot(discordClientLyra, twitterClient, telegramClient, network)
+  await TrackEvents(discordClientLyra, telegramClient, twitterClient, twitterClient1, network)
 }
 
 export async function SetUpTwitter() {

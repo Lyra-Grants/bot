@@ -12,15 +12,9 @@ import {
   AvalonSynthetixAdapter,
   AvalonTestFaucet,
 } from '../contracts/avalon/typechain'
-import {
-  ArrakisPoolL1,
-  ArrakisPoolL2,
-  LyraStakingModule,
-  Multicall3,
-  MultiDistributor,
-  TokenMigrator,
-  WethLyraStakingRewards,
-} from '../contracts/common/typechain'
+import { Multicall3, MultiDistributor } from '../contracts/common/typechain'
+import { NewportOptionMarket as NewportArbitrumOptionMarket } from '../contracts/newport/arbitrum/typechain'
+import { NewportOptionMarket as NewportOptimismOptionMarket } from '../contracts/newport/optimism/typechain'
 import {
   NewportGMXAdapter,
   NewportGMXFuturesPoolHedger,
@@ -28,11 +22,12 @@ import {
   NewportLiquidityToken,
   NewportLyraRegistry,
   NewportOptionGreekCache,
-  NewportOptionMarket,
   NewportOptionMarketPricer,
   NewportOptionMarketViewer,
   NewportOptionToken,
   NewportShortCollateral,
+  NewportSNXPerpsV2PoolHedger,
+  NewportSNXPerpV2Adapter,
   NewportTestFaucet,
 } from '../contracts/newport/typechain'
 import { Version } from '../lyra'
@@ -41,7 +36,7 @@ import { LyraContractId, LyraGlobalContractId, LyraMarketContractId } from './co
 export type LyraNewportContractMap = {
   [LyraContractId.OptionMarketViewer]: NewportOptionMarketViewer
   [LyraContractId.TestFaucet]: NewportTestFaucet
-  [LyraContractId.ExchangeAdapter]: NewportGMXAdapter
+  [LyraContractId.ExchangeAdapter]: NewportGMXAdapter | NewportSNXPerpV2Adapter
   [LyraContractId.LyraRegistry]: NewportLyraRegistry
 }
 
@@ -70,14 +65,14 @@ export type LyraMarketAvalonContractMap = {
 }
 
 export type LyraMarketNewportContractMap = {
-  [LyraMarketContractId.OptionMarket]: NewportOptionMarket
+  [LyraMarketContractId.OptionMarket]: NewportArbitrumOptionMarket | NewportOptimismOptionMarket
   [LyraMarketContractId.OptionMarketPricer]: NewportOptionMarketPricer
   [LyraMarketContractId.OptionToken]: NewportOptionToken
   [LyraMarketContractId.ShortCollateral]: NewportShortCollateral
   [LyraMarketContractId.OptionGreekCache]: NewportOptionGreekCache
   [LyraMarketContractId.LiquidityToken]: NewportLiquidityToken
   [LyraMarketContractId.LiquidityPool]: NewportLiquidityPool
-  [LyraMarketContractId.PoolHedger]: NewportGMXFuturesPoolHedger
+  [LyraMarketContractId.PoolHedger]: NewportGMXFuturesPoolHedger | NewportSNXPerpsV2PoolHedger
 }
 
 export type LyraMarketContractMap<V extends Version, C extends LyraMarketContractId> = V extends Version.Avalon
@@ -88,11 +83,5 @@ export type LyraMarketContractMap<V extends Version, C extends LyraMarketContrac
 
 export type LyraGlobalContractMap = {
   [LyraGlobalContractId.MultiDistributor]: MultiDistributor
-  [LyraGlobalContractId.ArrakisPoolL2]: ArrakisPoolL2
-  [LyraGlobalContractId.ArrakisPoolL1]: ArrakisPoolL1
-  [LyraGlobalContractId.WethLyraStakingRewardsL1]: WethLyraStakingRewards
-  [LyraGlobalContractId.WethLyraStakingRewardsL2]: WethLyraStakingRewards
   [LyraGlobalContractId.Multicall3]: Multicall3
-  [LyraGlobalContractId.LyraStakingModule]: LyraStakingModule
-  [LyraGlobalContractId.TokenMigrator]: TokenMigrator
 }

@@ -10,9 +10,7 @@ export function HelpDiscord(): string {
   post.push('/leaderboard     | Top 10 traders\n')
   post.push('/stats <vault>   | Vault stats\n')
   post.push('/arbs            | Lyra / Deribit arbs\n')
-
-  // post.push('/trader <addr>   | Last 5 trades\n')
-
+  post.push('/trader <addr>   | Last 5 trades\n')
   post.push('```\n')
   return post.join('')
 }

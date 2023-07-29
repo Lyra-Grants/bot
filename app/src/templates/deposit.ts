@@ -8,12 +8,14 @@ import {
   BlockExplorerLink,
   LyraDappUrl,
   StatSymbol,
-  NetworkFooter,
+  Footer,
   PortfolioLink,
   MarketColor,
+  getThumb,
 } from './common'
+import { titleCaseWord } from '../utils/utils'
 
-export function DepositTwitter(dto: DepositDto, network: Network, mainnet = false) {
+export function DepositTwitter(dto: DepositDto, network: Network) {
   const post: string[] = []
   post.push(`💵 ${formatUSD(dto.amount)} Deposit\n\n`)
   post.push(`from ${DisplayTrader(dto)}\n`)
@@ -26,13 +28,18 @@ export function DepositTwitter(dto: DepositDto, network: Network, mainnet = fals
   return post.join('')
 }
 
-export function DepositDiscord(dto: DepositDto, network: Network, mainnet = false): EmbedBuilder[] {
+export function DepositDiscord(dto: DepositDto, network: Network): EmbedBuilder[] {
   const embeds: EmbedBuilder[] = []
   const embed = new EmbedBuilder()
     .setColor(`${MarketColor(dto.market)}`)
     .setURL(`${BlockExplorerLink(dto.transactionHash, network)}`)
-    .setTitle(`Deposit: ${StatSymbol(dto.market)} ${dto.market} Market Vault`)
+    .setTitle(`Deposit: ${dto.market} Market Vault`)
     .addFields(
+      {
+        name: `⛓️ Network`,
+        value: `> ${titleCaseWord(network)}`,
+        inline: false,
+      },
       {
         name: `💵 Amount:`,
         value: `> ${formatUSD(dto.value)}`,
@@ -52,7 +59,13 @@ export function DepositDiscord(dto: DepositDto, network: Network, mainnet = fals
       inline: false,
     })
   }
-  NetworkFooter(embed, network)
+
+  const assetThumb = getThumb(dto.asset.toLowerCase())
+
+  if (assetThumb) {
+    embed.setThumbnail(assetThumb)
+  }
+  Footer(embed)
   embeds.push(embed)
   return embeds
 }

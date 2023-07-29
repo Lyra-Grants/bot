@@ -14,6 +14,7 @@ import { TOKEN_CHANNEL } from '../constants/discordChannels'
 import { TransferEvent } from '@lyrafinance/lyra-js/src/contracts/common/typechain/ERC20'
 import { Network } from '@lyrafinance/lyra-js'
 import { getTokenName } from '../utils/getTokenName'
+import { GetPrice } from '../integrations/prices'
 
 // exclude g-uni
 const excludeAddresses = ['0x70535c46ce04181adf749f34b65b6365164d6b6e']
@@ -26,7 +27,8 @@ export async function TrackTransfer(
 ): Promise<void> {
   const event = parseEvent(genericEvent as TransferEvent)
   const amount = fromBigNumber(event.args.value)
-  const value = global.LYRA_PRICE * amount
+  const price = GetPrice('lyra')
+  const value = price * amount
 
   console.log(`Transfer Value: ${value}`)
 

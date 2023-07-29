@@ -111,6 +111,7 @@ export type LyraDto = BaseEvent & {
 }
 
 export type VaultStats = {
+  asset: string
   market: Market
   liquidity: MarketLiquiditySnapshot
   netGreeks: MarketNetGreeksSnapshot

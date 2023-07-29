@@ -1,6 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { ONE_BN, UNIT } from '../constants/bn'
+import { Network } from '../constants/network'
+import { GMXAdapter } from '../contracts/newport/typechain/NewportGMXAdapter'
 import { Option } from '../option'
 import { getDelta } from '../utils/blackScholes'
 import canHedge from '../utils/canHedge'
@@ -8,11 +10,13 @@ import fromBigNumber from '../utils/fromBigNumber'
 import getPriceVariance from '../utils/getPriceVariance'
 import getQuoteSpotPrice, { PriceType } from '../utils/getQuoteSpotPrice'
 import getTimeToExpiryAnnualized from '../utils/getTimeToExpiryAnnualized'
+import isTestnet from '../utils/isTestnet'
 import toBigNumber from '../utils/toBigNumber'
 import { QuoteDisabledReason } from '.'
 
 export default function getQuoteDisabledReason(
   option: Option,
+  spotPrice: BigNumber,
   size: BigNumber,
   premium: BigNumber,
   newIv: BigNumber,
@@ -21,7 +25,8 @@ export default function getQuoteDisabledReason(
   isBuy: boolean,
   isForceClose: boolean,
   priceType: PriceType,
-  isOpen: boolean
+  isOpen: boolean,
+  network: Network
 ): QuoteDisabledReason | null {
   const market = option.market()
   const board = option.board()
@@ -35,17 +40,12 @@ export default function getQuoteDisabledReason(
     return QuoteDisabledReason.EmptySize
   }
 
-  if (premium.lte(0)) {
-    return QuoteDisabledReason.EmptyPremium
-  }
-
   // Check trading cutoff
   const isPostCutoff = board.block.timestamp + market.params.tradingCutoff > board.expiryTimestamp
   if (isPostCutoff && !isForceClose) {
     return QuoteDisabledReason.TradingCutoff
   }
 
-  const spotPrice = market.params.referenceSpotPrice
   const strikePrice = strike.strikePrice
 
   // Check delta range
@@ -93,6 +93,7 @@ export default function getQuoteDisabledReason(
   if (
     // Must be opening trade
     !isForceClose &&
+    isOpen &&
     (isBuy
       ? option.isCall
         ? freeLiquidity.lt(size.mul(spotPrice).div(UNIT))
@@ -104,19 +105,39 @@ export default function getQuoteDisabledReason(
 
   // Check if hedger can hedge the additional delta risk introduced by the quote.
   const hedgerView = option.market().params.hedgerView
-  if (hedgerView && isOpen && !canHedge(getQuoteSpotPrice(market, priceType), option.delta.lt(0), hedgerView)) {
+  const poolHedgerParams = option.market().params.poolHedgerParams
+  const increasesPoolDelta = (option.delta.lt(0) && isBuy) || (option.delta.gt(0) && !isBuy)
+  if (
+    hedgerView &&
+    poolHedgerParams &&
+    isOpen &&
+    !isTestnet(option.lyra) &&
+    !canHedge(
+      getQuoteSpotPrice(market, priceType),
+      market.params.netDelta,
+      option,
+      size,
+      increasesPoolDelta,
+      hedgerView,
+      poolHedgerParams,
+      network
+    )
+  ) {
     return QuoteDisabledReason.UnableToHedgeDelta
   }
 
-  // Disable quote for opening and closing in the case where the feeds differ by a great amount, but allow force closes.
-  const { adapterView } = option.market().params
-  if (adapterView && !isForceClose && (priceType === PriceType.MAX_PRICE || priceType === PriceType.MIN_PRICE)) {
-    const { gmxMaxPrice: forceMaxSpotPrice, gmxMinPrice: forceMinSpotPrice } = adapterView
-    const minPriceVariance = getPriceVariance(forceMinSpotPrice, spotPrice)
-    const maxPriceVariance = getPriceVariance(forceMaxSpotPrice, spotPrice)
-    const varianceThreshold = adapterView.marketPricingParams.priceVarianceCBPercent
-    if (minPriceVariance.gt(varianceThreshold) || maxPriceVariance.gt(varianceThreshold)) {
-      return QuoteDisabledReason.PriceVarianceTooHigh
+  if (market.lyra.network === Network.Arbitrum) {
+    // Disable quote for opening and closing in the case where the feeds differ by a great amount, but allow force closes.
+    const { adapterView } = option.market().params
+    const gmxAdapterView = adapterView as GMXAdapter.GMXAdapterStateStructOutput
+    if (gmxAdapterView && !isForceClose && (priceType === PriceType.MAX_PRICE || priceType === PriceType.MIN_PRICE)) {
+      const { gmxMaxPrice: forceMaxSpotPrice, gmxMinPrice: forceMinSpotPrice } = gmxAdapterView
+      const minPriceVariance = getPriceVariance(forceMinSpotPrice, market.params.referenceSpotPrice)
+      const maxPriceVariance = getPriceVariance(forceMaxSpotPrice, market.params.referenceSpotPrice)
+      const varianceThreshold = gmxAdapterView.marketPricingParams.priceVarianceCBPercent
+      if (minPriceVariance.gt(varianceThreshold) || maxPriceVariance.gt(varianceThreshold)) {
+        return QuoteDisabledReason.PriceVarianceTooHigh
+      }
     }
   }
 

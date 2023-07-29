@@ -1,16 +1,17 @@
 import { Network } from '@lyrafinance/lyra-js'
 import { EmbedBuilder } from 'discord.js'
-import { bannerUrls, iconUrls } from '../constants/urls'
+import { bannerUrls } from '../constants/urls'
 import { Trader } from '../types/lyra'
 import formatUSD from '../utils/formatUSD'
-import { DisplayTrader, LyraDappUrl, Medal, NetworkFooter, PortfolioLink } from './common'
+import { DisplayTrader, LyraDappUrl, Medal, Footer, PortfolioLink } from './common'
+import { titleCaseWord } from '../utils/utils'
 
 export function LeaderboardDiscord(leaderBoard: Trader[], network: Network): EmbedBuilder[] {
   const messageEmbeds: EmbedBuilder[] = []
 
   const tradeEmbed = new EmbedBuilder()
     .setColor('#0099ff')
-    .setTitle(`Top ${leaderBoard.length} Profitable Traders`)
+    .setTitle(`Top ${leaderBoard.length} Profitable Traders ${titleCaseWord(network)}`)
     .addFields(
       { name: 'Trader', value: '-------------', inline: true },
       { name: `\u200b`, value: '-------------', inline: true },
@@ -44,11 +45,7 @@ export function LeaderboardDiscord(leaderBoard: Trader[], network: Network): Emb
   if (messageEmbeds.length > 0) {
     const embedLast = messageEmbeds.pop()
     if (embedLast) {
-      embedLast.setFooter({
-        iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
-        text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
-      })
-      embedLast.setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum).setTimestamp()
+      Footer(embedLast)
       messageEmbeds.push(embedLast)
     }
   }

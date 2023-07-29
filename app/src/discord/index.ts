@@ -20,11 +20,13 @@ import { GetArbitrageDeals } from '../lyra/arbitrage'
 import { ArbDiscord } from '../templates/arb'
 import { GetTrader } from '../lyra/trader'
 import { TraderDiscord } from '../templates/trader'
-import { TradeDto } from '../types/lyra'
 import {} from 'discord.js'
-import dayjs from 'dayjs'
-import { FN } from '../templates/common'
 import printObject from '../utils/printObject'
+import formatNumber from '../utils/formatNumber'
+import { Pair } from '../types/dexscreener'
+import { ARB_OP, BTC_OP, ETH_OP, LYRA_OP, OP_OP } from '../constants/contractAddresses'
+import { GetPrices } from '../integrations/prices'
+import { titleCaseWord } from '../utils/utils'
 
 export async function SetUpDiscord(
   discordClient: Client<boolean>,
@@ -34,6 +36,31 @@ export async function SetUpDiscord(
   if (DISCORD_ENABLED) {
     discordClient.on('ready', async (client) => {
       console.debug(`Discord bot ${market}  is online!`)
+      const pairs = await GetPrices()
+      let address = ''
+
+      if (market == 'eth') {
+        address = ETH_OP.toLowerCase()
+      }
+      if (market == 'btc') {
+        address = BTC_OP.toLowerCase()
+      }
+      if (market == 'op') {
+        address = OP_OP.toLowerCase()
+      }
+      if (market == 'arb') {
+        address = ARB_OP.toLowerCase()
+      }
+      if (market == 'lyra') {
+        address = LYRA_OP.toLowerCase()
+      }
+
+      if (address) {
+        const marketPair = pairs.find((pair) => pair.baseToken.address.toLowerCase() == address.toLowerCase())
+        if (marketPair) {
+          await setNameActivityPrice(discordClient, marketPair, market)
+        }
+      }
     })
 
     discordClient.on('interactionCreate', async (interaction) => {
@@ -46,7 +73,7 @@ export async function SetUpDiscord(
       const channelName = (interaction?.channel as TextChannel).name
       const { commandName } = interaction
 
-      if (market == 'eth') {
+      if (market == 'lyra') {
         if (commandName === 'leaderboard') {
           await LeaderBoardInteraction(
             channelName,
@@ -82,32 +109,20 @@ export async function SetUpDiscord(
             tradeChannel as GuildBasedChannel,
           )
         }
-      }
-
-      if (commandName === 'arbs') {
-        await ArbInteraction(
-          market,
-          channelName,
-          interaction as ChatInputCommandInteraction,
-          arbChannel as GuildBasedChannel,
-        )
-      }
-
-      if (commandName === 'stats') {
-        await StatsInteraction(
-          market,
-          channelName,
-          interaction as ChatInputCommandInteraction,
-          statsChannel as GuildBasedChannel,
-        )
+        if (commandName === 'arbs') {
+          await ArbInteraction(channelName, interaction as ChatInputCommandInteraction, arbChannel as GuildBasedChannel)
+        }
+        if (commandName === 'stats') {
+          await StatsInteraction(
+            channelName,
+            interaction as ChatInputCommandInteraction,
+            statsChannel as GuildBasedChannel,
+          )
+        }
       }
     })
 
     await discordClient.login(accessToken)
-    if (!TESTNET) {
-      defaultActivity(discordClient, market)
-      await defaultName(discordClient, market)
-    }
   }
   return discordClient
 }
@@ -134,7 +149,6 @@ async function LeaderBoardInteraction(
 }
 
 async function StatsInteraction(
-  market: string,
   channelName: string,
   interaction: ChatInputCommandInteraction,
   channel: GuildBasedChannel,
@@ -142,6 +156,15 @@ async function StatsInteraction(
   if (channelName === STATS_CHANNEL) {
     await interaction.deferReply()
     const network = interaction.options.getString('chain') as Network
+    const market = interaction.options.getString('market') as string
+
+    if (network == Network.Arbitrum) {
+      if (market == 'op' || market == 'arb') {
+        await interaction.editReply(`${market.toUpperCase()} not available on ${titleCaseWord(Network.Arbitrum)}`)
+        return
+      }
+    }
+
     const statsDto = await GetStats(market, network)
     const stats = StatDiscord(statsDto, network)
     await interaction.editReply({ embeds: stats })
@@ -151,7 +174,6 @@ async function StatsInteraction(
 }
 
 async function ArbInteraction(
-  market: string,
   channelName: string,
   interaction: ChatInputCommandInteraction,
   channel: GuildBasedChannel,
@@ -159,6 +181,8 @@ async function ArbInteraction(
   if (channelName === ARBS_CHANNEL) {
     await interaction.deferReply()
     const network = interaction.options.getString('chain') as Network
+    const market = interaction.options.getString('market') as string
+
     const arbs = await GetArbitrageDeals(market, network)
     if (arbs.arbs.length > 0) {
       const { embeds, rows } = ArbDiscord(arbs, network)
@@ -195,10 +219,10 @@ async function TraderInteraction(
 export async function PostDiscord(
   embed: EmbedBuilder[],
   rows: ActionRowBuilder<ButtonBuilder>[],
-  client: Client<boolean>,
+  client: Client,
   channelName: string,
 ) {
-  if (TESTNET) {
+  if (!TESTNET) {
     printObject(embed)
   } else {
     try {
@@ -214,39 +238,22 @@ export async function PostDiscord(
   }
 }
 
-export function activityString(trade: TradeDto) {
-  return `${trade.asset} ${dayjs(trade.expiry).format('DD MMM')} ${trade.isLong ? 'Long' : 'Short'} ${
-    trade.isCall ? 'C' : 'P'
-  } $${trade.strike} x ${trade.size} $${trade.premium}`
-}
-
-export function defaultActivity(client: Client<boolean>, market: string) {
+export async function setNameActivityPrice(client: Client, pair: Pair, market: string) {
   try {
-    if (market === 'eth') {
-      client.user?.setActivity(`24h: ${FN(global.ETH_24HR, 2)}%`, { type: ActivityType.Watching })
-    }
-    if (market === 'btc') {
-      client.user?.setActivity(`24h: ${FN(global.BTC_24HR, 2)}%`, { type: ActivityType.Watching })
-    }
-    if (market === 'lyra') {
-      client.user?.setActivity(`24h: ${FN(global.LYRA_24HR, 2)}%`, { type: ActivityType.Watching })
-    }
-  } catch (e: any) {
-    console.log(e)
-  }
-}
+    const username = `${market.toUpperCase()} $${formatNumber(Number(pair.priceUsd), { dps: 2 })} (${
+      Number(pair.priceChange.h24) >= 0 ? '↗' : '↘'
+    })`
+    const activity = `24h: ${formatNumber(Number(pair.priceChange.h24), { dps: 2, showSign: true })}%`
+    console.log(`PRICE: ${market.toUpperCase()}`)
+    console.log(username)
+    console.log(activity)
 
-export async function defaultName(client: Client<boolean>, market: string) {
-  try {
-    if (market === 'eth') {
-      await client.user?.setUsername(`ETH $${FN(global.ETH_PRICE, 2)} (${global.ETH_24HR >= 0 ? '↗' : '↘'})`)
-    }
-    if (market === 'btc') {
-      await client.user?.setUsername(`BTC $${FN(global.BTC_PRICE, 2)} (${global.BTC_24HR >= 0 ? '↗' : '↘'})`)
-    }
-    if (market === 'lyra') {
-      await client.user?.setUsername(`LYRA $${FN(global.LYRA_PRICE, 2)} (${global.LYRA_24HR >= 0 ? '↗' : '↘'})`)
-    }
+    client.guilds.cache.map(
+      async (guild) => await guild.members.cache.find((m) => m.id == client.user?.id)?.setNickname(username),
+    )
+    client.user?.setActivity(activity, {
+      type: ActivityType.Watching,
+    })
   } catch (e: any) {
     console.log(e)
   }

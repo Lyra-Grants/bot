@@ -27,7 +27,7 @@ const marketTotalValueSnapshotsQuery = gql`
   }
 `
 
-const EMPTY: Omit<MarketLiquiditySnapshot, 'timestamp'> = {
+const EMPTY: Omit<MarketLiquiditySnapshot, 'timestamp' | 'market'> = {
   freeLiquidity: ZERO_BN,
   burnableLiquidity: ZERO_BN,
   tvl: ZERO_BN,

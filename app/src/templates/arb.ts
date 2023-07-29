@@ -1,8 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js'
 import { ArbDto, Arb } from '../types/lyra'
 import { ProviderType } from '../types/arbs'
-import { FN, FormattedDate, FormattedDateShort, MarketColor, NetworkFooter, StatSymbol } from './common'
+import { FN, FormattedDate, FormattedDateShort, MarketColor, Footer, StatSymbol, getThumb } from './common'
 import { Network } from '@lyrafinance/lyra-js'
+import { titleCaseWord } from '../utils/utils'
 
 const deribitUrl = 'https://www.deribit.com/?reg=17349.7477'
 
@@ -59,6 +60,16 @@ export function ArbDiscord(dto: ArbDto, network: Network) {
   const embed = new EmbedBuilder()
     .setColor(`${MarketColor(dto.market)}`)
     .setTitle(`$${dto.market.toUpperCase()} Arbitrage: DERIBIT | LYRA`)
+  const assetThumb = getThumb(dto.market.toLowerCase())
+
+  if (assetThumb) {
+    embed.setThumbnail(assetThumb)
+  }
+  embed.addFields({
+    name: `⛓️ Network`,
+    value: `> ${titleCaseWord(network)}`,
+    inline: false,
+  })
 
   dto.arbs.slice(0, 10).map((arb) => {
     Arb(arb, dto.market, network, embed)
@@ -72,7 +83,7 @@ export function ArbDiscord(dto: ArbDto, network: Network) {
   //   new ButtonBuilder().setCustomId('arb-deribit5').setLabel('Arb Deribit 5').setStyle(ButtonStyle.Success),
   // )
 
-  NetworkFooter(embed, network)
+  Footer(embed)
   embeds.push(embed)
   //rows.push(buttons)
 

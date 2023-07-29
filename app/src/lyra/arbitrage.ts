@@ -5,18 +5,10 @@ import { maxBy, minBy } from 'lodash'
 import moment from 'moment'
 import { Arb, ArbDto } from '../types/lyra'
 import { EventType } from '../constants/eventType'
-
-export function getPriceForMarket(market: string) {
-  let price = ETH_PRICE
-
-  if (market === 'btc') {
-    price = BTC_PRICE
-  }
-  return price
-}
+import { GetPrice } from '../integrations/prices'
 
 export async function GetArbitrageDeals(market: string, network: Network) {
-  const price = getPriceForMarket(market)
+  const price = GetPrice(market)
   const deals = await useDeals(market, network)
 
   const data = deals.map((deal) => {

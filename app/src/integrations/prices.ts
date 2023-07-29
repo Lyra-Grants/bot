@@ -1,35 +1,79 @@
 import axios from 'axios'
-import { ETH_OP, BTC_OP, LYRA_OP } from '../constants/contractAddresses'
+import { ETH_OP, BTC_OP, OP_OP, ARB_OP, LYRA_OP } from '../constants/contractAddresses'
 import { urls } from '../constants/urls'
-import { Dexscreener } from '../types/dexscreener'
+import { Dexscreener, Pair } from '../types/dexscreener'
 
-export async function GetPrices(): Promise<void> {
+export async function GetPrices() {
+  const pairs: Pair[] = []
+
   try {
-    const addresses = [LYRA_OP, ETH_OP, BTC_OP]
-    addresses.map(async (address) => {
-      const dexscreenerData = (await axios.get(`${urls.dexscreenerUrl}${address}`)).data as Dexscreener
-      const pair = dexscreenerData.pairs.find((pair) => pair.baseToken.address.toLowerCase() == address.toLowerCase())
-      if (pair) {
-        if (address.toLowerCase() == ETH_OP.toLowerCase()) {
-          global.ETH_PRICE = Number(pair.priceUsd)
-          global.ETH_24HR = Number(pair.priceChange.h24)
-          //console.log(`New ETH PRICE: ${global.ETH_PRICE}`)
-        }
-        if (address.toLowerCase() == BTC_OP.toLowerCase()) {
-          global.BTC_PRICE = Number(pair.priceUsd)
-          global.BTC_24HR = Number(pair.priceChange.h24)
-          //console.log(`New BTC PRICE: ${global.BTC_PRICE}`)
-        }
-        if (address.toLowerCase() == LYRA_OP.toLowerCase()) {
-          global.LYRA_PRICE = Number(pair.priceUsd)
-          global.LYRA_24HR = Number(pair.priceChange.h24)
-          //console.log(`New LYRA PRICE: ${global.LYRA_PRICE}`)
-        }
-      } else {
-        console.log(`Pair not found: ${address.toLowerCase()}`)
+    const [dexEth, dexBtc, dexOp, dexArb, dexLyra] = await Promise.all([
+      axios.get<Dexscreener>(`${urls.dexscreenerUrl}${ETH_OP}`),
+      axios.get<Dexscreener>(`${urls.dexscreenerUrl}${BTC_OP}`),
+      axios.get<Dexscreener>(`${urls.dexscreenerUrl}${OP_OP}`),
+      axios.get<Dexscreener>(`${urls.dexscreenerUrl}${ARB_OP}`),
+      axios.get<Dexscreener>(`${urls.dexscreenerUrl}${LYRA_OP}`),
+    ])
+
+    try {
+      // ETH
+      const pairEth = dexEth.data?.pairs.find((pair) => pair.baseToken.address.toLowerCase() == ETH_OP.toLowerCase())
+      if (pairEth) {
+        pairs.push(pairEth)
       }
-    })
+      // BTC
+      const pairBtc = dexBtc.data?.pairs.find((pair) => pair.baseToken.address.toLowerCase() == BTC_OP.toLowerCase())
+      if (pairBtc) {
+        pairs.push(pairBtc)
+      }
+      // OP
+      const pairOp = dexOp.data?.pairs.find((pair) => pair.baseToken.address.toLowerCase() == OP_OP.toLowerCase())
+      if (pairOp) {
+        pairs.push(pairOp)
+      }
+      // ARB
+      const pairArb = dexArb.data?.pairs.find((pair) => pair.baseToken.address.toLowerCase() == ARB_OP.toLowerCase())
+      if (pairArb) {
+        pairs.push(pairArb)
+      }
+      // LYRA
+      const pairLyra = dexLyra.data?.pairs.find((pair) => pair.baseToken.address.toLowerCase() == LYRA_OP.toLowerCase())
+      if (pairLyra) {
+        pairs.push(pairLyra)
+      }
+    } catch (error) {
+      console.log(error)
+    }
   } catch (error) {
     console.log(error)
   }
+  return pairs
+}
+
+export function GetPricePair(market: string) {
+  try {
+    if (market.toLowerCase() == 'eth') {
+      market = 'weth'
+    }
+
+    if (market.toLowerCase() == 'btc') {
+      market = 'wbtc'
+    }
+
+    const pricePair = global.PRICES.find((pair) => pair.baseToken.symbol.toLowerCase() == market.toLowerCase())
+    if (pricePair) {
+      return pricePair
+    }
+  } catch (error) {
+    console.log(error)
+  }
+  return undefined
+}
+
+export function GetPrice(market: string) {
+  const pricePair = GetPricePair(market)
+  if (pricePair) {
+    return Number(pricePair.priceUsd)
+  }
+  return 1
 }

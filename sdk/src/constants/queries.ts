@@ -114,6 +114,7 @@ export const TRANSFER_QUERY_FRAGMENT = `
   transactionHash
   blockNumber
   position {
+    id
     positionId
   }
 `
@@ -211,6 +212,8 @@ export const MARKET_VOLUME_AND_FEES_SNAPSHOT_FRAGMENT = `
   liquidatorFees
   smLiquidationFees
   lpLiquidationFees
+  totalShortPutOpenInterestUSD
+  totalShortCallOpenInterestUSD
 `
 
 export const MARKET_PENDING_LIQUIDITY_SNAPSHOT_FRAGMENT = `
@@ -313,6 +316,12 @@ export const LIQUIDITY_DEPOSIT_FRAGMENT = `
     market {
       id
     }
+    cbEvents(first:1, orderBy:cbTimestamp, orderDirection:desc) {
+      cbTimestamp
+      ivVarianceCrossed
+      skewVarianceCrossed
+      liquidityVarianceCrossed
+    }
   }
   user
   pendingDepositsAndWithdrawals(where: {
@@ -368,6 +377,31 @@ export const LIQUIDITY_WITHDRAWAL_FRAGMENT = `
   }
 `
 
+export const CLAIM_ADDED_FRAGMENT = `
+  amount
+  blockNumber
+  claimer
+  epochTimestamp
+  rewardToken
+  tag
+  timestamp
+`
+
+export const CLAIM_FRAGMENT = `
+  amount
+  blockNumber
+  claimer
+  rewardToken
+  timestamp
+`
+
+export const CIRCUIT_BREAKER_FRAGMENT = `
+  cbTimestamp
+  ivVarianceCrossed
+  skewVarianceCrossed
+  liquidityVarianceCrossed
+`
+
 export type TradeQueryResult = {
   timestamp: number
   blockNumber: number
@@ -418,6 +452,7 @@ export type TransferQueryResult = {
   transactionHash: string
   blockNumber: number
   position: {
+    id: string
     positionId: number
   }
 }
@@ -565,6 +600,8 @@ export type MarketVolumeAndFeesSnapshotQueryResult = {
   liquidatorFees: string
   smLiquidationFees: string
   lpLiquidationFees: string
+  totalShortPutOpenInterestUSD: string
+  totalShortCallOpenInterestUSD: string
 }
 
 export type MarketPendingLiquiditySnapshotQueryResult = {
@@ -617,6 +654,13 @@ export enum SnapshotPeriod {
   SevenDays = 604800,
 }
 
+export type CircuitBreakerQueryResult = {
+  cbTimestamp: number
+  ivVarianceCrossed: boolean
+  skewVarianceCrossed: boolean
+  liquidityVarianceCrossed: boolean
+}
+
 export type LiquidityDepositQueryResult = {
   pool: {
     id: string
@@ -667,4 +711,22 @@ export type LiquidityWithdrawalQueryResult = {
     timestamp: number
     transactionHash: string
   }[]
+}
+
+export type ClaimAddedQueryResult = {
+  amount: string
+  blockNumber: number
+  claimer: string
+  epochTimestamp: string
+  rewardToken: string
+  tag: string
+  timestamp: number
+}
+
+export type ClaimQueryResult = {
+  amount: string
+  blockNumber: number
+  claimer: string
+  rewardToken: string
+  timestamp: number
 }

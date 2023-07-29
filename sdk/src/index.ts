@@ -13,17 +13,21 @@ export * from './trade_event'
 export * from './liquidity_deposit'
 export * from './liquidity_withdrawal'
 export * from './admin'
-export * from './lyra_staking'
-export * from './weth_lyra_staking'
-export * from './lyra_stake'
-export * from './lyra_unstake'
 export * from './global_reward_epoch'
 export * from './account_reward_epoch'
 export * from './constants/contracts'
 export * from './constants/queries'
 export * from './constants/network'
 export * from './constants/chain'
+export * from './utils/getGlobalContract'
+export * from './utils/getLyraContract'
+export * from './utils/getLyraMarketContract'
 export * from './contracts/common/typechain'
+//export * from './contracts/common/typechain/factories/ERC20__factory'
+// export {
+//   factories as NewportOptionMarket_Factories,
+//   NewportOptionMarket__factory,
+// } from './contracts/newport/arbitrum/typechain'
 export {
   factories as AvalonFactories,
   AvalonLiquidityPool__factory,
@@ -39,6 +43,7 @@ export {
   AvalonSynthetixAdapter__factory,
   AvalonTestFaucet__factory,
 } from './contracts/avalon/typechain'
+
 export {
   factories as NewportFactories,
   NewportExchangeAdapter__factory,
@@ -48,7 +53,6 @@ export {
   NewportLiquidityToken__factory,
   NewportLyraRegistry__factory,
   NewportOptionGreekCache__factory,
-  NewportOptionMarket__factory,
   NewportOptionMarketPricer__factory,
   NewportOptionMarketViewer__factory,
   NewportOptionToken__factory,

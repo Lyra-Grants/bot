@@ -4,9 +4,9 @@ import { PopulatedTransaction } from '@ethersproject/contracts'
 import { LyraMarketContractId } from '../constants/contracts'
 import Lyra from '../lyra'
 import { Market, MarketLiquiditySnapshot } from '../market'
-import buildTxWithGasEstimate from '../utils/buildTxWithGasEstimate'
+import buildTx from '../utils/buildTx'
 import fetchLiquidityDepositEventDataByOwner from '../utils/fetchLiquidityDepositEventDataByOwner'
-import getLiquidityDelayReason from '../utils/getLiquidityDelayReason'
+import getERC20Contract from '../utils/getERC20Contract'
 import getLyraMarketContract from '../utils/getLyraMarketContract'
 
 export enum LiquidityDelayReason {
@@ -19,38 +19,55 @@ export type LiquidityDepositFilter = {
   user: string
 }
 
-export type DepositQueuedOrProcessedEvent = {
-  queued?: LiquidityDepositQueuedEvent
-  processed?: LiquidityDepositProcessedEvent
+export type LiquidityDepositEvents =
+  | {
+      isInstant: false
+      isProcessed: false
+      queued: LiquidityDepositQueuedEvent
+    }
+  | {
+      isInstant: true
+      isProcessed: true
+      processed: LiquidityDepositProcessedEvent
+    }
+  | {
+      isInstant: false
+      isProcessed: true
+      queued: LiquidityDepositQueuedEvent
+      processed: LiquidityDepositProcessedEvent
+    }
+
+export type LiquidityCircuitBreaker = {
+  timestamp: number
+  reason: LiquidityDelayReason
 }
 
 export type LiquidityDepositQueuedEvent = {
   depositor: string
   beneficiary: string
-  depositQueueId: BigNumber
+  queueId: number
   amountDeposited: BigNumber
   totalQueuedDeposits: BigNumber
-  timestamp: BigNumber
+  timestamp: number
   transactionHash: string
 }
 
 export type LiquidityDepositProcessedEvent = {
   caller: string
   beneficiary: string
-  depositQueueId: BigNumber
+  queueId: number
   amountDeposited: BigNumber
   tokenPrice: BigNumber
   tokensReceived: BigNumber
-  timestamp: BigNumber
+  timestamp: number
   transactionHash: string
 }
 
 export class LiquidityDeposit {
   lyra: Lyra
-  __queued?: LiquidityDepositQueuedEvent
-  __processed?: LiquidityDepositProcessedEvent
+  __events: LiquidityDepositEvents
   __market: Market
-  queueId?: number
+  queueId: number
   beneficiary: string
   value: BigNumber
   tokenPriceAtDeposit?: BigNumber
@@ -59,101 +76,100 @@ export class LiquidityDeposit {
   depositRequestedTimestamp: number
   depositTimestamp: number
   timeToDeposit: number
+  transactionHash: string
   delayReason: LiquidityDelayReason | null
   constructor(
     lyra: Lyra,
-    market: Market,
     data: {
-      queued?: LiquidityDepositQueuedEvent
-      processed?: LiquidityDepositProcessedEvent
-      cbTimestamp: BigNumber
+      market: Market
+      events: LiquidityDepositEvents
+      circuitBreaker: LiquidityCircuitBreaker | null
       marketLiquidity: MarketLiquiditySnapshot
     }
   ) {
     // Data
     this.lyra = lyra
-    this.__market = market
-    this.__queued = data.queued
-    this.__processed = data.processed
+    this.__market = data.market
+    this.__events = data.events
 
     // Fields
-    const queued = data.queued
-    const processed = data.processed
-    const queuedOrProcessed = queued ?? processed
-    if (!queuedOrProcessed) {
-      throw new Error('No queued or processed event for LiquidityDeposit')
-    }
-    this.queueId = queuedOrProcessed.depositQueueId.toNumber()
+    const queued = !data.events.isInstant ? data.events.queued : null
+    const processed = data.events.isProcessed ? data.events.processed : null
+    const queuedOrProcessed = (data.events.isInstant ? processed : data.events.queued) as
+      | LiquidityDepositQueuedEvent
+      | LiquidityDepositProcessedEvent
+    this.transactionHash = queuedOrProcessed.transactionHash
+    this.queueId = queuedOrProcessed.queueId
     this.beneficiary = queuedOrProcessed.beneficiary
     this.value = queuedOrProcessed.amountDeposited
     this.tokenPriceAtDeposit = processed?.tokenPrice
     this.balance = processed?.tokensReceived
     this.isPending = !processed
-    this.depositRequestedTimestamp = queuedOrProcessed.timestamp.toNumber()
+    this.depositRequestedTimestamp = queuedOrProcessed.timestamp
     this.depositTimestamp = processed
-      ? processed.timestamp.toNumber()
+      ? processed.timestamp
       : queued
-      ? queued.timestamp.add(market.params.depositDelay).toNumber()
+      ? queued.timestamp + data.market.params.depositDelay
       : // Should never happen
         0
-    this.timeToDeposit = Math.max(0, this.depositTimestamp - market.block.timestamp)
+    this.timeToDeposit = Math.max(0, this.depositTimestamp - data.market.block.timestamp)
     this.delayReason =
-      this.timeToDeposit === 0 && this.isPending
-        ? getLiquidityDelayReason(market, data.cbTimestamp, data.marketLiquidity)
+      this.timeToDeposit === 0 &&
+      this.isPending &&
+      data.circuitBreaker &&
+      data.circuitBreaker.timestamp > data.market.block.timestamp
+        ? data.circuitBreaker.reason
         : null
   }
 
   // Getters
 
-  static async getByOwner(lyra: Lyra, marketAddress: string, owner: string): Promise<LiquidityDeposit[]> {
-    const market = await Market.get(lyra, marketAddress)
-    const liquidityPoolContract = getLyraMarketContract(
-      lyra,
-      market.contractAddresses,
-      lyra.version,
-      LyraMarketContractId.LiquidityPool
-    )
-    const [{ events }, cbTimestamp, marketLiquidity] = await Promise.all([
+  static async getByOwner(lyra: Lyra, market: Market, owner: string): Promise<LiquidityDeposit[]> {
+    const [{ events, circuitBreaker }, marketLiquidity] = await Promise.all([
       fetchLiquidityDepositEventDataByOwner(lyra, owner, market),
-      liquidityPoolContract.CBTimestamp(),
       market.liquidity(),
     ])
-    const liquidityDeposits: LiquidityDeposit[] = await Promise.all(
-      events.map(async event => {
-        return new LiquidityDeposit(lyra, market, {
-          ...event,
-          cbTimestamp,
+    const liquidityDeposits = events.map(
+      events =>
+        new LiquidityDeposit(lyra, {
+          market,
+          events,
+          circuitBreaker,
           marketLiquidity,
         })
-      })
     )
     return liquidityDeposits
   }
 
-  // Initiate Deposit
+  // Transactions
 
-  static async deposit(
-    lyra: Lyra,
-    marketAddressOrName: string,
-    beneficiary: string,
-    amountQuote: BigNumber
-  ): Promise<PopulatedTransaction> {
-    const market = await Market.get(lyra, marketAddressOrName)
+  static approve(market: Market, owner: string, amountQuote: BigNumber) {
     const liquidityPoolContract = getLyraMarketContract(
-      lyra,
+      market.lyra,
       market.contractAddresses,
-      lyra.version,
+      market.lyra.version,
+      LyraMarketContractId.LiquidityPool
+    )
+    const erc20 = getERC20Contract(market.lyra.provider, market.quoteToken.address)
+    const data = erc20.interface.encodeFunctionData('approve', [liquidityPoolContract.address, amountQuote])
+    return buildTx(market.lyra.provider, market.lyra.provider.network.chainId, erc20.address, owner, data)
+  }
+
+  static initiateDeposit(market: Market, beneficiary: string, amountQuote: BigNumber): PopulatedTransaction {
+    const liquidityPoolContract = getLyraMarketContract(
+      market.lyra,
+      market.contractAddresses,
+      market.lyra.version,
       LyraMarketContractId.LiquidityPool
     )
     const data = liquidityPoolContract.interface.encodeFunctionData('initiateDeposit', [beneficiary, amountQuote])
-    const tx = await buildTxWithGasEstimate(
-      lyra.provider,
-      lyra.provider.network.chainId,
+    return buildTx(
+      market.lyra.provider,
+      market.lyra.provider.network.chainId,
       liquidityPoolContract.address,
       beneficiary,
       data
     )
-    return tx
   }
 
   // Edges

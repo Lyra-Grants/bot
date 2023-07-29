@@ -6,13 +6,17 @@ import { parseBytes32String } from '@ethersproject/strings'
 import { PoolHedgerParams } from '../admin'
 import { Board, BoardQuotes } from '../board'
 import { ZERO_BN } from '../constants/bn'
-import { DataSource } from '../constants/contracts'
+import { DataSource, LyraMarketContractId } from '../constants/contracts'
+import { LyraMarketContractMap } from '../constants/mappings'
+import { Network } from '../constants/network'
 import { SnapshotOptions } from '../constants/snapshots'
 import { BoardViewStructOutput, MarketViewWithBoardsStructOutput } from '../constants/views'
 import { OptionMarketViewer as AvalonOptionMarketViewer } from '../contracts/avalon/typechain/AvalonOptionMarketViewer'
 import { GMXAdapter } from '../contracts/newport/typechain/NewportGMXAdapter'
 import { GMXFuturesPoolHedger } from '../contracts/newport/typechain/NewportGMXFuturesPoolHedger'
 import { OptionMarketViewer as NewportOptionMarketViewer } from '../contracts/newport/typechain/NewportOptionMarketViewer'
+import { SNXPerpsV2PoolHedger } from '../contracts/newport/typechain/NewportSNXPerpsV2PoolHedger'
+import { SNXPerpV2Adapter } from '../contracts/newport/typechain/NewportSNXPerpV2Adapter'
 import { LiquidityDeposit } from '../liquidity_deposit'
 import { LiquidityWithdrawal } from '../liquidity_withdrawal'
 import Lyra, { Version } from '../lyra'
@@ -28,11 +32,13 @@ import fetchMarketAddresses from '../utils/fetchMarketAddresses'
 import fetchMarketOwner from '../utils/fetchMarketOwner'
 import fetchNetGreeksHistory from '../utils/fetchNetGreeksHistory'
 import fetchNewportMarketViews from '../utils/fetchNewportMarketViews'
+import fetchNewportOptimismMarketViews from '../utils/fetchNewportOptimismMarketViews'
 import fetchSpotPriceHistory from '../utils/fetchSpotPriceHistory'
 import fetchTradingVolumeHistory from '../utils/fetchTradingVolumeHistory'
 import findMarket from '../utils/findMarket'
 import getBoardView from '../utils/getBoardView'
 import getBoardViewForStrikeId from '../utils/getBoardViewForStrikeId'
+import getLyraMarketContract from '../utils/getLyraMarketContract'
 import getMarketName from '../utils/getMarketName'
 import isMarketEqual from '../utils/isMarketEqual'
 
@@ -80,6 +86,7 @@ export type MarketNetGreeksSnapshot = {
 export type MarketTradingVolumeSnapshot = {
   premiumVolume: BigNumber
   notionalVolume: BigNumber
+  totalShortOpenInterestUSD: BigNumber
   vaultFees: BigNumber
   vaultFeeComponents: {
     spotPriceFees: BigNumber
@@ -108,8 +115,12 @@ export type MarketSpotCandle = {
   endTimestamp: number
 }
 
-export type PoolHedgerView = GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput
-export type ExchangeAdapterView = GMXAdapter.GMXAdapterStateStructOutput
+export type PoolHedgerView =
+  | GMXFuturesPoolHedger.GMXFuturesPoolHedgerViewStructOutput
+  | SNXPerpsV2PoolHedger.HedgerStateStructOutput
+export type ExchangeAdapterView =
+  | GMXAdapter.GMXAdapterStateStructOutput
+  | SNXPerpV2Adapter.MarketAdapterStateStructOutput
 
 export type MarketQuotes = {
   boards: BoardQuotes[]
@@ -169,6 +180,7 @@ export type MarketParameters = {
   NAV: BigNumber
   tokenPrice: BigNumber
   netStdVega: BigNumber
+  netDelta: BigNumber
   hedgerView: PoolHedgerView | null
   adapterView: ExchangeAdapterView | null
   isMarketPaused: boolean
@@ -194,6 +206,7 @@ export class Market {
   spotPrice: BigNumber
   contractAddresses: MarketContractAddresses
   params: MarketParameters
+  isBaseCollateralEnabled: boolean
 
   constructor(
     lyra: Lyra,
@@ -202,16 +215,17 @@ export class Market {
     owner: string,
     tokenPrice: BigNumber,
     block: Block,
-    // TODO @michaelxuwu remove this when parmas added to viewer
     hedgerView?: PoolHedgerView,
     adapterView?: ExchangeAdapterView,
-    poolHedgerParams?: PoolHedgerParams
+    poolHedgerParams?: PoolHedgerParams,
+    baseLimit?: BigNumber | null
   ) {
     this.lyra = lyra
     this.block = block
     this.__data = marketView
     const fields = Market.getFields(
       lyra.version,
+      lyra.network,
       marketView,
       isGlobalPaused,
       owner,
@@ -221,7 +235,7 @@ export class Market {
       poolHedgerParams
     )
     this.address = fields.address
-
+    this.isBaseCollateralEnabled = !baseLimit || baseLimit.gt(0)
     this.isPaused = fields.isPaused
     this.spotPrice = fields.spotPrice
     this.quoteToken = fields.quoteToken
@@ -257,13 +271,15 @@ export class Market {
   // TODO: @dappbeast Remove getFields
   private static getFields(
     version: Version,
+    network: Network,
     marketView: MarketViewWithBoardsStructOutput,
     isGlobalPaused: boolean,
     owner: string,
     tokenPrice: BigNumber,
     hedgerView?: PoolHedgerView,
     adapterView?: ExchangeAdapterView,
-    poolHedgerParams?: PoolHedgerParams
+    poolHedgerParams?: PoolHedgerParams,
+    baseLimit?: BigNumber | null
   ) {
     const address = marketView.marketAddresses.optionMarket
     const isPaused = marketView.isPaused ?? isGlobalPaused
@@ -276,6 +292,7 @@ export class Market {
     const forceCloseParams = marketView.marketParameters.forceCloseParams
     const varianceFeeParams = marketView.marketParameters.varianceFeeParams
     const lpParams = marketView.marketParameters.lpParams
+
     const sharedParams = {
       optionPriceFee1xPoint: pricingParams.optionPriceFee1xPoint.toNumber(),
       optionPriceFee2xPoint: pricingParams.optionPriceFee2xPoint.toNumber(),
@@ -326,6 +343,7 @@ export class Market {
       freeLiquidity: marketView.liquidity.freeLiquidity,
       tokenPrice,
       netStdVega: marketView.globalNetGreeks.netStdVega,
+      netDelta: marketView.globalNetGreeks.netDelta,
       isGlobalPaused,
       isMarketPaused: marketView.isPaused,
       owner,
@@ -334,6 +352,7 @@ export class Market {
         (marketView as AvalonOptionMarketViewer.MarketViewWithBoardsStructOutput).marketParameters.poolHedgerParams,
       hedgerView: hedgerView ?? null,
       adapterView: adapterView ?? null,
+      baseLimit,
     }
 
     if (version === Version.Avalon) {
@@ -349,19 +368,39 @@ export class Market {
         ...sharedParams,
       }
     } else {
-      if (!adapterView || !hedgerView) {
-        throw new Error('Adapter or hedger view does not exist')
-      }
-      const newportMarketView = marketView as NewportOptionMarketViewer.MarketViewStructOutput
-      spotPrice = adapterView.gmxMaxPrice
-      quoteSymbol = newportMarketView.quoteSymbol
-      quoteDecimals = newportMarketView.quoteDecimals.toNumber()
-      baseSymbol = newportMarketView.baseSymbol
-      baseDecimals = newportMarketView.baseDecimals.toNumber()
-      params = {
-        rateAndCarry: adapterView.rateAndCarry,
-        referenceSpotPrice: newportMarketView.spotPrice,
-        ...sharedParams,
+      let newportMarketView: NewportOptionMarketViewer.MarketViewStructOutput
+      switch (network) {
+        case Network.Arbitrum:
+          if (!adapterView || !hedgerView) {
+            throw new Error('Adapter or hedger view does not exist')
+          }
+          newportMarketView = marketView as NewportOptionMarketViewer.MarketViewStructOutput
+          spotPrice = (adapterView as GMXAdapter.GMXAdapterStateStructOutput).gmxMaxPrice
+          quoteSymbol = newportMarketView.quoteSymbol
+          quoteDecimals = newportMarketView.quoteDecimals.toNumber()
+          baseSymbol = newportMarketView.baseSymbol
+          baseDecimals = newportMarketView.baseDecimals.toNumber()
+          params = {
+            rateAndCarry: (adapterView as GMXAdapter.GMXAdapterStateStructOutput).rateAndCarry,
+            referenceSpotPrice: newportMarketView.spotPrice,
+            ...sharedParams,
+          }
+          break
+        case Network.Optimism:
+          if (!adapterView) {
+            throw new Error('Adapter or hedger view does not exist')
+          }
+          newportMarketView = marketView as NewportOptionMarketViewer.MarketViewStructOutput
+          spotPrice = newportMarketView.spotPrice
+          quoteSymbol = newportMarketView.quoteSymbol
+          quoteDecimals = newportMarketView.quoteDecimals.toNumber()
+          baseSymbol = newportMarketView.baseSymbol
+          baseDecimals = newportMarketView.baseDecimals.toNumber()
+          params = {
+            rateAndCarry: (adapterView as SNXPerpV2Adapter.MarketAdapterStateStructOutput).riskFreeRate,
+            referenceSpotPrice: spotPrice,
+            ...sharedParams,
+          }
       }
     }
     const quoteAddress = marketView.marketAddresses.quoteAsset
@@ -439,11 +478,11 @@ export class Market {
       )
     } else {
       const [{ marketViews, isGlobalPaused, owner }, block] = await Promise.all([
-        fetchNewportMarketViews(lyra),
+        lyra.network === Network.Arbitrum ? fetchNewportMarketViews(lyra) : fetchNewportOptimismMarketViews(lyra),
         lyra.provider.getBlock('latest'),
       ])
       const markets = marketViews.map(
-        ({ marketView, hedgerView, adapterView, poolHedgerParams, tokenPrice }) =>
+        ({ marketView, hedgerView, adapterView, poolHedgerParams, tokenPrice, baseLimit }) =>
           new Market(
             lyra,
             marketView,
@@ -453,7 +492,8 @@ export class Market {
             block,
             hedgerView,
             adapterView,
-            poolHedgerParams
+            poolHedgerParams,
+            baseLimit
           )
       )
       return markets
@@ -563,6 +603,17 @@ export class Market {
     }
   }
 
+  contract<C extends LyraMarketContractId, V extends Version>(contractId: C): LyraMarketContractMap<V, C> {
+    return getLyraMarketContract(
+      this.lyra,
+      this.contractAddresses,
+      this.lyra.version,
+      contractId
+    ) as LyraMarketContractMap<V, C>
+  }
+
+  // Transactions
+
   async trade(
     owner: string,
     strikeId: number,
@@ -572,10 +623,29 @@ export class Market {
     slippage: number,
     options?: MarketTradeOptions
   ): Promise<Trade> {
-    return await Trade.get(this.lyra, owner, this.address, strikeId, isCall, isBuy, size, {
-      slippage,
+    return await Trade.get(this.lyra, owner, this.address, strikeId, isCall, isBuy, size, slippage, {
       ...options,
     })
+  }
+
+  approveDeposit(owner: string, amountQuote: BigNumber): PopulatedTransaction {
+    return LiquidityDeposit.approve(this, owner, amountQuote)
+  }
+
+  initiateDeposit(beneficiary: string, amountQuote: BigNumber): PopulatedTransaction {
+    return LiquidityDeposit.initiateDeposit(this, beneficiary, amountQuote)
+  }
+
+  initiateWithdraw(beneficiary: string, amountLiquidityTokens: BigNumber): PopulatedTransaction {
+    return LiquidityWithdrawal.initiateWithdraw(this, beneficiary, amountLiquidityTokens)
+  }
+
+  approveTradeQuote(owner: string, amountQuote: BigNumber): PopulatedTransaction {
+    return Trade.approveQuote(this, owner, amountQuote)
+  }
+
+  approveTradeBase(owner: string, amountBase: BigNumber): PopulatedTransaction {
+    return Trade.approveBase(this, owner, amountBase)
   }
 
   // Dynamic fields
@@ -608,13 +678,11 @@ export class Market {
     return await fetchMarketOwner(this.lyra, this.contractAddresses)
   }
 
-  // Transactions
-
-  async deposit(beneficiary: string, amount: BigNumber): Promise<PopulatedTransaction> {
-    return await LiquidityDeposit.deposit(this.lyra, this.address, beneficiary, amount)
+  async deposits(owner: string): Promise<LiquidityDeposit[]> {
+    return await LiquidityDeposit.getByOwner(this.lyra, this, owner)
   }
 
-  async withdraw(beneficiary: string, amount: BigNumber): Promise<PopulatedTransaction> {
-    return await LiquidityWithdrawal.withdraw(this.lyra, this.address, beneficiary, amount)
+  async withdrawals(owner: string): Promise<LiquidityWithdrawal[]> {
+    return await LiquidityWithdrawal.getByOwner(this.lyra, this, owner)
   }
 }

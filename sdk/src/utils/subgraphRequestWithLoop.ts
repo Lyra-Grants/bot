@@ -2,6 +2,10 @@ import { DocumentNode } from '@apollo/client/core'
 
 import Lyra from '..'
 import { SNAPSHOT_RESULT_LIMIT } from '../constants/queries'
+import subgraphRequest from './subgraphRequest'
+
+// GraphQL supports 32 bit signed int, i.e. max 2^31 - 1
+const MAX_SAFE_32_BIT_INT = 2147483647
 
 type IteratorVariables = { min: number; max: number; limit?: number }
 
@@ -21,7 +25,6 @@ export default async function subgraphRequestWithLoop<
   let allFound = false
   let data: Snapshot[] = []
   let min = variables.min
-
   const limit = variables.limit ?? SNAPSHOT_RESULT_LIMIT
 
   while (!allFound) {
@@ -34,7 +37,7 @@ export default async function subgraphRequestWithLoop<
         varArr.push({
           ...variables,
           min,
-          max: min + increment - 1,
+          max: Math.min(min + increment - 1, MAX_SAFE_32_BIT_INT),
         })
         min += increment
       }
@@ -48,20 +51,22 @@ export default async function subgraphRequestWithLoop<
     const batches = (
       await Promise.all(
         varArr.map(async variables => {
-          const { data } = await lyra.subgraphClient.query<
-            { [key: string]: Snapshot[] },
-            Variables & IteratorVariables
-          >({
-            query,
-            variables,
-          })
+          const { data } = await subgraphRequest<{ [key: string]: Snapshot[] }, Variables & IteratorVariables>(
+            lyra.subgraphClient,
+            {
+              query,
+              variables,
+            }
+          )
           return data
         })
       )
-    ).map(res => Object.values(res)[0])
+    )
+      .filter(res => res != null)
+      .map(res => Object.values(res as { [key: string]: Snapshot[] })[0])
     const lastBatch = batches[batches.length - 1]
     data = [...data, ...batches.flat()]
-    if (!lastBatch.length || lastBatch.length < limit) {
+    if (!lastBatch || !lastBatch.length || lastBatch.length < limit) {
       allFound = true
     } else {
       // Set skip to last iterator val

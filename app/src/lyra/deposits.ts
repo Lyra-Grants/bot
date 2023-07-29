@@ -8,7 +8,7 @@ import { SendTweet } from '../integrations/twitter'
 import { Event as GenericEvent } from 'ethers'
 import { TwitterApi } from 'twitter-api-v2'
 import { DEPOSITS_CHANNEL } from '../constants/discordChannels'
-import { AvalonLiquidityPool__factory, Network } from '@lyrafinance/lyra-js'
+import { Network, NewportLiquidityPool__factory } from '@lyrafinance/lyra-js'
 import { DepositDto } from '../types/lyra'
 import { DepositDiscord, DepositTwitter } from '../templates/deposit'
 import { GetAsset, GetMarket } from '../templates/common'
@@ -19,8 +19,7 @@ import {
 } from '@lyrafinance/lyra-js/src/contracts/avalon/typechain/AvalonLiquidityPool'
 
 export async function TrackDeposits(
-  discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
+  discordClient: Client,
   twitterClient: TwitterApi,
   genericEvent: GenericEvent,
   network: Network,
@@ -57,7 +56,7 @@ export async function TrackDeposits(
         transactionHash: event.transactionHash,
         blockNumber: event.blockNumber,
       }
-      await BroadCastDeposit(dto, discordClient, discordClientBtc, twitterClient, network)
+      await BroadCastDeposit(dto, discordClient, twitterClient, network)
     } catch (ex) {
       console.log(ex)
     }
@@ -68,21 +67,14 @@ export async function TrackDeposits(
 
 export async function BroadCastDeposit(
   dto: DepositDto,
-  discordClient: Client<boolean>,
-  discordClientBtc: Client<boolean>,
+  discordClient: Client,
   twitterClient: TwitterApi,
   network: Network,
 ): Promise<void> {
   if (DISCORD_ENABLED) {
     const post = DepositDiscord(dto, network)
     const rows: ActionRowBuilder<ButtonBuilder>[] = []
-
-    if (dto.asset.toLowerCase() === 'eth') {
-      await PostDiscord(post, rows, discordClient, DEPOSITS_CHANNEL)
-    }
-    if (dto.asset.toLowerCase() == 'btc') {
-      await PostDiscord(post, rows, discordClientBtc, DEPOSITS_CHANNEL)
-    }
+    await PostDiscord(post, rows, discordClient, DEPOSITS_CHANNEL)
   }
 
   if (TWITTER_ENABLED) {
@@ -92,7 +84,7 @@ export async function BroadCastDeposit(
 }
 
 export function parseEvent(event: DepositQueuedEvent): DepositQueuedEvent {
-  const parsedEvent = AvalonLiquidityPool__factory.createInterface().parseLog(event)
+  const parsedEvent = NewportLiquidityPool__factory.createInterface().parseLog(event)
 
   if ((parsedEvent.args as DepositQueuedEvent['args']).length > 0) {
     event.args = parsedEvent.args as DepositQueuedEvent['args']
@@ -101,7 +93,7 @@ export function parseEvent(event: DepositQueuedEvent): DepositQueuedEvent {
 }
 
 export function parseProcessedEvent(event: DepositProcessedEvent): DepositProcessedEvent {
-  const parsedEvent = AvalonLiquidityPool__factory.createInterface().parseLog(event)
+  const parsedEvent = NewportLiquidityPool__factory.createInterface().parseLog(event)
 
   if ((parsedEvent.args as DepositProcessedEvent['args']).length > 0) {
     event.args = parsedEvent.args as DepositProcessedEvent['args']

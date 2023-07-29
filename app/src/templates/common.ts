@@ -11,8 +11,12 @@ import {
   BTC_LIQUIDITY_POOL_ARB,
   ETH_OPTION_MARKET_ARB,
   BTC_OPTION_MARKET_ARB,
+  ARB_LIQUIDITY_POOL_OP,
+  ARB_OPTION_MARKET_OP,
+  OP_LIQUIDITY_POOL_OP,
+  OP_OPTION_MARKET_OP,
 } from '../constants/contractAddresses'
-import { bannerUrls, iconUrls } from '../constants/urls'
+import { AssetType, bannerUrls, iconUrls, thumbUrls } from '../constants/urls'
 import { TradeDto, TraderAddress } from '../types/lyra'
 import { shortAddress } from '../utils/utils'
 
@@ -66,14 +70,27 @@ export function TwitterLink(handle: string) {
   return `https://twitter.com/${handle}`
 }
 
-export function NetworkFooter(embed: EmbedBuilder, network: Network) {
+export function Footer(embed: EmbedBuilder) {
   embed
     .setFooter({
-      iconURL: `${network === Network.Optimism ? iconUrls.optimism : iconUrls.arbitrum}`,
-      text: `${network === Network.Optimism ? 'Optimism' : 'Arbitrum'}`,
+      iconURL: `${iconUrls.lyra}`,
+      text: `Lyra`,
     })
     .setTimestamp()
-    .setImage(network === Network.Optimism ? bannerUrls.optimism : bannerUrls.arbitrum)
+    .setImage(`${bannerUrls.lyra}`)
+}
+
+export function getThumb(market: string): string | undefined {
+  const marketType = market as any as AssetType
+
+  // Check if the passed market exists within our thumbUrls constant
+  // eslint-disable-next-line no-prototype-builtins
+  if (thumbUrls.hasOwnProperty(marketType)) {
+    return thumbUrls[marketType]
+  }
+
+  // If no match is found, return null
+  return undefined
 }
 
 export function ExpiryLink(market: string, network: Network, date: string) {
@@ -148,6 +165,7 @@ export function FNS(value: number, decimals: number) {
   })}`
 }
 
+//todo add these to a config per asset
 export function GetAsset(address: string) {
   const asset = ''
 
@@ -162,6 +180,12 @@ export function GetAsset(address: string) {
     case BTC_OPTION_MARKET_OP.toLowerCase():
     case BTC_OPTION_MARKET_ARB.toLowerCase():
       return 'BTC'
+    case OP_LIQUIDITY_POOL_OP.toLowerCase():
+    case OP_OPTION_MARKET_OP.toLowerCase():
+      return 'OP'
+    case ARB_LIQUIDITY_POOL_OP.toLowerCase():
+    case ARB_OPTION_MARKET_OP.toLowerCase():
+      return 'ARB'
   }
   return asset
 }
@@ -172,16 +196,20 @@ export function GetMarket(address: string) {
   switch (address.toLowerCase()) {
     case ETH_LIQUIDITY_POOL_ARB.toLowerCase():
     case ETH_OPTION_MARKET_ARB.toLowerCase():
-      return 'ETH-USDC'
     case ETH_LIQUIDITY_POOL_OP.toLowerCase():
     case ETH_OPTION_MARKET_OP.toLowerCase():
-      return 'sETH-sUSD'
+      return 'ETH-USDC'
     case BTC_LIQUIDITY_POOL_OP.toLowerCase():
-    case BTC_OPTION_MARKET_OP.toLowerCase():
-      return 'sBTC-sUSD'
     case BTC_LIQUIDITY_POOL_ARB.toLowerCase():
+    case BTC_OPTION_MARKET_OP.toLowerCase():
     case BTC_OPTION_MARKET_ARB.toLowerCase():
       return 'WBTC-USDC'
+    case OP_LIQUIDITY_POOL_OP.toLowerCase():
+    case OP_OPTION_MARKET_OP.toLowerCase():
+      return 'OP-USDC'
+    case ARB_LIQUIDITY_POOL_OP.toLowerCase():
+    case ARB_OPTION_MARKET_OP.toLowerCase():
+      return 'ARB-USDC'
   }
   return market
 }
@@ -212,6 +240,7 @@ export function DisplayTraderNoEmoji(trade: TraderAddress) {
 }
 
 export function MarketColor(marketName: string) {
+  return '#1AF7C0'
   if (
     marketName.toLowerCase() == 'eth' ||
     marketName.toLowerCase() == 'seth-susd' ||
@@ -226,8 +255,12 @@ export function MarketColor(marketName: string) {
   ) {
     return '#F7931A'
   }
-
-  return '#1AF7C0'
+  if (marketName.toLowerCase() == 'arb' || marketName.toLowerCase() == 'arb-usdc') {
+    return '#28A0F0'
+  }
+  if (marketName.toLowerCase() == 'op' || marketName.toLowerCase() == 'op-usdc') {
+    return '#FF0420'
+  }
 }
 
 export function StatSymbol(marketName: string) {
@@ -244,5 +277,11 @@ export function StatSymbol(marketName: string) {
     marketName.toLowerCase() == 'wbtc-usdc'
   ) {
     return '🔶'
+  }
+  if (marketName.toLowerCase() == 'op' || marketName.toLowerCase() == 'op-usdc') {
+    return '🔴'
+  }
+  if (marketName.toLowerCase() == 'arb' || marketName.toLowerCase() == 'arb-usdc') {
+    return '🟦'
   }
 }

@@ -8,14 +8,20 @@ export const urls = {
 }
 
 export const iconUrls = {
-  optimism: 'https://raw.githubusercontent.com/ethboi/assets/main/optimism.png',
-  arbitrum: 'https://raw.githubusercontent.com/ethboi/assets/main/arbitrum.png',
+  lyra: 'https://raw.githubusercontent.com/ethboi/assets/main/general/lyra.png',
 }
 
 export const bannerUrls = {
-  optimism: 'https://raw.githubusercontent.com/ethboi/assets/main/op-bg.jpg',
-  arbitrum: 'https://raw.githubusercontent.com/ethboi/assets/main/arb-bg.jpg',
-  optimismSpacer: 'https://raw.githubusercontent.com/ethboi/assets/main/op-spacer.jpg',
-  arbitrumSpacer: 'https://raw.githubusercontent.com/ethboi/assets/main/arb-spacer.jpg',
+  lyra: 'https://raw.githubusercontent.com/ethboi/assets/main/lyra-bg.jpg',
   spacer: 'https://raw.githubusercontent.com/ethboi/assets/main/spacer.jpg',
+}
+
+export type AssetType = 'eth' | 'wbtc' | 'op' | 'arb' | 'btc'
+
+export const thumbUrls: Record<AssetType, string> = {
+  eth: 'https://raw.githubusercontent.com/ethboi/assets/main/discord/eth.png',
+  wbtc: 'https://raw.githubusercontent.com/ethboi/assets/main/discord/wbtc.png',
+  op: 'https://raw.githubusercontent.com/ethboi/assets/main/discord/op.png',
+  arb: 'https://raw.githubusercontent.com/ethboi/assets/main/discord/arb.png',
+  btc: 'https://raw.githubusercontent.com/ethboi/assets/main/discord/wbtc.png',
 }
