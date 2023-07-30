@@ -79,7 +79,7 @@ function InitVariables() {
 
 export async function runBot(network: Network) {
   await RunTradeBot(discordClientLyra, twitterClient, telegramClient, network)
-  //await TrackEvents(discordClientLyra, telegramClient, twitterClient, twitterClient1, network)
+  await TrackEvents(discordClientLyra, telegramClient, twitterClient, twitterClient1, network)
 }
 
 export async function SetUpTwitter() {
