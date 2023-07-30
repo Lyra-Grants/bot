@@ -22,8 +22,6 @@ import { TrackEvents } from './event/blockEvent'
 import { ArbitrageJob, LeaderBoardFillJob, LeaderboardSendJob, OneMinuteJob, StatsJob } from './schedule'
 import { SetUpDiscord } from './discord'
 import getLyraSDK from './utils/getLyraSDK'
-import { GetArbitrageDeals } from './lyra/arbitrage'
-import { getLyraRates } from './providers/Lyra'
 
 let discordClientEth: Client
 let discordClientBtc: Client
@@ -81,7 +79,7 @@ function InitVariables() {
 
 export async function runBot(network: Network) {
   await RunTradeBot(discordClientLyra, twitterClient, telegramClient, network)
-  await TrackEvents(discordClientLyra, telegramClient, twitterClient, twitterClient1, network)
+  //await TrackEvents(discordClientLyra, telegramClient, twitterClient, twitterClient1, network)
 }
 
 export async function SetUpTwitter() {

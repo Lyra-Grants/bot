@@ -230,7 +230,11 @@ export async function PostDiscord(
         .filter((value) => (value as TextChannel)?.name == channelName)
         .map(async (channel) => {
           console.log(`found channel: ${channelName}`)
-          await (channel as TextChannel).send({ embeds: embed, components: rows })
+          try {
+            await (channel as TextChannel).send({ embeds: embed, components: rows })
+          } catch (error) {
+            console.log(error)
+          }
         })
     } catch (e: any) {
       console.log(e)
