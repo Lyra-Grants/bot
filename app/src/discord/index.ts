@@ -226,7 +226,7 @@ export async function PostDiscord(
     printObject(embed)
   } else {
     try {
-      const channels = client.channels.cache
+      const channels = client?.channels?.cache
         .filter((value) => (value as TextChannel)?.name == channelName)
         .map(async (channel) => {
           console.log(`found channel: ${channelName}`)
@@ -243,18 +243,25 @@ export async function PostDiscord(
 }
 
 export async function setNameActivityPrice(client: Client, pair: Pair, market: string) {
+  if (!client) {
+    return
+  }
+
   try {
     const username = `${market.toUpperCase()} $${formatNumber(Number(pair.priceUsd), { dps: 2 })} (${
       Number(pair.priceChange.h24) >= 0 ? '↗' : '↘'
     })`
     const activity = `24h: ${formatNumber(Number(pair.priceChange.h24), { dps: 2, showSign: true })}%`
-    console.log(`PRICE: ${market.toUpperCase()}`)
-    console.log(username)
-    console.log(activity)
-
-    client.guilds.cache.map(
-      async (guild) => await guild.members.cache.find((m) => m.id == client.user?.id)?.setNickname(username),
-    )
+    client?.guilds?.cache?.map(async (guild) => {
+      if (!guild) {
+        return
+      }
+      try {
+        await guild?.members?.cache?.find((m) => m.id == client.user?.id)?.setNickname(username)
+      } catch (error) {
+        console.log(error)
+      }
+    })
     client.user?.setActivity(activity, {
       type: ActivityType.Watching,
     })
