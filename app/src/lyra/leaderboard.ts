@@ -5,7 +5,6 @@ import { PostDiscord } from '../discord'
 import { SendTweet } from '../integrations/twitter'
 import { GetEns } from '../integrations/ens'
 import { Trader } from '../types/lyra'
-import { DISCORD_ENABLED, TELEGRAM_ENABLED, TESTNET, TWITTER_ENABLED } from '../config'
 import { PostTelegram } from '../integrations/telegram'
 import { LeaderboardDiscord, LeaderboardTwitter, LeaderboardTelegram } from '../templates/leaderboard'
 import { TRADE_CHANNEL } from '../constants/discordChannels'
@@ -103,21 +102,14 @@ export async function BroadcastLeaderBoard(
     leaderBoard.slice(0, 10).map(async (x, index) => await ParsePositionLeaderboard(x, index + 1)),
   )
 
-  if (DISCORD_ENABLED) {
-    const channelName = TRADE_CHANNEL
+  const channelName = TRADE_CHANNEL
+  const embeds = LeaderboardDiscord(traders.slice(0, 10), network)
+  const rows: ActionRowBuilder<ButtonBuilder>[] = []
+  await PostDiscord(embeds, rows, discordClient, channelName)
 
-    const embeds = LeaderboardDiscord(traders.slice(0, 10), network)
-    const rows: ActionRowBuilder<ButtonBuilder>[] = []
-    await PostDiscord(embeds, rows, discordClient, channelName)
-  }
+  const twitterPost = LeaderboardTwitter(traders.slice(0, 5))
+  await SendTweet(twitterPost, twitterClient)
 
-  if (TWITTER_ENABLED) {
-    const post = LeaderboardTwitter(traders.slice(0, 5))
-    await SendTweet(post, twitterClient)
-  }
-
-  if (TELEGRAM_ENABLED) {
-    const post = LeaderboardTelegram(traders.slice(0, 10))
-    await PostTelegram(post, telegramClient)
-  }
+  const post = LeaderboardTelegram(traders.slice(0, 10))
+  await PostTelegram(post, telegramClient)
 }

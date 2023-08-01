@@ -1,4 +1,4 @@
-import { TELEGRAM_CHANNEL, TESTNET } from '../config'
+import { TELEGRAM_CHANNEL, TELEGRAM_ENABLED, TESTNET } from '../config'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 
@@ -7,7 +7,7 @@ export async function PostTelegram(
   telegramClient: Telegraf<Context<Update>>,
   channel: string = TELEGRAM_CHANNEL,
 ) {
-  if (TESTNET) {
+  if (TESTNET || !TELEGRAM_ENABLED) {
     console.log(post)
   } else {
     try {
@@ -15,7 +15,6 @@ export async function PostTelegram(
         parse_mode: 'HTML',
         disable_web_page_preview: true,
       })
-      //console.log(response)
     } catch (e: any) {
       console.log(e)
     }

@@ -8,7 +8,6 @@ import { SECONDS_IN_MONTH, SECONDS_IN_YEAR } from '../constants/timeAgo'
 import { PostDiscord } from '../discord'
 import { PostTelegram } from '../integrations/telegram'
 import { SendTweet } from '../integrations/twitter'
-import { TWITTER_ENABLED, TELEGRAM_ENABLED, DISCORD_ENABLED } from '../config'
 import { StatDiscord, StatTelegram, StatTwitter } from '../templates/stats'
 import { VaultStats } from '../types/lyra'
 import fromBigNumber from '../utils/fromBigNumber'
@@ -77,19 +76,13 @@ export async function BroadCastStats(
   discordClient: Client<boolean>,
   network: Network,
 ): Promise<void> {
-  if (TWITTER_ENABLED) {
-    const post = StatTwitter(dto, network)
-    await SendTweet(post, twitterClient)
-  }
+  const twitterPost = StatTwitter(dto, network)
+  await SendTweet(twitterPost, twitterClient)
 
-  if (TELEGRAM_ENABLED) {
-    const post = StatTelegram(dto, network)
-    await PostTelegram(post, telegramClient)
-  }
+  const post = StatTelegram(dto, network)
+  await PostTelegram(post, telegramClient)
 
-  if (DISCORD_ENABLED) {
-    const embeds = StatDiscord(dto, network)
-    const rows: ActionRowBuilder<ButtonBuilder>[] = []
-    await PostDiscord(embeds, rows, discordClient, STATS_CHANNEL)
-  }
+  const embeds = StatDiscord(dto, network)
+  const rows: ActionRowBuilder<ButtonBuilder>[] = []
+  await PostDiscord(embeds, rows, discordClient, STATS_CHANNEL)
 }

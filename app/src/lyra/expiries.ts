@@ -1,4 +1,3 @@
-import { DISCORD_ENABLED, TELEGRAM_ENABLED, TWITTER_ENABLED } from '../config'
 import fromBigNumber from '../utils/fromBigNumber'
 import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { BoardDto, StrikeDto } from '../types/lyra'
@@ -74,21 +73,15 @@ export async function BroadCastStrike(
   twitterClient: TwitterApi,
   network: Network,
 ): Promise<void> {
-  if (DISCORD_ENABLED) {
-    const post = BoardDiscord(dto, network)
-    const rows: ActionRowBuilder<ButtonBuilder>[] = []
-    await PostDiscord(post, rows, discordClient, EXPIRY_CHANNEL)
-  }
+  const embed = BoardDiscord(dto, network)
+  const rows: ActionRowBuilder<ButtonBuilder>[] = []
+  await PostDiscord(embed, rows, discordClient, EXPIRY_CHANNEL)
 
-  if (TELEGRAM_ENABLED) {
-    const post = BoardTelegram(dto, network)
-    await PostTelegram(post, telegramClient)
-  }
+  const post = BoardTelegram(dto, network)
+  await PostTelegram(post, telegramClient)
 
-  if (TWITTER_ENABLED) {
-    const post = BoardTwitter(dto, network)
-    await SendTweet(post, twitterClient)
-  }
+  const postTwitter = BoardTwitter(dto, network)
+  await SendTweet(postTwitter, twitterClient)
 }
 
 export function parseEvents(events: StrikeAddedEvent[]): StrikeAddedEvent[] {

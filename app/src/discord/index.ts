@@ -222,7 +222,7 @@ export async function PostDiscord(
   client: Client,
   channelName: string,
 ) {
-  if (TESTNET) {
+  if (TESTNET || !DISCORD_ENABLED) {
     printObject(embed)
   } else {
     try {

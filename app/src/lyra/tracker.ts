@@ -1,4 +1,4 @@
-import { DISCORD_ENABLED, TOKEN_THRESHOLD, TWITTER_ENABLED } from '../config'
+import { TOKEN_THRESHOLD } from '../config'
 import fromBigNumber from '../utils/fromBigNumber'
 import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { TransferDto } from '../types/lyra'
@@ -73,16 +73,12 @@ export async function BroadCastTransfer(
   twitterClient: TwitterApi,
   network: Network,
 ): Promise<void> {
-  if (DISCORD_ENABLED) {
-    const post = TransferDiscord(transferDto, network)
-    const rows: ActionRowBuilder<ButtonBuilder>[] = []
-    await PostDiscord(post, rows, discordClient, TOKEN_CHANNEL)
-  }
+  const post = TransferDiscord(transferDto, network)
+  const rows: ActionRowBuilder<ButtonBuilder>[] = []
+  await PostDiscord(post, rows, discordClient, TOKEN_CHANNEL)
 
-  if (TWITTER_ENABLED) {
-    const post = TransferTwitter(transferDto, network)
-    await SendTweet(post, twitterClient)
-  }
+  const twitter = TransferTwitter(transferDto, network)
+  await SendTweet(twitter, twitterClient)
 }
 
 export function parseEvent(event: TransferEvent): TransferEvent {

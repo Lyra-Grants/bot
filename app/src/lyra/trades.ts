@@ -1,15 +1,7 @@
 import { Network } from '@lyrafinance/lyra-js'
 import { SendTweet } from '../integrations/twitter'
 import { TradeDto } from '../types/lyra'
-import {
-  DISCORD_ENABLED,
-  TELEGRAM_ENABLED,
-  TWITTER_ENABLED,
-  TWITTER_THRESHOLD,
-  TELEGRAM_THRESHOLD,
-  DISCORD_THRESHOLD,
-  TESTNET,
-} from '../config'
+import { TWITTER_THRESHOLD, TELEGRAM_THRESHOLD, DISCORD_THRESHOLD, TESTNET } from '../config'
 import { GetUrl, signed, toDate } from '../utils/utils'
 import { TradeEvent } from '@lyrafinance/lyra-js'
 import { FindOnLeaderBoard } from './leaderboard'
@@ -161,31 +153,26 @@ export async function BroadCastTrade(
   telegramClient: Telegraf,
   discordClient: Client<boolean>,
 ): Promise<void> {
-  console.log('DISCORD THRESHOLD: ' + DISCORD_THRESHOLD)
-  console.log('Trade Premium: ' + trade.premium)
   if (
-    (trade.premium >= Number(TWITTER_THRESHOLD) ||
-      trade.isNotable ||
-      (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
-    TWITTER_ENABLED
+    trade.premium >= Number(TWITTER_THRESHOLD) ||
+    trade.isNotable ||
+    (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)
   ) {
     await SendTweet(TradeTwitter(trade, network), twitterClient)
   }
 
   if (
-    (trade.premium >= Number(TELEGRAM_THRESHOLD) ||
-      trade.isNotable ||
-      (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
-    TELEGRAM_ENABLED
+    trade.premium >= Number(TELEGRAM_THRESHOLD) ||
+    trade.isNotable ||
+    (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)
   ) {
     await PostTelegram(TradeTelegram(trade, network), telegramClient)
   }
 
   if (
-    (trade.premium >= Number(DISCORD_THRESHOLD) ||
-      trade.isNotable ||
-      (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)) &&
-    DISCORD_ENABLED
+    trade.premium >= Number(DISCORD_THRESHOLD) ||
+    trade.isNotable ||
+    (trade?.leaderBoard?.position > 0 && trade?.leaderBoard?.position < 21)
   ) {
     const embeds = [TradeDiscord(trade, network)]
     const rows: ActionRowBuilder<ButtonBuilder>[] = []

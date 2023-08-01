@@ -1,4 +1,4 @@
-import { DISCORD_ENABLED, TWITTER_ENABLED, DEPOSIT_THRESHOLD } from '../config'
+import { DEPOSIT_THRESHOLD } from '../config'
 import fromBigNumber from '../utils/fromBigNumber'
 import { ActionRowBuilder, ButtonBuilder, Client } from 'discord.js'
 import { PostDiscord } from '../discord'
@@ -71,16 +71,12 @@ export async function BroadCastDeposit(
   twitterClient: TwitterApi,
   network: Network,
 ): Promise<void> {
-  if (DISCORD_ENABLED) {
-    const post = DepositDiscord(dto, network)
-    const rows: ActionRowBuilder<ButtonBuilder>[] = []
-    await PostDiscord(post, rows, discordClient, DEPOSITS_CHANNEL)
-  }
+  const post = DepositDiscord(dto, network)
+  const rows: ActionRowBuilder<ButtonBuilder>[] = []
+  await PostDiscord(post, rows, discordClient, DEPOSITS_CHANNEL)
 
-  if (TWITTER_ENABLED) {
-    const post = DepositTwitter(dto, network)
-    await SendTweet(post, twitterClient)
-  }
+  const postTwitter = DepositTwitter(dto, network)
+  await SendTweet(postTwitter, twitterClient)
 }
 
 export function parseEvent(event: DepositQueuedEvent): DepositQueuedEvent {
