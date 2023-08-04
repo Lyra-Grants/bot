@@ -37,7 +37,9 @@ export async function GetPrices() {
         pairs.push(pairArb)
       }
       // LYRA
-      const pairLyra = dexLyra.data?.pairs.find((pair) => pair.baseToken.address.toLowerCase() == LYRA_OP.toLowerCase())
+      const pairLyra = dexLyra.data?.pairs.find(
+        (pair) => pair.baseToken.address.toLowerCase() == LYRA_OP.toLowerCase() && pair.baseToken.symbol == 'LYRA',
+      )
       if (pairLyra) {
         pairs.push(pairLyra)
       }
