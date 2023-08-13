@@ -1,16 +1,16 @@
 import Lyra, { Version, Network } from '@lyrafinance/lyra-js'
 import { NETWORK_CONFIGS } from '../constants/networks'
-import CachedStaticJsonRpcProvider from './CachedStaticJsonRpcProvider'
 import getArbitrumChainId from './getArbitrumChainId'
 import getChainForChainId from './getChainForChainId'
 import getOptimismChainId from './getOptimismChainId'
 import { SATSUMA_API_KEY } from '../config'
+import { StaticJsonRpcProvider } from '@ethersproject/providers'
 
 const optimismChainId = getOptimismChainId()
 const optimismNetworkConfig = NETWORK_CONFIGS[getChainForChainId(optimismChainId)]
 
-export const optimismProvider = new CachedStaticJsonRpcProvider(
-  optimismNetworkConfig.readRpcUrls,
+export const optimismProvider = new StaticJsonRpcProvider(
+  optimismNetworkConfig.readRpcUrls[0],
   optimismNetworkConfig.chainId,
 )
 
@@ -36,8 +36,8 @@ const getLyraGovSubgraphURI = (network: Network): string | undefined => {
   }
 }
 
-export const arbitrumProvider = new CachedStaticJsonRpcProvider(
-  arbitrumNetworkConfig.readRpcUrls,
+export const arbitrumProvider = new StaticJsonRpcProvider(
+  arbitrumNetworkConfig.readRpcUrls[0],
   arbitrumNetworkConfig.chainId,
 )
 
