@@ -31,5 +31,5 @@ jobs:
       - name: Stop & Start
         run: |
           pm2 stop "lyra-bot"
-          pm2 start "lyra-bot"
+          pm2 start "lyra-bot" --time
           pm2 save
