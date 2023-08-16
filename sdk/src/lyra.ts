@@ -297,8 +297,6 @@ export default class Lyra {
     return market.initiateWithdraw(beneficiary, amountLiquidityTokens)
   }
 
-  // Admin
-
   admin(): Admin {
     return Admin.get(this)
   }
