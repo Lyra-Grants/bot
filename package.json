@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "yarn workspace @lyrafinance/lyra-js build && yarn workspace @lyra-grants/app build",
+    "build": "yarn workspace @lyra-grants/app build",
     "start": "yarn workspace @lyra-grants/app start"
   },
   "workspaces": [
-    "app",
-    "sdk"
+    "app"
   ]
 }

@@ -1,4 +1,3 @@
-import { Network } from '@lyrafinance/lyra-js'
 import dayjs from 'dayjs'
 import dayjsPluginUTC from 'dayjs/plugin/utc'
 import { EmbedBuilder } from 'discord.js'
@@ -17,7 +16,7 @@ import {
   OP_OPTION_MARKET_OP,
 } from '../constants/contractAddresses'
 import { AssetType, bannerUrls, iconUrls, thumbUrls } from '../constants/urls'
-import { TradeDto, TraderAddress } from '../types/lyra'
+import { TradeDto, TraderAddress } from '../types/trade'
 import { shortAddress } from '../utils/utils'
 
 export const zapperUrl = 'https://zapper.xyz/account/'
@@ -40,10 +39,7 @@ export function Medal(position: number): string {
   return '🏅'
 }
 
-export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: boolean): string {
-  if (isLiquidation) {
-    return 'Amount'
-  }
+export function AmountWording(isLong: boolean, isOpen: boolean): string {
   const paid = 'Premium Paid'
   const received = "Premium Rec'd"
 
@@ -54,13 +50,9 @@ export function AmountWording(isLong: boolean, isOpen: boolean, isLiquidation: b
   return isLong ? received : paid
 }
 
-export function VaultLink(market: string, network: Network) {
-  return `${LyraDappUrl()}/#/vaults/${network}/${market.toLowerCase()}`
-}
-
-export function PositionLink(trade: TradeDto, network: Network): string {
-  return `${LyraDappUrl()}/#/position/${network}/${trade.market.toLowerCase()}/${trade.positionId}?see=${trade.account}`
-}
+// export function PositionLink(trade: TradeDto, network: Network): string {
+//   return `${LyraDappUrl()}/#/position/${network}/${trade.market.toLowerCase()}/${trade.positionId}?see=${trade.account}`
+// }
 
 export function PortfolioLink(account: string) {
   return `${LyraDappUrl()}/#/portfolio?see=${account}`
@@ -93,36 +85,16 @@ export function getThumb(market: string): string | undefined {
   return undefined
 }
 
-export function ExpiryLink(market: string, network: Network, date: string) {
-  return `${LyraDappUrl()}/#/trade/${network}/${market.toLowerCase()}?expiry=${date}`
-}
-
 export function TradeHistoryLink(trade: TraderAddress) {
   return `${LyraDappUrl()}/#/portfolio/history?see=${trade.account}`
 }
 
-export function BlockExplorerLink(transactionHash: string, network: Network, mainnet = false) {
-  if (mainnet) {
-    return `https://etherscan.io/tx/${transactionHash}`
-  }
-
-  if (network == Network.Arbitrum) {
-    return `https://arbiscan.io/tx/${transactionHash}`
-  }
-
-  return `https://optimistic.etherscan.io/tx/${transactionHash}`
+export function TransactionLink(transactionHash: string) {
+  return `https://explorer.lyra.finance/tx/${transactionHash}`
 }
 
-export function BlockExplorerAddress(address: string, network: Network, mainnet = false) {
-  if (mainnet) {
-    return `https://etherscan.io/address/${address}`
-  }
-
-  if (network == Network.Arbitrum) {
-    return `https://arbiscan.io/address/${address}`
-  }
-
-  return `https://optimistic.etherscan.io/address/${address}`
+export function TraderLink(account: string) {
+  return `https://explorer.lyra.finance/address/${account}`
 }
 
 export function FormattedDate(date: Date) {
@@ -142,10 +114,6 @@ export function FormattedDateTime(date: Date) {
 
 export const LyraDappUrl = () => {
   return 'https://app.lyra.finance'
-}
-
-export function TradeShareImage(trade: TradeDto) {
-  return `${LyraDappUrl()}/position/image/${trade.asset}/${trade.positionId}`
 }
 
 export function FN(value: number, decimals: number) {
@@ -214,13 +182,13 @@ export function GetMarket(address: string) {
   return market
 }
 
-export function DisplayTrader(trade: TraderAddress, useShortAddress = false) {
-  if (trade.isNotable) {
-    return trade.notableAddress
-  }
-  if (trade.ens) {
-    return `👨‍ ${trade.ens}`
-  }
+export function DisplayTrader(trade: TradeDto, useShortAddress = false) {
+  // if (trade.isNotable) {
+  //   return trade.notableAddress
+  // }
+  // if (trade.ens) {
+  //   return `👨‍ ${trade.ens}`
+  // }
   if (useShortAddress) {
     return `👨‍ ${shortAddress(trade.account)}`
   }
@@ -239,8 +207,9 @@ export function DisplayTraderNoEmoji(trade: TraderAddress) {
   return `${trade.account}`
 }
 
-export function MarketColor(marketName: string) {
+export function MarketColor() {
   return '#1AF7C0'
+  const marketName = ''
   if (
     marketName.toLowerCase() == 'eth' ||
     marketName.toLowerCase() == 'seth-susd' ||
@@ -260,28 +229,5 @@ export function MarketColor(marketName: string) {
   }
   if (marketName.toLowerCase() == 'op' || marketName.toLowerCase() == 'op-usdc') {
     return '#FF0420'
-  }
-}
-
-export function StatSymbol(marketName: string) {
-  if (
-    marketName.toLowerCase() == 'eth' ||
-    marketName.toLowerCase() == 'seth-susd' ||
-    marketName.toLowerCase() == 'eth-usdc'
-  ) {
-    return '🔷'
-  }
-  if (
-    marketName.toLowerCase() == 'btc' ||
-    marketName.toLowerCase() == 'sbtc-susd' ||
-    marketName.toLowerCase() == 'wbtc-usdc'
-  ) {
-    return '🔶'
-  }
-  if (marketName.toLowerCase() == 'op' || marketName.toLowerCase() == 'op-usdc') {
-    return '🔴'
-  }
-  if (marketName.toLowerCase() == 'arb' || marketName.toLowerCase() == 'arb-usdc') {
-    return '🟦'
   }
 }

@@ -1,5 +1,4 @@
-import { RunTradeBot } from './lyra/trades'
-import { FetchLeaderBoard } from './lyra/leaderboard'
+import { RunTradeBot } from './lyra/tradesv2'
 import {
   DISCORD_ACCESS_TOKEN_ARB,
   DISCORD_ACCESS_TOKEN_BTC,
@@ -16,12 +15,9 @@ import { TwitterApi } from 'twitter-api-v2'
 import { Telegraf } from 'telegraf'
 import { TwitterClient, TwitterClient1 } from './clients/twitterClient'
 import { TelegramClient } from './clients/telegramClient'
-import { Network } from '@lyrafinance/lyra-js'
 import { GetPrices } from './integrations/prices'
-import { TrackEvents } from './event/blockEvent'
-import { ArbitrageJob, LeaderBoardFillJob, LeaderboardSendJob, OneMinuteJob, StatsJob } from './schedule'
+import { OneMinuteJob } from './schedule'
 import { SetUpDiscord } from './discord'
-import getLyraSDK from './utils/getLyraSDK'
 
 let discordClientEth: Client
 let discordClientBtc: Client
@@ -32,8 +28,6 @@ let discordClientOp: Client
 let twitterClient: TwitterApi
 let twitterClient1: TwitterApi
 let telegramClient: Telegraf
-
-const networks = [Network.Arbitrum, Network.Optimism] // Network.Arbitrum]
 
 export async function Run() {
   InitVariables()
@@ -50,36 +44,32 @@ export async function Run() {
     SetUpDiscord((discordClientLyra = DiscordClient()), 'lyra', DISCORD_ACCESS_TOKEN_LYRA),
     SetUpTwitter(),
     SetUpTelegram(),
-    FetchLeaderBoard(),
+    //FetchLeaderBoard(),
   ])
 
   //listen to events
-  networks.map(async (network) => {
-    await runBot(network)
-  })
+
+  await runBot()
+
   OneMinuteJob(discordClientEth, discordClientBtc, discordClientOp, discordClientArb, discordClientLyra)
   // periodic jobs
   if (!TESTNET) {
-    LeaderBoardFillJob()
-    LeaderboardSendJob(discordClientLyra, twitterClient, telegramClient, networks)
-    StatsJob(discordClientLyra, twitterClient, telegramClient, networks)
-    ArbitrageJob(discordClientLyra, twitterClient, telegramClient, networks)
+    // LeaderBoardFillJob()
+    // LeaderboardSendJob(discordClientLyra, twitterClient, telegramClient, networks)
+    // StatsJob(discordClientLyra, twitterClient, telegramClient, networks)
+    // ArbitrageJob(discordClientLyra, twitterClient, telegramClient, networks)
   }
 }
 
 function InitVariables() {
   global.LYRA_ENS = {}
-  global.LEADERBOARD_OPT = []
-  global.LEADERBOARD_ARB = []
   global.PRICES = []
   global.FREN = {}
-  global.LYRA_ARB = getLyraSDK(Network.Arbitrum)
-  global.LYRA_OPT = getLyraSDK(Network.Optimism)
 }
 
-export async function runBot(network: Network) {
-  await RunTradeBot(discordClientLyra, twitterClient, telegramClient, network)
-  await TrackEvents(discordClientLyra, telegramClient, twitterClient, twitterClient1, network)
+export async function runBot() {
+  await RunTradeBot(discordClientLyra, twitterClient, telegramClient)
+  //await TrackEvents(discordClientLyra, telegramClient, twitterClient, twitterClient1, network)
 }
 
 export async function SetUpTwitter() {

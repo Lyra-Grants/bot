@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js'
-import { Trader } from '../types/lyra'
+import { Trader } from '../types/trade'
 import formatUSD from '../utils/formatUSD'
 import { DisplayTraderNoEmoji, FNS, Medal, PortfolioLink, TwitterLink } from './common'
 import formatNumber from '../utils/formatNumber'
