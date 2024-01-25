@@ -6,7 +6,6 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "@lyrafinance/lyra-js": ["../sdk/src/index.ts"],
       "@/app/*": ["src/*"]
     },
     "outDir": "build",

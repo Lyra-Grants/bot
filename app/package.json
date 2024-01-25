@@ -10,7 +10,7 @@
     "dev": "ts-node-dev --files --respawn src/app.ts",
     "clean": "rimraf ./build",
     "build": "yarn clean && npx tsc",
-    "start": "node build/app/src/app.js",
+    "start": "node build/app.js",
     "lint:ts": "eslint --ext .js,.ts .",
     "lint:ts:fix": "yarn lint:ts --fix",
     "format": "prettier --write \"**/*.+(js|ts|json)\"",
