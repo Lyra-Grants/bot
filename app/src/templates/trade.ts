@@ -5,27 +5,23 @@ import { shortAddress } from '../utils/utils'
 
 export function TradeTwitter(trade: TradeDto) {
   const post: string[] = []
-  post.push(`📈 ${trade.isBuy ? 'BUY' : 'SELL'} ${trade.instrument}\n`)
-  post.push(`💰 Size ${trade.size}\n`)
+  post.push(`📈 ${trade.isBuy ? 'BUY' : 'SELL'} ${trade.size} ${trade.instrument}\n`)
   post.push(`💵 Premium $${FN(trade.premium, 2)}\n`)
   post.push(`💸 Fees $${FN(trade.fee, 2)}\n`)
   post.push(`${DisplayTrader(trade, true)}\n\n`)
-  post.push(`#lyra #options #trading $BTC $ETH \n\n`)
-  post.push(`Start trading on Lyra 👇\n`)
+  post.push(`#Options #Trading $BTC $ETH \n\n`)
+  post.push(`The storm provides 🌩️⚡\nStart trading now on Lyra V2 👇\n`)
   post.push(`https://v2.lyra.finance`)
   return post.join('')
 }
 
 export function TradeTelegram(trade: TradeDto) {
   const post: string[] = []
-  post.push(`📈 ${trade.isBuy ? 'BUY' : 'SELL'} ${trade.instrument}\n`)
-  post.push(`💰 Size ${trade.size}\n`)
+  post.push(`📈 ${trade.isBuy ? 'BUY' : 'SELL'} ${trade.size} | ${trade.instrument}\n`)
   post.push(`💵 Premium $${FN(trade.premium, 2)}\n`)
   post.push(`💸 Fees $${FN(trade.fee, 2)}\n`)
   post.push(`${DisplayTrader(trade, true)}\n`)
-  post.push(`============================\n`)
   post.push(`<a href='${TransactionLink(trade.transactionHash)}'>Transaction</a>\n`)
-  post.push(`============================\n`)
   return post.join('')
 }
 
