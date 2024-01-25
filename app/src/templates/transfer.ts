@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js'
 import { TransferDto } from '../types/trade'
 import formatUSD from '../utils/formatUSD'
-import { BlockExplorerLink, FN, LyraDappUrl, Footer } from './common'
+import { FN, LyraDappUrl, Footer } from './common'
 import { titleCaseWord } from '../utils/utils'
 
 // TWITTER

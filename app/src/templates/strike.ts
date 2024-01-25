@@ -2,7 +2,7 @@ import { EmbedBuilder } from 'discord.js'
 import { BoardDto } from '../types/trade'
 import formatUSD from '../utils/formatUSD'
 import { titleCaseWord } from '../utils/utils'
-import { FormattedDate, MarketColor, Footer, StatSymbol, getThumb } from './common'
+import { FormattedDate, MarketColor, Footer, getThumb } from './common'
 
 // // TWITTER
 // export function BoardTwitter(dto: BoardDto, network: Network) {
